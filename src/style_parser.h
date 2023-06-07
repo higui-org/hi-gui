@@ -1,0 +1,4 @@
+#ifndef STYLEPARSER_H
+#define STYLEPARSER_H
+
+#endif // STYLEPARSER_H

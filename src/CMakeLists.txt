@@ -8,6 +8,18 @@ main.cpp
 
 shader.cpp
 shader.h
+
+html_parser.cpp
+html_parser.h
+
+style_parser.cpp
+style_parser.h
+
+gui_object.cpp
+gui_object.h
+
+any_map.h
+
 )
 
 if(MSVC)
