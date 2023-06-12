@@ -2,6 +2,7 @@ add_executable(
 ${PROJECT_NAME}
 main.cpp
 ../include/stb/stb.cpp
+higui.h
 
 ../include/glad/glad.c
 ../include/glad/glad.h
@@ -9,8 +10,8 @@ main.cpp
 shader.cpp
 shader.h
 
-html_parser.cpp
-html_parser.h
+markup_parser.cpp
+markup_parser.h
 
 style_parser.cpp
 style_parser.h

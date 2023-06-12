@@ -1,49 +1,53 @@
-#ifndef GUIOBJECT_H
-#define GUIOBJECT_H
+#ifndef GUI_OBJECT_H
+#define GUI_OBJECT_H
 
 #include <string>
 #include <glm/glm.hpp>
 
 #include "any_map.h"
 
-enum class ObjectDock
+namespace higui
 {
-	none,
-	top,
-	left,
-	right,
-	bottom,
-	center
-};
 
-class GUIObject
-{
-public:
-	GUIObject();
-	~GUIObject();
+	enum class ObjectDock
+	{
+		none,
+		top,
+		left,
+		right,
+		bottom,
+		center
+	};
 
-	void useDock();
-	void calculatePos();
+	class GUIObject
+	{
+	public:
+		GUIObject();
+		~GUIObject();
 
-	void setParent(GUIObject *parent);
-	void setDock(ObjectDock dock);
-	void setPadding(glm::vec4 padding);
-	void setMargin(glm::vec4 margin);
+		void useDock();
+		void calculatePos();
 
-	GUIObject* getParent();
-	ObjectDock getDock();
-	glm::vec4 getPadding();
-	glm::vec2 getMargin();
+		void setParent(GUIObject* parent);
+		void setDock(ObjectDock dock);
+		void setPadding(glm::vec4 padding);
+		void setMargin(glm::vec4 margin);
 
-private:
-	GUIObject* parent;
-	ObjectDock dock;
+		GUIObject* getParent();
+		ObjectDock getDock();
+		glm::vec4 getPadding();
+		glm::vec2 getMargin();
 
-	glm::vec4 padding;
-	glm::vec2 margin;
+	private:
+		GUIObject* parent;
+		ObjectDock dock;
 
-protected:
-	AnyMap<std::string> properties;
-};
+		glm::vec4 padding;
+		glm::vec2 margin;
 
-#endif // UIOBJECT_H
+	protected:
+		AnyMap<std::string> properties;
+	};
+}
+
+#endif // GUI_OBJECT_H

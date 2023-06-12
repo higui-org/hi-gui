@@ -4,12 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include "shader.h"
-
-#include "html_parser.h"
-
 #include <iostream>
+
+#include "higui.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -22,7 +19,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-    HTMLParser parser("test.markup");
+    higui::MarkupParser parser("test.markup");
 
     // glfw: initialize and configure
     glfwInit();
@@ -57,7 +54,7 @@ int main()
     }
 
     // shaders
-    Shader defaultShader("default.vert", "default.frag");
+    higui::Shader defaultShader("default.vert", "default.frag");
 
     // set up vertex data (and buffers) and configure vertex attributes
     float vertices[] = {
@@ -109,6 +106,7 @@ int main()
         glfwPollEvents();
     }
 
+    defaultShader.Delete();
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
