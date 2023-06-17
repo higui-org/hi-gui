@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+
 #include "higui.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -20,6 +21,8 @@ const unsigned int SCR_HEIGHT = 600;
 int main()
 {
     higui::MarkupParser parser("test.markup");
+
+    parser.AddClass<higui::GUIObject>("div");
 
     // glfw: initialize and configure
     glfwInit();

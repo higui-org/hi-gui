@@ -1,4 +1,4 @@
-#include "higui.h"
+﻿#include "higui.h"
 
 namespace higui
 {
@@ -18,17 +18,17 @@ namespace higui
 			file.close();
 
 			markup = stream.str();
+
+			if (isMarkupValid())
+			{
+				InitObjects();
+			}
 		}
 		catch (std::ifstream::failure e)
 		{
 #ifdef HIGUI_DEBUG_MODE
 			std::cout << "ERROR::MARKUP_PARSER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
 #endif
-		}
-
-		if (isMarkupValid())
-		{
-			InitObjects();
 		}
 	}
 
@@ -99,7 +99,7 @@ namespace higui
 		return tag_stack.empty(); // Markup is valid if all opening tags have corresponding closing tags
 	}
 
-	std::string MarkupParser::getTagBloc(int offset)
+	std::string MarkupParser::getTagBloc(size_t offset)
 	{
 		size_t bloc_pos, bloc_length;
 		bloc_pos = bloc_length = offset;

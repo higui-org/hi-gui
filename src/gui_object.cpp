@@ -3,39 +3,23 @@
 namespace higui
 {
 
+	int GUIObject::i = 0;
+
 	GUIObject::GUIObject()
 	{
-		parent = nullptr;
+		this->name = "sOME GUIObject" + std::to_string(i);
+		i++;
 		padding = glm::vec4(25, 25, 25, 25);
 		margin = glm::vec2(0, 0);
-		dock = ObjectDock::none;
 	}
 
 	GUIObject::~GUIObject()
 	{
 	}
 
-	void GUIObject::useDock()
-	{
-		if (parent)
-		{
-
-		}
-	}
-
-	void GUIObject::calculatePos()
-	{
-
-	}
-
 	void GUIObject::setParent(GUIObject* parent)
 	{
 		if (parent) this->parent = parent;
-	}
-
-	void GUIObject::setDock(ObjectDock dock)
-	{
-		this->dock = dock;
 	}
 
 	void GUIObject::setPadding(glm::vec4 padding)
@@ -53,11 +37,6 @@ namespace higui
 	GUIObject* GUIObject::getParent()
 	{
 		return parent;
-	}
-
-	ObjectDock GUIObject::getDock()
-	{
-		return dock;
 	}
 
 	glm::vec4 GUIObject::getPadding()

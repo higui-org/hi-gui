@@ -8,4 +8,57 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(CMAKE_CXX_COMPILER /usr/bin/g++-8)
 endif()
 
-add_subdirectory(src)
+
+set(SOURCES
+    src/main.cpp
+    src/higui.h
+    src/shader.cpp
+    src/shader.h
+    src/markup_parser.cpp
+    src/markup_parser.h
+    src/style_parser.cpp
+    src/style_parser.h
+    src/gui_object.cpp
+    src/gui_object.h
+    src/custom_any.h
+)
+
+set(TAG_CLASSES
+    src/tag_classes/div_class.cpp
+    src/tag_classes/div_class.h
+)
+
+set(THIRD_PARTY
+    3rd_party/stb/stb.cpp
+    3rd_party/glad/glad.c
+    3rd_party/glad/glad.h
+)
+
+source_group("Source Files" FILES ${SOURCES})
+source_group("Tag Source Files" FILES ${TAG_CLASSES})
+source_group("3rd Party" FILES ${THIRD_PARTY})
+
+add_executable(${PROJECT_NAME} 
+${SOURCES} 
+${TAG_CLASSES} 
+${THIRD_PARTY})
+
+
+
+if(MSVC)
+	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+		target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw3Rel64.lib)
+	endif()
+
+	if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
+		target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw3Rel32.lib)
+	endif()
+else()
+	target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/libglfw3.a)
+	#target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+	set(CMAKE_CXX_FLAGS "-std=c++17 -g")	
+	target_link_libraries(${PROJECT_NAME} dl m GL GLU X11 pthread stdc++fs)
+endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rd_party)

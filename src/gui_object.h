@@ -1,23 +1,16 @@
 #ifndef GUI_OBJECT_H
 #define GUI_OBJECT_H
 
+#include <vector>
 #include <string>
 #include <glm/glm.hpp>
 
-#include "any_map.h"
+#include <iostream>
+
+#include "custom_any.h"
 
 namespace higui
 {
-
-	enum class ObjectDock
-	{
-		none,
-		top,
-		left,
-		right,
-		bottom,
-		center
-	};
 
 	class GUIObject
 	{
@@ -25,28 +18,31 @@ namespace higui
 		GUIObject();
 		~GUIObject();
 
-		void useDock();
-		void calculatePos();
-
 		void setParent(GUIObject* parent);
-		void setDock(ObjectDock dock);
 		void setPadding(glm::vec4 padding);
 		void setMargin(glm::vec4 margin);
 
+		void render() { std::cout << "render " << name << std::endl; }
+
 		GUIObject* getParent();
-		ObjectDock getDock();
 		glm::vec4 getPadding();
 		glm::vec2 getMargin();
 
+		std::string name;
+
 	private:
 		GUIObject* parent;
-		ObjectDock dock;
+		std::vector<GUIObject*> children;
 
 		glm::vec4 padding;
 		glm::vec2 margin;
 
 	protected:
 		AnyMap<std::string> properties;
+
+		static int i;
+
+		friend class MarkupParser;
 	};
 }
 

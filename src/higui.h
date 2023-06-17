@@ -3,7 +3,7 @@
 
 #define HIGUI_DEBUG_MODE
 
-#include "markup_parser.h"
 #include "shader.h"
+#include "markup_parser.h"
 
 #endif // HIGUI_H
