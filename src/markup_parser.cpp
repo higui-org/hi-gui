@@ -36,6 +36,21 @@ namespace higui
 	{
 	}
 
+	void MarkupParser::printClassName(std::string name)
+	{
+		if (instances.find(name) != instances.end())
+		{
+			GUIObject* obj = static_cast<GUIObject*>(instances[name]);
+			obj->PrintInfo();
+		}
+		else
+		{
+#ifdef HIGUI_DEBUG_MODE
+			std::cout << "WARNING::MARKUP_PARSER::FAILED_TO_CAST_OBJECT_TO_THE_GUI_OBJECT" << std::endl;
+#endif
+		}
+	}
+
 	void MarkupParser::InitObjects()
 	{
 		std::cout << "init objects" << std::endl;

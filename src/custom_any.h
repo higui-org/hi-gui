@@ -19,6 +19,10 @@ namespace higui
             map_[key] = value;
         }
 
+        std::any& at(const KeyType& key) {
+            return map_.at(key);
+        }
+
         template<typename ValueType>
         ValueType& at(const KeyType& key) {
             return std::any_cast<ValueType&>(map_.at(key));
@@ -71,10 +75,12 @@ namespace higui
 
     template<typename T>
     T AnyCast(const std::any& value) {
-        if (value.type() != typeid(T)) {
-            throw std::bad_cast();
+        if (auto result = std::any_cast<T>(&value)) {
+            return *result;
         }
-        return std::any_cast<T>(value);
+        else {
+            throw std::bad_any_cast();
+        }
     }
 }
 

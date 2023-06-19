@@ -24,8 +24,8 @@ set(SOURCES
 )
 
 set(TAG_CLASSES
-    src/tag_classes/div_class.cpp
-    src/tag_classes/div_class.h
+    src/markup_elements/div_element.cpp
+    src/markup_elements/div_element.h
 )
 
 set(THIRD_PARTY
@@ -35,7 +35,7 @@ set(THIRD_PARTY
 )
 
 source_group("Source Files" FILES ${SOURCES})
-source_group("Tag Source Files" FILES ${TAG_CLASSES})
+source_group("Elements Source Files" FILES ${TAG_CLASSES})
 source_group("3rd Party" FILES ${THIRD_PARTY})
 
 add_executable(${PROJECT_NAME} 

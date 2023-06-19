@@ -17,6 +17,18 @@ namespace higui
 	{
 	}
 
+	void GUIObject::PrintInfo()
+	{
+		std::cout << "name: " << this->name << std::endl
+			<< "padding: x: " << padding.x << ", y: " << padding.y << ", z: " << padding.z << ", w: " << padding.w << std::endl
+			<< "margin: x: " << margin.x << ", y: " << margin.y << std::endl;
+		for (auto& property : properties)
+		{
+			std::cout << "name: " << property.first << ", value: " << std::to_string(AnyCast<float>(property.second)) << std::endl << std::endl;
+		}
+
+	}
+
 	void GUIObject::setParent(GUIObject* parent)
 	{
 		if (parent) this->parent = parent;

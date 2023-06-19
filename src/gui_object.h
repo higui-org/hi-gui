@@ -16,13 +16,14 @@ namespace higui
 	{
 	public:
 		GUIObject();
-		~GUIObject();
+		virtual  ~GUIObject();
 
 		void setParent(GUIObject* parent);
 		void setPadding(glm::vec4 padding);
 		void setMargin(glm::vec4 margin);
 
 		void render() { std::cout << "render " << name << std::endl; }
+		void PrintInfo();
 
 		GUIObject* getParent();
 		glm::vec4 getPadding();

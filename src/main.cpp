@@ -22,7 +22,10 @@ int main()
 {
     higui::MarkupParser parser("test.markup");
 
-    parser.AddClass<higui::GUIObject>("div");
+    parser.AddClass<higui::GUIObject>("object");
+    parser.AddClass<higui::DivElement>("div");
+    parser.printClassName("object");
+    parser.printClassName("div");
 
     // glfw: initialize and configure
     glfwInit();

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <stack>
 
-#include <type_traits>
+#include <functional>
 #include <memory>
 
 #include "gui_object.h"
@@ -23,6 +23,7 @@ namespace higui
 
 		template <typename T>
 		void AddClass(std::string name);
+        void printClassName(std::string name);
 
 	private:
 		void InitObjects();
@@ -35,33 +36,24 @@ namespace higui
 		std::string getTagValue(std::string& tag_bloc, std::string key);
 
 		std::string markup;
-		std::unordered_map<GUIObject*, std::string*> map;
-		AnyMap<std::string> classes;
+		std::unordered_map<std::string, std::function<void*()>> class_factories;
+		std::unordered_map<std::string, void*> instances;
 	};
 
-	template <typename T>
-	void MarkupParser::AddClass(std::string name)
-	{
-		if (classes.contains(name))
+    template <typename T>
+    void MarkupParser::AddClass(std::string name)
+    {
+		if (class_factories.find(name) != class_factories.end())
 		{
-			std::cout << "Class with the same name already exists" << std::endl;
+#ifdef HIGUI_DEBUG_MODE
+			std::cout << "WARNING::MARKUP_PARSER::THE_CLASS_THAT_IS_ADDED_TO_THE_PARSER_ALREADY_EXISTS" << std::endl;
+#endif
 			return;
 		}
-
-		classes.insert(name, std::make_shared<T>());
-
-		std::shared_ptr<GUIObject> obj = classes.at<std::shared_ptr<GUIObject>>(name);
-		if (obj)
-		{
-			//using type = typename std::remove_pointer<>::type;
-			//std::shared_ptr<type> value = AnyCast<std::shared_ptr<type>>(pair.second);
-			//std::shared_ptr<GUIObject> obj = std::static_pointer_cast<GUIObject>(value);
-			if (obj)
-			{
-				std::cout << obj->name << std::endl;
-			}
-		}
-	}
+		class_factories[name] = []() { return new T(); };
+		GUIObject* obj = static_cast<GUIObject*>(class_factories[name]());
+		instances[name] = obj;
+    }
 }
 
 #endif // MARKUP_PARSER_H
