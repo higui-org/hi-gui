@@ -2,31 +2,36 @@
 
 namespace higui
 {
-
-	int GUIObject::i = 0;
+	Shader* GUIObject::default_shader = new Shader("default.vert", "default.frag");
 
 	GUIObject::GUIObject()
 	{
-		this->name = "sOME GUIObject" + std::to_string(i);
-		i++;
+		name = "gui-object";
 		padding = glm::vec4(25, 25, 25, 25);
 		margin = glm::vec2(0, 0);
 	}
 
 	GUIObject::~GUIObject()
 	{
+		std::cout << "gui object deleted" << std::endl;
+		for (auto child : children) {
+			delete child;
+		}
 	}
 
-	void GUIObject::PrintInfo()
+	void GUIObject::Render()
 	{
-		std::cout << "name: " << this->name << std::endl
-			<< "padding: x: " << padding.x << ", y: " << padding.y << ", z: " << padding.z << ", w: " << padding.w << std::endl
-			<< "margin: x: " << margin.x << ", y: " << margin.y << std::endl;
-		for (auto& property : properties)
-		{
-			std::cout << "name: " << property.first << ", value: " << std::to_string(AnyCast<float>(property.second)) << std::endl << std::endl;
-		}
+		default_shader->use();
+		glm::mat4 model = glm::mat4(1.0f);
+		//model = glm::scale(model, glm::vec3(0.2f));
+		default_shader->setMat4("model", model);
 
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+
+	void GUIObject::AddChild(GUIObject* obj)
+	{
+		children.push_back(obj);
 	}
 
 	void GUIObject::setParent(GUIObject* parent)

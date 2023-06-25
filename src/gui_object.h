@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "custom_any.h"
+#include "shader.h"
 
 namespace higui
 {
@@ -16,20 +17,20 @@ namespace higui
 	{
 	public:
 		GUIObject();
-		virtual  ~GUIObject();
+		virtual ~GUIObject();
+		
+		void Render();
 
 		void setParent(GUIObject* parent);
 		void setPadding(glm::vec4 padding);
 		void setMargin(glm::vec4 margin);
-
-		void render() { std::cout << "render " << name << std::endl; }
-		void PrintInfo();
 
 		GUIObject* getParent();
 		glm::vec4 getPadding();
 		glm::vec2 getMargin();
 
 		std::string name;
+		static Shader* default_shader;
 
 	private:
 		GUIObject* parent;
@@ -39,9 +40,9 @@ namespace higui
 		glm::vec2 margin;
 
 	protected:
-		AnyMap<std::string> properties;
+		void AddChild(GUIObject* obj);
 
-		static int i;
+		AnyMap<std::string> properties;
 
 		friend class MarkupParser;
 	};

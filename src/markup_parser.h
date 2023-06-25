@@ -1,12 +1,12 @@
 #ifndef MARKUP_PARSER_H
 #define MARKUP_PARSER_H
 
+#include <GLFW/glfw3.h>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
 #include <stack>
-
 #include <functional>
 #include <memory>
 
@@ -18,12 +18,12 @@ namespace higui
 	class MarkupParser
 	{
 	public:
-		MarkupParser(std::string filename);
+		MarkupParser(std::string markup_file);
 		~MarkupParser();
 
 		template <typename T>
 		void AddClass(std::string name);
-        void printClassName(std::string name);
+		void Init();
 
 	private:
 		void InitObjects();
@@ -38,6 +38,9 @@ namespace higui
 		std::string markup;
 		std::unordered_map<std::string, std::function<void*()>> class_factories;
 		std::unordered_map<std::string, void*> instances;
+		GUIObject* central_object;
+
+		friend class DOM;
 	};
 
     template <typename T>

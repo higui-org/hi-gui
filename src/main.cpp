@@ -20,12 +20,11 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-    higui::MarkupParser parser("test.markup");
+    higui::DOM dom("test.markup", "test.style");
 
-    parser.AddClass<higui::GUIObject>("object");
-    parser.AddClass<higui::DivElement>("div");
-    parser.printClassName("object");
-    parser.printClassName("div");
+    dom.markup.AddClass<higui::GUIObject>("object");
+    dom.markup.AddClass<higui::DivElement>("div");
+    dom.markup.Init();
 
     // glfw: initialize and configure
     glfwInit();
@@ -59,16 +58,14 @@ int main()
         return -1;
     }
 
-    // shaders
-    higui::Shader defaultShader("default.vert", "default.frag");
-
     // set up vertex data (and buffers) and configure vertex attributes
     float vertices[] = {
-        0.5f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f
+        -1.0f, 1.0f, 0.0f,   // upper left angle
+        1.0f, 1.0f, 0.0f,  // upper right angle
+        1.0f, -1.0f, 0.0f, // lower right angle
+        -1.0f, -1.0f, 0.0f   // lower left angle
     };
+
     unsigned int indices[] = {
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
@@ -99,20 +96,14 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
-        defaultShader.use();
-        glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::scale(model, glm::vec3(0.2f));
-        defaultShader.setMat4("model", model);
-
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        dom.Render(window);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    defaultShader.Delete();
+    higui::GUIObject::default_shader->Delete();
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);

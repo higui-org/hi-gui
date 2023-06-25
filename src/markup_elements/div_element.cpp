@@ -4,7 +4,7 @@ namespace higui
 {
 	DivElement::DivElement() : GUIObject()
 	{
-		name = "div class";
+		name = "div-element";
 	}
 
 	DivElement::~DivElement()

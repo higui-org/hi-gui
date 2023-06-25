@@ -4,6 +4,7 @@
 #define HIGUI_DEBUG_MODE
 
 #include "shader.h"
+#include "DOM.h"
 #include "markup_parser.h"
 #include "markup_elements/div_element.h"
 

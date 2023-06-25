@@ -5,6 +5,8 @@ namespace higui
 
 	MarkupParser::MarkupParser(std::string filename)
 	{
+		central_object = new GUIObject;
+		
 		std::ifstream file;
 
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -18,11 +20,6 @@ namespace higui
 			file.close();
 
 			markup = stream.str();
-
-			if (isMarkupValid())
-			{
-				InitObjects();
-			}
 		}
 		catch (std::ifstream::failure e)
 		{
@@ -34,26 +31,75 @@ namespace higui
 
 	MarkupParser::~MarkupParser()
 	{
+		delete central_object;	// delete central object
+
+		for (auto instance : instances)		// delete all instances
+		{
+			delete static_cast<GUIObject*>(instance.second);
+		}
 	}
 
-	void MarkupParser::printClassName(std::string name)
+	void MarkupParser::Init()
 	{
-		if (instances.find(name) != instances.end())
+		if (isMarkupValid())
 		{
-			GUIObject* obj = static_cast<GUIObject*>(instances[name]);
-			obj->PrintInfo();
-		}
-		else
-		{
-#ifdef HIGUI_DEBUG_MODE
-			std::cout << "WARNING::MARKUP_PARSER::FAILED_TO_CAST_OBJECT_TO_THE_GUI_OBJECT" << std::endl;
-#endif
+			InitObjects();
 		}
 	}
 
 	void MarkupParser::InitObjects()
 	{
-		std::cout << "init objects" << std::endl;
+		std::stack<GUIObject*> object_stack;
+		std::stack<std::string> tag_stack;
+		size_t pos = 0;
+
+		while (pos < markup.length())
+		{
+			// tag block starts
+			std::string tag_bloc = getTagBloc(pos);
+			std::string tag_name = getTagName(tag_bloc);
+
+			size_t closing_tag_pos = markup.find('>', pos);
+
+			if (tag_bloc[1] == '/') // Closing tag
+			{
+				if (!tag_stack.empty())
+				{
+					tag_stack.pop();
+					if (!object_stack.empty())
+					{
+						GUIObject* obj = object_stack.top();
+						object_stack.pop();
+						std::cout << "Name: " << obj->name << std::endl;
+					}
+				}
+			}
+			else // Opening tag
+			{
+				tag_stack.push(tag_name);
+				if (class_factories.find(tag_name) != class_factories.end())
+				{
+					GUIObject* obj = static_cast<GUIObject*>(class_factories[tag_name]());
+					if (obj)
+					{
+						if (!object_stack.empty())
+						{
+							object_stack.top()->AddChild(obj);
+						}
+						else
+						{
+							central_object->AddChild(obj);
+						}
+						object_stack.push(obj);
+					}
+				}
+			}
+
+			pos = closing_tag_pos + 1;
+		}
+		markup.clear();
+		markup.shrink_to_fit();
+		std::cout << "init objects done" << std::endl;
 	}
 
 	int MarkupParser::getLineNumber(int offset)

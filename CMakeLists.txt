@@ -21,6 +21,8 @@ set(SOURCES
     src/gui_object.cpp
     src/gui_object.h
     src/custom_any.h
+    src/DOM.h
+    src/DOM.cpp
 )
 
 set(TAG_CLASSES
