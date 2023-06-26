@@ -2,8 +2,6 @@
 
 namespace higui
 {
-	Shader* GUIObject::default_shader = new Shader("default.vert", "default.frag");
-
 	GUIObject::GUIObject()
 	{
 		name = "gui-object";
@@ -21,11 +19,6 @@ namespace higui
 
 	void GUIObject::Render()
 	{
-		default_shader->use();
-		glm::mat4 model = glm::mat4(1.0f);
-		//model = glm::scale(model, glm::vec3(0.2f));
-		default_shader->setMat4("model", model);
-
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 

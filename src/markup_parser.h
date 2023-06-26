@@ -1,6 +1,7 @@
 #ifndef MARKUP_PARSER_H
 #define MARKUP_PARSER_H
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
 #include <fstream>

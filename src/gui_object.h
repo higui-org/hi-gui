@@ -30,7 +30,6 @@ namespace higui
 		glm::vec2 getMargin();
 
 		std::string name;
-		static Shader* default_shader;
 
 	private:
 		GUIObject* parent;
