@@ -20,12 +20,6 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-    higui::DOM dom("test.markup", "test.style");
-
-    dom.markup.AddClass<higui::GUIObject>("object");
-    dom.markup.AddClass<higui::DivElement>("div");
-    dom.markup.Init();
-
     // glfw: initialize and configure
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -58,10 +52,15 @@ int main()
         return -1;
     }
 
+    higui::DOM dom("test.markup", "test.style");
+
+    dom.markup.RegisterClass<higui::GUIObject>("object");
+    dom.markup.RegisterClass<higui::DivElement>("div");
+    dom.markup.Init();
+    dom.shaders.RegisterShader("default");
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    higui::Shader default_shader("default.vert", "default.frag");
 
     // set up vertex data (and buffers) and configure vertex attributes
     float vertices[] = {
@@ -92,8 +91,7 @@ int main()
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-
+        
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -101,11 +99,11 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        default_shader.use();
+        dom.shaders.shader("default")->use();
         glm::mat4 model = glm::mat4(1.0f);
         //model = glm::scale(model, glm::vec3(0.2f));
 
-        default_shader.setMat4("model", model);
+        dom.shaders.shader("default")->setMat4("model", model);
 
         glBindVertexArray(VAO);
         dom.Render(window);
@@ -113,8 +111,7 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    default_shader.Delete();
+    dom.Delete();
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);

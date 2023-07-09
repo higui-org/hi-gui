@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 namespace higui
 {
@@ -15,6 +16,7 @@ namespace higui
 	public:
 		uint32_t ID;
 		Shader(const char* vertex_path, const char* fragment_path);
+		Shader(std::string shader_name);
 
 		void use();
 		void Delete();
@@ -34,5 +36,20 @@ namespace higui
 		void setMat3(const std::string& name, const glm::mat3& mat) const;
 		void setMat4(const std::string& name, const glm::mat4& mat) const;
 	};
+
+	class ShaderManager
+	{
+	public:
+		static Shader* shader(std::string shader_name);
+
+		static void RegisterShader(std::string shader_name, const char* vertex_path, const char* fragment_path);
+		static void RegisterShader(std::string shader_name);
+		static void Delete();
+
+	private:
+		static std::unordered_map<std::string, Shader*> shaders;
+	};
+
+	inline std::unordered_map<std::string, Shader*> ShaderManager::shaders;
 }
 #endif

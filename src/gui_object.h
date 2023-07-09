@@ -1,6 +1,8 @@
 #ifndef GUI_OBJECT_H
 #define GUI_OBJECT_H
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
@@ -8,10 +10,10 @@
 #include <iostream>
 
 #include "custom_any.h"
-#include "shader.h"
 
 namespace higui
 {
+	class DOM;
 
 	class GUIObject
 	{

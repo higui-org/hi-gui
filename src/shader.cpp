@@ -2,6 +2,13 @@
 
 namespace higui
 {
+	Shader::Shader(std::string shader_name) : Shader(
+		(shader_name + ".vert").c_str(),
+		(shader_name + ".frag").c_str()
+	) 
+	{ }
+
+
 	Shader::Shader(const char* vertex_path, const char* fragment_path)
 	{
 		std::string vertex_source;
@@ -155,5 +162,48 @@ namespace higui
 	void Shader::Delete()
 	{
 		glDeleteProgram(ID);
+	}
+
+
+	Shader* ShaderManager::shader(std::string name)
+	{
+		auto it = ShaderManager::shaders.find(name);
+
+		if (it != ShaderManager::shaders.end())
+		{
+			return it->second;
+		}
+		else
+		{
+#ifdef HIGUI_DEBUG_MODE
+			std::cout << "ERROR::SHADER_MANAGER::SHADER_NOT_FOUND" << std::endl;
+#endif
+			throw std::runtime_error("ShaderManager cannot find shader with name: " + name);
+		}
+	}
+
+	void ShaderManager::RegisterShader(std::string shader_name, const char* vertex_path, const char* fragment_path)
+	{
+		Shader* shader = new Shader(vertex_path, fragment_path);
+		ShaderManager::shaders.insert(std::make_pair(shader_name, shader));
+	}
+
+	void ShaderManager::RegisterShader(std::string shader_name)
+	{
+		ShaderManager::RegisterShader(
+			shader_name,
+			(shader_name + ".vert").c_str(),
+			(shader_name + ".frag").c_str()
+			);
+	}
+
+	void ShaderManager::Delete()
+	{
+		for (auto& shader : shaders)
+		{
+			std::cout << "shader '" << shader.first << "' was deleted" << std::endl;
+			shader.second->Delete();
+			delete shader.second;
+		}
 	}
 }

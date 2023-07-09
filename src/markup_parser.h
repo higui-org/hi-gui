@@ -1,8 +1,6 @@
 #ifndef MARKUP_PARSER_H
 #define MARKUP_PARSER_H
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -15,7 +13,6 @@
 
 namespace higui
 {
-
 	class MarkupParser
 	{
 	public:
@@ -23,7 +20,7 @@ namespace higui
 		~MarkupParser();
 
 		template <typename T>
-		void AddClass(std::string name);
+		void RegisterClass(std::string name);
 		void Init();
 
 	private:
@@ -45,12 +42,12 @@ namespace higui
 	};
 
     template <typename T>
-    void MarkupParser::AddClass(std::string name)
+    void MarkupParser::RegisterClass(std::string name)
     {
 		if (class_factories.find(name) != class_factories.end())
 		{
 #ifdef HIGUI_DEBUG_MODE
-			std::cout << "WARNING::MARKUP_PARSER::THE_CLASS_THAT_IS_ADDED_TO_THE_PARSER_ALREADY_EXISTS" << std::endl;
+			std::cout << "WARNING::MARKUP_PARSER::THE_CLASS_BEING_REGISTERED_ALREADY_EXISTS" << std::endl;
 #endif
 			return;
 		}
