@@ -2,12 +2,9 @@
 
 namespace higui
 {
-	void DOM::Render(GLFWwindow* window)
-	{
-		int win_width, win_height;
-		glfwGetWindowSize(window, &win_width, &win_height);
-		
-		markup.central_object->Render();
+	void DOM::Render(unsigned int VAO)
+	{	
+		markup.central_object->Render(VAO);
 	}
 
 	void DOM::Delete() 

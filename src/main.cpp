@@ -18,6 +18,10 @@ void processInput(GLFWwindow* window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+GLFWwindow* window;
+unsigned int VBO, VAO, EBO;
+higui::DOM dom("test.markup", "test.style");
+
 int main()
 {
     // glfw: initialize and configure
@@ -32,7 +36,7 @@ int main()
 #endif
 
     // glfw window
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "BioText - GUI test", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "BioText - GUI test", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -44,15 +48,13 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
-   
+
     // glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-    higui::DOM dom("test.markup", "test.style");
 
     dom.markup.RegisterClass<higui::GUIObject>("object");
     dom.markup.RegisterClass<higui::DivElement>("div");
@@ -75,7 +77,6 @@ int main()
         1, 2, 3  // second triangle
     };
 
-    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -99,14 +100,7 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        dom.shaders.shader("default")->use();
-        glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::scale(model, glm::vec3(0.2f));
-
-        dom.shaders.shader("default")->setMat4("model", model);
-
-        glBindVertexArray(VAO);
-        dom.Render(window);
+        dom.Render(VAO);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -138,4 +132,14 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+
+    processInput(window);
+
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    dom.Render(VAO);
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
 }

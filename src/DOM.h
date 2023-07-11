@@ -13,8 +13,8 @@ namespace higui
 			: markup(markup_file)
 		{}
 
-		void Render(GLFWwindow* window);
-		void HandleEvents(GLFWwindow* window);
+		void Render(unsigned int VAO);
+		void HandleEvents();
 		void Delete();
 
 		MarkupParser markup;

@@ -70,7 +70,6 @@ namespace higui
 					{
 						GUIObject* obj = object_stack.top();
 						object_stack.pop();
-						std::cout << "Name: " << obj->name << std::endl;
 					}
 				}
 			}
@@ -85,6 +84,7 @@ namespace higui
 						if (!object_stack.empty())
 						{
 							object_stack.top()->AddChild(obj);
+							obj->parent = object_stack.top();
 						}
 						else
 						{

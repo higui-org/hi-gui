@@ -201,7 +201,6 @@ namespace higui
 	{
 		for (auto& shader : shaders)
 		{
-			std::cout << "shader '" << shader.first << "' was deleted" << std::endl;
 			shader.second->Delete();
 			delete shader.second;
 		}

@@ -6,14 +6,26 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 
 #include "custom_any.h"
+#include "shader.h"
 
 namespace higui
 {
 	class DOM;
+
+	enum class ElementDock
+	{
+		none,
+		top,
+		bottom,
+		left,
+		right
+	};
 
 	class GUIObject
 	{
@@ -21,24 +33,25 @@ namespace higui
 		GUIObject();
 		virtual ~GUIObject();
 		
-		void Render();
+		void Render(unsigned int VAO);
+		void CalculateDock();
 
-		void setParent(GUIObject* parent);
 		void setPadding(glm::vec4 padding);
-		void setMargin(glm::vec4 margin);
+		void setDock(ElementDock dock, float ratio = 0.25f);
 
 		GUIObject* getParent();
 		glm::vec4 getPadding();
-		glm::vec2 getMargin();
-
-		std::string name;
+		ElementDock getDock();
 
 	private:
 		GUIObject* parent;
 		std::vector<GUIObject*> children;
 
+		glm::mat4 model;
 		glm::vec4 padding;
-		glm::vec2 margin;
+
+		ElementDock dock;
+		float dock_ratio;
 
 	protected:
 		void AddChild(GUIObject* obj);
