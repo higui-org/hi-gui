@@ -22,8 +22,52 @@ GLFWwindow* window;
 unsigned int VBO, VAO, EBO;
 higui::DOM dom("test.markup", "test.style");
 
+
+
+
+
+
+
+
+
+
+
 int main()
 {
+    std::string percentage_value = "25.396%";
+    std::string int_value = "500";
+    std::string hex_value = "#eb4034";
+    std::string rgb_value = "rgb(255, 200, 150)";
+
+    float result1 = higui::FromString<float>(percentage_value);
+    int result2 = higui::FromString<int>(int_value);
+    higui::RGBColor result3 = higui::FromString<higui::RGBColor>(hex_value);
+    higui::RGBColor result4 = higui::FromString<higui::RGBColor>(rgb_value);
+
+    return 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // glfw: initialize and configure
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

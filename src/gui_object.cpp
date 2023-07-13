@@ -9,7 +9,7 @@ namespace higui
 		model = glm::mat4(1.0f);
 
 		dock = ElementDock::right;
-		dock_ratio = 0.25f;
+		dock_ratio = 0.5f;
 	}
 
 	GUIObject::~GUIObject()
