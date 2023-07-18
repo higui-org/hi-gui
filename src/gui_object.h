@@ -1,4 +1,4 @@
-#ifndef GUI_OBJECT_H
+﻿#ifndef GUI_OBJECT_H
 #define GUI_OBJECT_H
 
 #include <glad/glad.h>
@@ -33,30 +33,33 @@ namespace higui
 		GUIObject();
 		virtual ~GUIObject();
 		
-		void Render(unsigned int VAO);
-		void CalculateDock();
+		virtual void Render(unsigned int VAO);
+		virtual void Update();
 
-		void setPadding(glm::vec4 padding);
-		void setDock(ElementDock dock, float ratio = 0.25f);
+		void set(std::string attribute, std::string value);
+
+		template <typename T> 
+		T get(std::string attribute)
+		{
+			if (properties.find(attribute) == properties.end())
+				throw std::runtime_error("Cannot find the attribute in GUI object");
+			return FromString<T>(properties[attribute]);
+		}
+		std::string get(std::string attribute);
 
 		GUIObject* getParent();
-		glm::vec4 getPadding();
-		ElementDock getDock();
-
-	private:
-		GUIObject* parent;
-		std::vector<GUIObject*> children;
-
-		glm::mat4 model;
-		glm::vec4 padding;
-
-		ElementDock dock;
-		float dock_ratio;
+		glm::mat4 getModel();
 
 	protected:
 		void AddChild(GUIObject* obj);
 
-		AnyMap<std::string> properties;
+		GUIObject* parent;
+		std::vector<GUIObject*> children;
+
+		glm::mat4 model;
+
+	private:
+		std::unordered_map<std::string, std::string> properties;
 
 		friend class MarkupParser;
 	};

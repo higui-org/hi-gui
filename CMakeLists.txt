@@ -21,6 +21,7 @@ set(SOURCES
     src/gui_object.cpp
     src/gui_object.h
     src/custom_any.h
+    src/custom_any.cpp
     src/DOM.h
     src/DOM.cpp
 )

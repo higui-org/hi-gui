@@ -5,11 +5,7 @@ namespace higui
 	GUIObject::GUIObject()
 	{
 		parent = nullptr;
-		padding = glm::vec4(25, 25, 25, 25);
 		model = glm::mat4(1.0f);
-
-		dock = ElementDock::right;
-		dock_ratio = 0.5f;
 	}
 
 	GUIObject::~GUIObject()
@@ -22,42 +18,22 @@ namespace higui
 
 	void GUIObject::Render(unsigned int VAO)
 	{
-		model = glm::mat4(2.0f);
-		CalculateDock();
-		ShaderManager::shader("default")->use();
-		ShaderManager::shader("default")->setMat4("model", model);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		for (auto& property_ : properties)
+		{
+			std::string value = properties.at(property_.first);
+			std::cout << "key: " << property_.first << "\t\t value: " << value << std::endl;
+		}
+		for (auto& child : children)
+		{
+			child->Render(VAO);
+		}
 	}
 
-	void GUIObject::CalculateDock()
+	void GUIObject::Update()
 	{
-		switch (dock)
+		for (auto& child : children)
 		{
-		case ElementDock::none:
-			break;
-		case ElementDock::top:
-			model = glm::translate(model, glm::vec3(0.0f, 1.0f - dock_ratio, 0.0f));
-			model = glm::scale(model, glm::vec3(1.0f, dock_ratio, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
-			break;
-		case ElementDock::bottom:
-			model = glm::translate(model, glm::vec3(0.0f, dock_ratio - 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(1.0f, dock_ratio, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
-			break;
-		case ElementDock::left:
-			model = glm::translate(model, glm::vec3(dock_ratio - 1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(dock_ratio, 1.0f, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
-			break;
-		case ElementDock::right:
-			model = glm::translate(model, glm::vec3(1.0f - dock_ratio, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(dock_ratio, 1.0f, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
-			break;
-		default:
-			break;
+			child->Update();
 		}
 	}
 
@@ -66,15 +42,16 @@ namespace higui
 		children.push_back(obj);
 	}
 
-	void GUIObject::setPadding(glm::vec4 padding)
+	void GUIObject::set(std::string attribute, std::string value)
 	{
-		this->padding = padding;
+		properties[attribute] = value;
 	}
 
-	void GUIObject::setDock(ElementDock dock, float ratio)
+	std::string GUIObject::get(std::string attribute)
 	{
-		this->dock = dock;
-		this->dock_ratio = ratio;
+		if (properties.find(attribute) == properties.end())
+			return "";
+		return properties[attribute];
 	}
 
 	GUIObject* GUIObject::getParent()
@@ -82,13 +59,8 @@ namespace higui
 		return parent;
 	}
 
-	glm::vec4 GUIObject::getPadding()
+	glm::mat4 GUIObject::getModel()
 	{
-		return padding;
-	}
-
-	ElementDock GUIObject::getDock()
-	{
-		return dock;
+		return model;
 	}
 }

@@ -26,12 +26,12 @@ namespace higui
 	private:
 		void InitObjects();
 
-		int getLineNumber(int offset);
 		bool isMarkupValid();
 
-		std::string getTagBloc(size_t offset);
-		std::string getTagName(std::string& tag_bloc);
-		std::string getTagValue(std::string& tag_bloc, std::string key);
+		std::string ExtractTagBlock(size_t offset);
+		std::string ExtractTagName(std::string& tag_block);
+		std::string ExtractAttributeValue(std::string& tag_block, std::string& attribute_name);
+		std::unordered_map<std::string, std::string> ExtractAttributes(std::string& tag_block);
 
 		std::string markup;
 		std::unordered_map<std::string, std::function<void*()>> class_factories;
