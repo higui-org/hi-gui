@@ -18,11 +18,8 @@ namespace higui
 
 	void GUIObject::Render(unsigned int VAO)
 	{
-		for (auto& property_ : properties)
-		{
-			std::string value = properties.at(property_.first);
-			std::cout << "key: " << property_.first << "\t\t value: " << value << std::endl;
-		}
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		for (auto& child : children)
 		{
 			child->Render(VAO);

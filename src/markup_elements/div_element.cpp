@@ -4,6 +4,7 @@ namespace higui
 {
 	DivElement::DivElement() : GUIObject()
 	{
+		model = glm::mat4(1.0f);
 		dock = ElementDock::none;
 		dock_ratio = 0.5f;
 	}
@@ -18,8 +19,6 @@ namespace higui
 		Update();
 		ShaderManager::shader("default")->use();
 		ShaderManager::shader("default")->setMat4("model", model);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		GUIObject::Render(VAO);
 	}
 

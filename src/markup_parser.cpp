@@ -11,22 +11,13 @@ namespace higui
 
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-		try
-		{
-			file.open(filename);
-			std::stringstream stream;
+		file.open(filename);
+		std::stringstream stream;
 
-			stream << file.rdbuf();
-			file.close();
+		stream << file.rdbuf();
+		file.close();
 
-			markup = stream.str();
-		}
-		catch (std::ifstream::failure e)
-		{
-#ifdef HIGUI_DEBUG_MODE
-			std::cout << "ERROR::MARKUP_PARSER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
-#endif
-		}
+		markup = stream.str();
 	}
 
 	MarkupParser::~MarkupParser()
@@ -89,7 +80,6 @@ namespace higui
 						{
 							obj->set(attribute.first, attribute.second);
 						}
-						obj->Update();
 						// set object as child of previous object
 						if (!object_stack.empty())
 						{
@@ -101,6 +91,7 @@ namespace higui
 							central_object->AddChild(obj);
 						}
 						object_stack.push(obj);
+						obj->Update();
 					}
 				}
 			}
@@ -109,7 +100,6 @@ namespace higui
 		}
 		markup.clear();
 		markup.shrink_to_fit();
-		std::cout << "init objects done" << std::endl;
 	}
 
 
@@ -130,9 +120,7 @@ namespace higui
 
 			if (closing_tag_pos == std::string::npos || closing_tag_pos < opening_tag_pos)
 			{
-#ifdef HIGUI_DEBUG_MODE
-				std::cout << "ERROR::MARKUP_PARSER::SYNTAX_ERROR::INVALID_TAG" << std::endl;
-#endif
+				throw std::runtime_error("MarkupParser::syntax_error_invalid_tag");
 				return false;
 			}
 
@@ -140,9 +128,7 @@ namespace higui
 			{
 				if (tag_stack.empty() || tag_stack.top() != tag_name)
 				{
-#ifdef HIGUI_DEBUG_MODE
-					std::cout << "ERROR::MARKUP_PARSER::SYNTAX_ERROR::INVALID_TAG" << std::endl;
-#endif
+					throw std::runtime_error("MarkupParser::syntax_error_invalid_tag");
 					return false;
 				}
 				tag_stack.pop();
@@ -168,10 +154,8 @@ namespace higui
 
 		if (block_pos == std::string::npos || block_length == std::string::npos)
 		{
-#ifdef HIGUI_DEBUG_MODE
-			std::cout << "ERROR::MARKUP_PARSER::SYNTAX_ERROR::CLOSING_TAG_MISSING_OR_MISMATCHED" << std::endl;
-#endif
-			return "none";
+			throw std::runtime_error("MarkupParser::syntax_error_closing_tag_missing_or_mismatched");
+			return "";
 		}
 
 		return markup.substr(block_pos, block_length - block_pos + 1);
@@ -187,7 +171,7 @@ namespace higui
 			pos = tag_block.find('<'); // trying to find as opening tag
 			end_pos = tag_block.find(' ', pos);
 			if (pos == std::string::npos || end_pos == std::string::npos)
-				return "none";
+				return "";
 		}
 		return tag_block.substr(pos + 1, end_pos - pos - 1);
 	}

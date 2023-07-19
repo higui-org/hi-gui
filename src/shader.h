@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <iostream>
 #include <glm/glm.hpp>
 #include <unordered_map>
 

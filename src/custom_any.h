@@ -1,7 +1,6 @@
 #ifndef CUSTOM_ANY_H
 #define CUSTOM_ANY_H
 
-#include <iostream>
 #include <map>
 #include <string>
 #include <sstream>

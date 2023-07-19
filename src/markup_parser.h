@@ -46,9 +46,7 @@ namespace higui
     {
 		if (class_factories.find(name) != class_factories.end())
 		{
-#ifdef HIGUI_DEBUG_MODE
-			std::cout << "WARNING::MARKUP_PARSER::THE_CLASS_BEING_REGISTERED_ALREADY_EXISTS" << std::endl;
-#endif
+			throw std::runtime_error("MarkupParser::the_class_being_registered_already_exists");
 			return;
 		}
 		class_factories[name] = []() { return new T(); };

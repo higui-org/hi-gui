@@ -39,9 +39,7 @@ namespace higui
 		}
 		catch (std::ifstream::failure e)
 		{
-#ifdef HIGUI_DEBUG_MODE
-			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
-#endif
+			throw std::runtime_error("shader::file_not_successfully_read");
 		}
 		const char* vertex_c_str = vertex_source.c_str();
 		const char* fragment_c_str = fragment_source.c_str();
@@ -61,7 +59,7 @@ namespace higui
 		{
 			glGetShaderInfoLog(vertex_object, 512, NULL, info_log);
 
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED: " << info_log << std::endl;
+			printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s,\n", info_log);
 		}
 #endif
 
@@ -74,7 +72,7 @@ namespace higui
 		if (!success)
 		{
 			glGetShaderInfoLog(fragment_object, 512, NULL, info_log);
-			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED: " << info_log << std::endl;
+			printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s,\n", info_log);
 		}
 #endif
 
@@ -88,7 +86,7 @@ namespace higui
 		if (!success)
 		{
 			glGetProgramInfoLog(ID, 512, NULL, info_log);
-			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED: " << info_log << std::endl;
+			printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s,\n", info_log);
 		}
 #endif
 
@@ -175,9 +173,6 @@ namespace higui
 		}
 		else
 		{
-#ifdef HIGUI_DEBUG_MODE
-			std::cout << "ERROR::SHADER_MANAGER::SHADER_NOT_FOUND" << std::endl;
-#endif
 			throw std::runtime_error("ShaderManager cannot find shader with name: " + name);
 		}
 	}

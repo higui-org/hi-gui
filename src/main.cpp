@@ -68,8 +68,6 @@ int main()
 
         dom.Render();
 
-        std::cout << std::endl << std::endl << std::endl << std::endl;
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
