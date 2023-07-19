@@ -3,7 +3,7 @@
 namespace higui
 {
 
-	MarkupParser::MarkupParser(std::string filename)
+	MarkupParser::MarkupParser(const std::string& filename)
 	{
 		central_object = new GUIObject;
 		
@@ -176,7 +176,7 @@ namespace higui
 		return tag_block.substr(pos + 1, end_pos - pos - 1);
 	}
 
-	std::string MarkupParser::ExtractAttributeValue(std::string& tag_block, std::string& attribute_name)
+	std::string MarkupParser::ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name)
 	{
 		size_t key_pos = tag_block.find(attribute_name + "=");
 		if (key_pos == std::string::npos)
@@ -196,7 +196,7 @@ namespace higui
 		return tag_block.substr(value_pos + 1, value_length);
 	}
 
-	std::unordered_map<std::string, std::string> MarkupParser::ExtractAttributes(std::string& tag_block)
+	std::unordered_map<std::string, std::string> MarkupParser::ExtractAttributes(const std::string& tag_block)
 	{
 		std::unordered_map<std::string, std::string> attributes;
 

@@ -16,11 +16,11 @@ namespace higui
 	class MarkupParser
 	{
 	public:
-		MarkupParser(std::string markup_file);
+		MarkupParser(const std::string& markup_file);
 		~MarkupParser();
 
 		template <typename T>
-		void RegisterClass(std::string name);
+		void RegisterClass(const std::string& name);
 		void Init();
 
 	private:
@@ -30,8 +30,8 @@ namespace higui
 
 		std::string ExtractTagBlock(size_t offset);
 		std::string ExtractTagName(std::string& tag_block);
-		std::string ExtractAttributeValue(std::string& tag_block, std::string& attribute_name);
-		std::unordered_map<std::string, std::string> ExtractAttributes(std::string& tag_block);
+		std::string ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name);
+		std::unordered_map<std::string, std::string> ExtractAttributes(const std::string& tag_block);
 
 		std::string markup;
 		std::unordered_map<std::string, std::function<void*()>> class_factories;
@@ -42,7 +42,7 @@ namespace higui
 	};
 
     template <typename T>
-    void MarkupParser::RegisterClass(std::string name)
+    void MarkupParser::RegisterClass(const std::string& name)
     {
 		if (class_factories.find(name) != class_factories.end())
 		{

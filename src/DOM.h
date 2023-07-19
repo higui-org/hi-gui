@@ -10,7 +10,7 @@ namespace higui
 	class DOM
 	{
 	public:
-		DOM(std::string markup_file, std::string style_file);
+		DOM(const std::string& markup_file, const std::string& style_file);
 
 		void Render();
 		void HandleEvents();

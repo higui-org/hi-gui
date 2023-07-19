@@ -39,10 +39,10 @@ namespace higui
 	class ShaderManager
 	{
 	public:
-		static Shader* shader(std::string shader_name);
+		static Shader* shader(const std::string& shader_name);
 
-		static void RegisterShader(std::string shader_name, const char* vertex_path, const char* fragment_path);
-		static void RegisterShader(std::string shader_name);
+		static void RegisterShader(const std::string& shader_name, const char* vertex_path, const char* fragment_path);
+		static void RegisterShader(const std::string& shader_name);
 		static void Delete();
 
 	private:

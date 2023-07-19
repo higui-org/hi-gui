@@ -163,7 +163,7 @@ namespace higui
 	}
 
 
-	Shader* ShaderManager::shader(std::string name)
+	Shader* ShaderManager::shader(const std::string& name)
 	{
 		auto it = ShaderManager::shaders.find(name);
 
@@ -177,13 +177,13 @@ namespace higui
 		}
 	}
 
-	void ShaderManager::RegisterShader(std::string shader_name, const char* vertex_path, const char* fragment_path)
+	void ShaderManager::RegisterShader(const std::string& shader_name, const char* vertex_path, const char* fragment_path)
 	{
 		Shader* shader = new Shader(vertex_path, fragment_path);
 		ShaderManager::shaders.insert(std::make_pair(shader_name, shader));
 	}
 
-	void ShaderManager::RegisterShader(std::string shader_name)
+	void ShaderManager::RegisterShader(const std::string& shader_name)
 	{
 		ShaderManager::RegisterShader(
 			shader_name,

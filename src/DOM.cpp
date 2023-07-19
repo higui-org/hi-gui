@@ -2,7 +2,7 @@
 
 namespace higui
 {	
-	DOM::DOM(std::string markup_file, std::string style_file)
+	DOM::DOM(const std::string& markup_file, const std::string& style_file)
 		: markup(markup_file)
 	{
 		glGenVertexArrays(1, &VAO);
