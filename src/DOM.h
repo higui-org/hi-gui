@@ -6,20 +6,23 @@
 
 namespace higui
 {
+
 	class DOM
 	{
 	public:
-		DOM(std::string markup_file, std::string style_file)
-			: markup(markup_file)
-		{}
+		DOM(std::string markup_file, std::string style_file);
 
-		void Render(unsigned int VAO);
+		void Render();
 		void HandleEvents();
 		void Delete();
 
 		MarkupParser markup;
 		ShaderManager shaders;
 
+		private:
+			static float vertices[12];
+			static unsigned int indices[6];
+			unsigned int VBO, VAO, EBO;
 	};
 }
 

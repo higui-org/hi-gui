@@ -233,10 +233,17 @@ namespace higui
 					std::string attribute_name = attr.substr(0, equals_pos);
 					std::string attribute_value = attr.substr(equals_pos + 1);
 
-					// remove double quotes, if they are present
-					if (!attribute_value.empty() && (attribute_value.front() == '"' || attribute_value.front() == '\''))
+					// remove double quotes and "greater than" sign, if they are present
+					if (!attribute_value.empty())
 					{
-						attribute_value = attribute_value.substr(1, attribute_value.length() - 3);
+						if (attribute_value.back() == '>')
+						{
+							attribute_value = attribute_value.substr(0, attribute_value.length() - 1);
+						}
+						if (attribute_value.front() == '"' || attribute_value.front() == '\'')
+						{
+							attribute_value = attribute_value.substr(1, attribute_value.length() - 2);
+						}
 					}
 
 					attributes[attribute_name] = attribute_value;
