@@ -32,16 +32,12 @@ namespace higui
 
 	void MarkupParser::Init()
 	{
-		if (isMarkupValid())
+		if (!isMarkupValid())
 		{
-			InitObjects();
+			throw std::runtime_error("Markup isn't valid");
+			return;
 		}
-	}
 
-
-
-	void MarkupParser::InitObjects()
-	{
 		std::stack<GUIObject*> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;

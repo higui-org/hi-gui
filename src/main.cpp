@@ -8,11 +8,6 @@
 
 #include "higui.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
-
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
@@ -39,10 +34,6 @@ int main()
     }
     glfwMakeContextCurrent(window);
 
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-
     // glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -50,19 +41,14 @@ int main()
         return -1;
     }
 
-    higui::DOM dom("test.markup", "test.style");
+    higui::DOM dom(window, "test");
     dom.markup.RegisterClass<higui::GUIObject>("object");
     dom.markup.RegisterClass<higui::DivElement>("div");
     dom.markup.Init();
     dom.shaders.RegisterShader("default");
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
     while (!glfwWindowShouldClose(window))
     {
-        processInput(window);
-
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -75,32 +61,4 @@ int main()
 
     glfwTerminate();
     return 0;
-}
-
-// process all input
-void processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-
-    processInput(window);
-
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
 }

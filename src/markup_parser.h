@@ -24,8 +24,6 @@ namespace higui
 		void Init();
 
 	private:
-		void InitObjects();
-
 		bool isMarkupValid();
 
 		std::string ExtractTagBlock(size_t offset);
@@ -34,9 +32,10 @@ namespace higui
 		std::unordered_map<std::string, std::string> ExtractAttributes(const std::string& tag_block);
 
 		std::string markup;
-		std::unordered_map<std::string, std::function<void*()>> class_factories;
-		std::unordered_map<std::string, void*> instances;
 		GUIObject* central_object;
+
+		std::unordered_map<std::string, std::function<void* ()>> class_factories;
+		std::unordered_map<std::string, void*> instances;
 
 		friend class DOM;
 	};
