@@ -20,7 +20,7 @@ namespace higui
 		~MarkupParser();
 
 		template <typename T>
-		void RegisterClass(const std::string& name);
+		static void RegisterClass(const std::string& name);
 		void Init();
 
 	private:
@@ -34,24 +34,21 @@ namespace higui
 		std::string markup;
 		GUIObject* central_object;
 
-		std::unordered_map<std::string, std::function<void* ()>> class_factories;
-		std::unordered_map<std::string, void*> instances;
+		static std::unordered_map<std::string, std::function<void* ()>> class_factories;
 
 		friend class DOM;
 	};
 
-    template <typename T>
-    void MarkupParser::RegisterClass(const std::string& name)
-    {
+	template <typename T>
+	void MarkupParser::RegisterClass(const std::string& name)
+	{
 		if (class_factories.find(name) != class_factories.end())
 		{
 			throw std::runtime_error("MarkupParser::the_class_being_registered_already_exists");
 			return;
 		}
 		class_factories[name] = []() { return new T(); };
-		GUIObject* obj = static_cast<GUIObject*>(class_factories[name]());
-		instances[name] = obj;
-    }
+	}
 }
 
 #endif // MARKUP_PARSER_H

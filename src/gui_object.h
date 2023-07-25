@@ -37,8 +37,7 @@ namespace higui
 		void set(std::string attribute, std::string value);
 
 		template <typename T> 
-		T get(std::string attribute)
-		{
+		T get(std::string attribute) {
 			if (properties.find(attribute) == properties.end())
 				throw std::runtime_error("Cannot find the attribute in GUI object");
 			return FromString<T>(properties[attribute]);
@@ -47,6 +46,10 @@ namespace higui
 
 		GUIObject* getParent();
 		glm::mat4 getModel();
+
+		// events
+		bool OnCursorPos(double xpos, double ypos);
+		bool OnMouseClick(int button, double xpos, double ypos);
 
 	protected:
 		void AddChild(GUIObject* obj);

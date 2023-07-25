@@ -60,4 +60,14 @@ namespace higui
 	{
 		return model;
 	}
+
+	bool GUIObject::OnCursorPos(double xpos, double ypos) 
+	{
+		return false;
+	}
+
+	bool GUIObject::OnMouseClick(int button, double xpos, double ypos)
+	{
+		return false;
+	}
 }

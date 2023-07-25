@@ -16,7 +16,6 @@ namespace higui
 
 	void DivElement::Render(unsigned int VAO)
 	{
-		Update();
 		ShaderManager::shader("default")->use();
 		ShaderManager::shader("default")->setMat4("model", model);
 		GUIObject::Render(VAO);

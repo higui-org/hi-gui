@@ -2,6 +2,7 @@
 
 namespace higui
 {
+	std::unordered_map<std::string, std::function<void* ()>> MarkupParser::class_factories;
 
 	MarkupParser::MarkupParser(const std::string& filename)
 	{
@@ -23,11 +24,6 @@ namespace higui
 	MarkupParser::~MarkupParser()
 	{
 		delete central_object;	// delete central object
-
-		for (auto instance : instances)		// delete all instances
-		{
-			delete static_cast<GUIObject*>(instance.second);
-		}
 	}
 
 	void MarkupParser::Init()

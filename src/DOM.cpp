@@ -19,7 +19,7 @@ namespace higui
 	{
 		this->window = window;
 		glfwSetWindowUserPointer(window, this);
-
+		
 		glfwSetKeyCallback(window, DOM::KeyCallbackWrapper);
 		glfwSetScrollCallback(window, DOM::ScrollCallbackWrapper);
 		glfwSetCursorPosCallback(window, DOM::CursorPosCallbackWrapper);
@@ -87,6 +87,8 @@ namespace higui
 	void DOM::FramebufferSizeCallback(int width, int height)
 	{
 		glViewport(0, 0, width, height);
+
+		markup.central_object->Update();
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
