@@ -4,6 +4,8 @@
 #include "markup_parser.h"
 #include "shader.h"
 
+#include <iostream>
+
 namespace higui
 {
 	class DOM
@@ -14,8 +16,8 @@ namespace higui
 		// if your '.markup' '.style' files have the same name
 		DOM(GLFWwindow* window, const std::string& name);
 
+		void DOM::printGeometry(GUIObject* obj);
 		void Render();
-		void DisableGLBlending();
 		void Delete();
 
 		void MouseButtonCallback(int button, int action, int mods);
@@ -23,6 +25,8 @@ namespace higui
 		void ScrollCallback(double xoffset, double yoffset);
 		void FramebufferSizeCallback(int width, int height);
 		void KeyCallback(int key, int scancode, int action, int mods);
+
+		GLFWwindow* getGLFWwindow();
 
 		MarkupParser markup;
 		ShaderManager shaders;
@@ -36,9 +40,6 @@ namespace higui
 		static void KeyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 		GLFWwindow* window;
-
-		static float vertices[12];
-		static unsigned int indices[6];
 		unsigned int VBO, VAO, EBO;
 	};
 }

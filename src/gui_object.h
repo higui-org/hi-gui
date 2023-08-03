@@ -48,6 +48,13 @@ namespace higui
 		glm::mat4 getModel();
 
 		// events
+		glm::vec2 Size(int framebuffer_width, int framebuffer_height);
+		glm::vec2 Position(int framebuffer_width, int framebuffer_height);
+		glm::vec4 Geometry(int framebuffer_width, int framebuffer_height);
+		glm::vec2 Size(GLFWwindow* window);
+		glm::vec2 Position(GLFWwindow* window);
+		glm::vec4 Geometry(GLFWwindow* window);
+
 		bool OnCursorPos(double xpos, double ypos);
 		bool OnMouseClick(int button, double xpos, double ypos);
 
@@ -62,7 +69,11 @@ namespace higui
 	private:
 		std::unordered_map<std::string, std::string> properties;
 
+		static float vertices[12];
+		static unsigned int indices[6];
+
 		friend class MarkupParser;
+		friend class DOM;
 	};
 }
 

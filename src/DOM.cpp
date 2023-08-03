@@ -2,18 +2,6 @@
 
 namespace higui
 {
-	float DOM::vertices[12] = {
-				-1.0f, 1.0f, 0.0f,  // upper left angle
-				1.0f, 1.0f, 0.0f,   // upper right angle
-				1.0f, -1.0f, 0.0f,  // lower right angle
-				-1.0f, -1.0f, 0.0f  // lower left angle
-	};
-
-	unsigned int DOM::indices[6] = {
-				0, 1, 3, // first triangle
-				1, 2, 3  // second triangle
-	};
-
 	DOM::DOM(GLFWwindow* window, const std::string& markup_file, const std::string& style_file)
 		: markup(markup_file)
 	{
@@ -33,10 +21,10 @@ namespace higui
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GUIObject::vertices), GUIObject::vertices, GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GUIObject::indices), GUIObject::indices, GL_STATIC_DRAW);
 
 		// position attribute
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -56,11 +44,6 @@ namespace higui
 		markup.central_object->Render(VAO);
 	}
 
-	void DOM::DisableGLBlending()
-	{
-		glDisable(GL_BLEND);
-	}
-
 	void DOM::Delete()
 	{
 		shaders.Delete();
@@ -69,9 +52,20 @@ namespace higui
 		glDeleteBuffers(1, &EBO);
 	}
 
+	void DOM::printGeometry(GUIObject* obj) {
+		glm::vec4 geometry = obj->Geometry(window);
+		std::cout << "Position: (" << geometry.x << ", " << geometry.y << ") ";
+		std::cout << "Size: (" << geometry.z << ", " << geometry.w << ")" << std::endl;
+
+		for (const auto& child : obj->children) {
+			printGeometry(child);
+		}
+	}
+
 	void DOM::MouseButtonCallback(int button, int action, int mods)
 	{
-
+		printGeometry(markup.central_object);
+		std::cout << std::endl;
 	}
 
 	void DOM::CursorPosCallback(double xpos, double ypos)
@@ -149,5 +143,10 @@ namespace higui
 		{
 			dom->KeyCallback(key, scancode, action, mods);
 		}
+	}
+
+	GLFWwindow* DOM::getGLFWwindow()
+	{
+		return window;
 	}
 }

@@ -61,22 +61,18 @@ namespace higui
 		case 't':
 			model = glm::translate(model, glm::vec3(0.0f, 1.0f - dock_ratio, 0.0f));
 			model = glm::scale(model, glm::vec3(1.0f, dock_ratio, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
 			break;
 		case 'b':
 			model = glm::translate(model, glm::vec3(0.0f, dock_ratio - 1.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(1.0f, dock_ratio, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
 			break;
 		case 'l':
 			model = glm::translate(model, glm::vec3(dock_ratio - 1.0f, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(dock_ratio, 1.0f, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
 			break;
 		case 'r':
 			model = glm::translate(model, glm::vec3(1.0f - dock_ratio, 0.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(dock_ratio, 1.0f, 1.0f));
-			model = glm::scale(model, glm::vec3(0.95f));
 			break;
 		default:
 			break;

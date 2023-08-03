@@ -27,7 +27,7 @@ namespace higui
 		bool isMarkupValid();
 
 		std::string ExtractTagBlock(size_t offset);
-		std::string ExtractTagName(std::string& tag_block);
+		std::string ExtractTagName(const std::string& tag_block);
 		std::string ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name);
 		std::unordered_map<std::string, std::string> ExtractAttributes(const std::string& tag_block);
 
@@ -44,7 +44,7 @@ namespace higui
 	{
 		if (class_factories.find(name) != class_factories.end())
 		{
-			throw std::runtime_error("MarkupParser::the_class_being_registered_already_exists");
+			throw std::runtime_error("MarkupParser: the class being registered already exists");
 			return;
 		}
 		class_factories[name] = []() { return new T(); };

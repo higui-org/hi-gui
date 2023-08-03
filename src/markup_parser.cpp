@@ -153,7 +153,7 @@ namespace higui
 		return markup.substr(block_pos, block_length - block_pos + 1);
 	}
 
-	std::string MarkupParser::ExtractTagName(std::string& tag_block)
+	std::string MarkupParser::ExtractTagName(const std::string& tag_block)
 	{
 		size_t pos, end_pos;
 		pos = tag_block.find('/');	   // trying to find as closing tag
