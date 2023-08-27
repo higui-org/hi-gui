@@ -1,4 +1,4 @@
-﻿#include "markup_elements/div_element.h"
+﻿#include "markup_elements/div.h"
 
 namespace higui
 {
@@ -16,8 +16,8 @@ namespace higui
 
 	void DivElement::Render(unsigned int VAO)
 	{
-		ShaderManager::shader("default")->use();
-		ShaderManager::shader("default")->setMat4("model", model);
+		ShaderRegistry::shader("default")->use();
+		ShaderRegistry::shader("default")->setMat4("model", model);
 		GUIObject::Render(VAO);
 	}
 
@@ -40,7 +40,7 @@ namespace higui
 		{
 			dock_char = get("dock").at(0);
 		}
-		catch (std::exception e)
+		catch (std::exception)
 		{
 			return;
 		}
@@ -49,7 +49,7 @@ namespace higui
 		{
 			dock_ratio = get<float>("dock-ratio");
 		}
-		catch (std::exception e)
+		catch (std::exception)
 		{
 			dock_ratio = 0.5f;
 		}
@@ -89,33 +89,32 @@ namespace higui
 		return dock_ratio;
 	}
 
-	void DivElement::setDock(ElementDock dock_, float ratio)
+	void DivElement::setDock(ElementDock dock_)
 	{
 		switch (dock_)
 		{
 		case ElementDock::none:
-			set("none", ToString(ratio));
+			set("dock", "none");
 			break;
 		case ElementDock::top:
-			set("top", ToString(ratio));
+			set("dock", "top");
 			break;
 		case ElementDock::bottom:
-			set("bottom", ToString(ratio));
+			set("dock", "bottom");
 			break;
 		case ElementDock::left:
-			set("left", ToString(ratio));
+			set("dock", "left");
 			break;
 		case ElementDock::right:
-			set("right", ToString(ratio));
+			set("dock", "right");
 			break;
 		default:
 			break;
 		}
-		Update();
 	}
 
 	void DivElement::setDockRatio(float ratio)
 	{
-		setDock(dock, ratio);
+		set("dock-ratio", string::ToString(ratio));
 	}
 }

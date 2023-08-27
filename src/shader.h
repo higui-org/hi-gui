@@ -36,19 +36,16 @@ namespace higui
 		void setMat4(const std::string& name, const glm::mat4& mat) const;
 	};
 
-	class ShaderManager
+	class ShaderRegistry
 	{
 	public:
 		static Shader* shader(const std::string& shader_name);
 
 		static void RegisterShader(const std::string& shader_name, const char* vertex_path, const char* fragment_path);
-		static void RegisterShader(const std::string& shader_name);
 		static void Delete();
 
 	private:
 		static std::unordered_map<std::string, Shader*> shaders;
 	};
-
-	inline std::unordered_map<std::string, Shader*> ShaderManager::shaders;
 }
 #endif

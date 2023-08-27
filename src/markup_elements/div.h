@@ -1,8 +1,7 @@
 #ifndef DIV_CLASS_H
 #define DIV_CLASS_H
 
-#include "gui_object.h"
-#include "custom_any.h"
+#include "object.h"
 
 namespace higui 
 {
@@ -21,7 +20,7 @@ namespace higui
 		ElementDock getDock();
 		float getDockRatio();
 
-		void setDock(ElementDock dock, float ratio = 0.5f);
+		void setDock(ElementDock dock);
 		void setDockRatio(float ratio);
 
 	protected:

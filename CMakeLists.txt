@@ -14,21 +14,21 @@ set(SOURCES
     src/higui.h
     src/shader.cpp
     src/shader.h
-    src/markup_parser.cpp
-    src/markup_parser.h
-    src/style_parser.cpp
-    src/style_parser.h
-    src/gui_object.cpp
-    src/gui_object.h
-    src/custom_any.h
-    src/custom_any.cpp
+    src/markup.cpp
+    src/markup.h
+    src/style.cpp
+    src/style.h
+    src/object.cpp
+    src/object.h
+    src/attribute.h
+    src/attribute.cpp
     src/DOM.h
     src/DOM.cpp
 )
 
 set(TAG_CLASSES
-    src/markup_elements/div_element.cpp
-    src/markup_elements/div_element.h
+    src/markup_elements/div.cpp
+    src/markup_elements/div.h
 )
 
 set(THIRD_PARTY

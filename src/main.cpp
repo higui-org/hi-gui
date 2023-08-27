@@ -41,11 +41,15 @@ int main()
         return -1;
     }
 
-    higui::DOM dom(window, "test");
+	higui::string::RegisterConversionFunction<float>("float", higui::string::StringPercentageToFloat);
+	higui::string::RegisterConversionFunction<higui::RGB>("RGB", higui::string::StringToRGB);
+	higui::string::RegisterConversionFunction<higui::RGBA>("RGBA", higui::string::StringToRGBA);
+
+    higui::DOM dom(window, "test.markup", "test.style");
     dom.markup.RegisterClass<higui::GUIObject>("object");
     dom.markup.RegisterClass<higui::DivElement>("div");
     dom.markup.Init();
-    dom.shaders.RegisterShader("default");
+    dom.shaders.RegisterShader("default", "default.vert", "default.frag");
         
     while (!glfwWindowShouldClose(window))
     {

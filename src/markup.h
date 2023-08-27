@@ -9,7 +9,7 @@
 #include <functional>
 #include <memory>
 
-#include "gui_object.h"
+#include "object.h"
 
 namespace higui
 {

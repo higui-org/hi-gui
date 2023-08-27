@@ -72,7 +72,7 @@ namespace higui
 		if (!success)
 		{
 			glGetShaderInfoLog(fragment_object, 512, NULL, info_log);
-			printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s,\n", info_log);
+			printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED: %s,\n", info_log);
 		}
 #endif
 
@@ -86,7 +86,7 @@ namespace higui
 		if (!success)
 		{
 			glGetProgramInfoLog(ID, 512, NULL, info_log);
-			printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s,\n", info_log);
+			printf("ERROR::SHADER::PROGRAM::COMPILATION_FAILED: %s,\n", info_log);
 		}
 #endif
 
@@ -163,11 +163,11 @@ namespace higui
 	}
 
 
-	Shader* ShaderManager::shader(const std::string& name)
+	Shader* ShaderRegistry::shader(const std::string& name)
 	{
-		auto it = ShaderManager::shaders.find(name);
+		auto it = ShaderRegistry::shaders.find(name);
 
-		if (it != ShaderManager::shaders.end())
+		if (it != ShaderRegistry::shaders.end())
 		{
 			return it->second;
 		}
@@ -177,22 +177,13 @@ namespace higui
 		}
 	}
 
-	void ShaderManager::RegisterShader(const std::string& shader_name, const char* vertex_path, const char* fragment_path)
+	void ShaderRegistry::RegisterShader(const std::string& shader_name, const char* vertex_path, const char* fragment_path)
 	{
 		Shader* shader = new Shader(vertex_path, fragment_path);
-		ShaderManager::shaders.insert(std::make_pair(shader_name, shader));
+		ShaderRegistry::shaders.insert(std::make_pair(shader_name, shader));
 	}
 
-	void ShaderManager::RegisterShader(const std::string& shader_name)
-	{
-		ShaderManager::RegisterShader(
-			shader_name,
-			(shader_name + ".vert").c_str(),
-			(shader_name + ".frag").c_str()
-			);
-	}
-
-	void ShaderManager::Delete()
+	void ShaderRegistry::Delete()
 	{
 		for (auto& shader : shaders)
 		{
@@ -200,4 +191,6 @@ namespace higui
 			delete shader.second;
 		}
 	}
+
+	inline std::unordered_map<std::string, Shader*> ShaderRegistry::shaders;
 }

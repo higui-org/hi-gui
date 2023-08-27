@@ -1,4 +1,4 @@
-﻿#include "gui_object.h"
+﻿#include "object.h"
 
 namespace higui
 {
@@ -47,7 +47,7 @@ namespace higui
 	std::string GUIObject::get(std::string attribute)
 	{
 		if (properties.find(attribute) == properties.end())
-			return "";
+			throw std::runtime_error("Cannot find the attribute in GUI object");
 		return properties[attribute];
 	}
 

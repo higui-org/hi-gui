@@ -2,6 +2,7 @@
 
 namespace higui
 {
+
 	DOM::DOM(GLFWwindow* window, const std::string& markup_file, const std::string& style_file)
 		: markup(markup_file)
 	{
@@ -34,11 +35,6 @@ namespace higui
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	DOM::DOM(GLFWwindow* window, const std::string& filename)
-		: DOM(window, filename + ".markup", filename + ".style")
-	{
-	}
-
 	void DOM::Render()
 	{
 		markup.central_object->Render(VAO);
@@ -52,20 +48,31 @@ namespace higui
 		glDeleteBuffers(1, &EBO);
 	}
 
-	void DOM::printGeometry(GUIObject* obj) {
-		glm::vec4 geometry = obj->Geometry(window);
-		std::cout << "Position: (" << geometry.x << ", " << geometry.y << ") ";
-		std::cout << "Size: (" << geometry.z << ", " << geometry.w << ")" << std::endl;
-
-		for (const auto& child : obj->children) {
-			printGeometry(child);
-		}
-	}
-
 	void DOM::MouseButtonCallback(int button, int action, int mods)
 	{
-		printGeometry(markup.central_object);
-		std::cout << std::endl;
+		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
+		{
+			static bool r = false;
+			GUIObject* div_object = markup.central_object->children[0];
+			DivElement* div = dynamic_cast<DivElement*>(div_object);
+			ElementDock dock = div->getDock();
+			if (r)
+			{
+				div->setDock(ElementDock::top);
+				std::cout << "top" << std::endl;
+			}
+			else
+			{
+				div->setDock(ElementDock::bottom);
+				std::cout << "bottom" << std::endl;
+			}
+			r = !r;
+			for (auto& prop : div_object->properties)
+			{
+				std::cout << "name: " << prop.first << ", value: " << prop.second << std::endl;
+			}
+			div->Update();
+		}
 	}
 
 	void DOM::CursorPosCallback(double xpos, double ypos)

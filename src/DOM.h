@@ -1,7 +1,8 @@
 #ifndef DOM_H
 #define DOM_H
 
-#include "markup_parser.h"
+#include "markup_elements/div.h"
+#include "markup.h"
 #include "shader.h"
 
 #include <iostream>
@@ -13,10 +14,6 @@ namespace higui
 	public:
 		DOM(GLFWwindow* window, const std::string& markup_file, const std::string& style_file);
 
-		// if your '.markup' '.style' files have the same name
-		DOM(GLFWwindow* window, const std::string& name);
-
-		void DOM::printGeometry(GUIObject* obj);
 		void Render();
 		void Delete();
 
@@ -29,7 +26,7 @@ namespace higui
 		GLFWwindow* getGLFWwindow();
 
 		MarkupParser markup;
-		ShaderManager shaders;
+		ShaderRegistry shaders;
 	
 
 	private:

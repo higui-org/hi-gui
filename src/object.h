@@ -9,7 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "custom_any.h"
+#include "attribute.h"
 #include "shader.h"
 
 namespace higui
@@ -40,14 +40,13 @@ namespace higui
 		T get(std::string attribute) {
 			if (properties.find(attribute) == properties.end())
 				throw std::runtime_error("Cannot find the attribute in GUI object");
-			return FromString<T>(properties[attribute]);
+			return string::To<T>(properties[attribute]);
 		}
 		std::string get(std::string attribute);
 
 		GUIObject* getParent();
 		glm::mat4 getModel();
 
-		// events
 		glm::vec2 Size(int framebuffer_width, int framebuffer_height);
 		glm::vec2 Position(int framebuffer_width, int framebuffer_height);
 		glm::vec4 Geometry(int framebuffer_width, int framebuffer_height);
@@ -55,8 +54,9 @@ namespace higui
 		glm::vec2 Position(GLFWwindow* window);
 		glm::vec4 Geometry(GLFWwindow* window);
 
-		bool OnCursorPos(double xpos, double ypos);
-		bool OnMouseClick(int button, double xpos, double ypos);
+		// events
+		virtual bool OnCursorPos(double xpos, double ypos);
+		virtual bool OnMouseClick(int button, double xpos, double ypos);
 
 	protected:
 		void AddChild(GUIObject* obj);
@@ -66,9 +66,9 @@ namespace higui
 
 		glm::mat4 model;
 
-	private:
 		std::unordered_map<std::string, std::string> properties;
 
+	private:
 		static float vertices[12];
 		static unsigned int indices[6];
 
