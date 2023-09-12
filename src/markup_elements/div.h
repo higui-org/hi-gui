@@ -1,15 +1,15 @@
-#ifndef DIV_CLASS_H
-#define DIV_CLASS_H
+#ifndef DIV_H
+#define DIV_H
 
 #include "object.h"
 
 namespace higui 
 {
-	class DivElement : public GUIObject
+	class DivTag : public GUIObject
 	{
 	public:
-		DivElement();
-		~DivElement();
+		DivTag();
+		~DivTag();
 
 		void Render(unsigned int VAO) override;
 		void Update() override;
@@ -29,4 +29,4 @@ namespace higui
 	};
 }
 
-#endif // DIV_CLASS_H
+#endif // DIV_H

@@ -1,71 +1,148 @@
-#ifndef CUSTOM_ANY_H
-#define CUSTOM_ANY_H
+#ifndef HI_ATTRIBUTE_H
+#define HI_ATTRIBUTE_H
 
+#include <iostream>
 #include <map>
-#include <string>
-#include <sstream>
-#include <any>
-#include <unordered_map>
+#include <typeindex>
 #include <functional>
+#include <any>
+#include <string>
+#include <memory>
 #include <stdexcept>
+#include <regex>
+#include <list>
+#include <sstream>
+
+#include "hitypes.h"
 
 namespace higui
 {
-    struct RGB
-    {
-        size_t r;
-        size_t g;
-        size_t b;
-    };
+	class Attribute {
+	public:
+		Attribute(const std::string& key, const std::string& value) : key_(key) 
+		{
+			std::string type = key;
+			std::string real_value = value;
 
-    struct RGBA
-    {
-        size_t r;
-        size_t g;
-        size_t b;
-        size_t a;
-    };
+			size_t colon_pos = value.find(':');
+			if (colon_pos != std::string::npos) 
+			{
+				type = value.substr(0, colon_pos);
+				real_value = value.substr(colon_pos + 1);
+			}
 
-    namespace string 
-    {
-        RGB StringToRGB(const std::string& color);
-        RGBA StringToRGBA(const std::string& color);
-        float StringPercentageToFloat(const std::string& input);
+			auto it = AttributeValue::registry().find(type);
+			if (it != AttributeValue::registry().end()) 
+			{
+				std::shared_ptr<AttributeValue> new_value = it->second();
+				new_value->set(real_value);
+				attr_value = new_value;
+			}
+			else {
+				throw std::runtime_error("Invalid Attribute type: " + type);
+			}
+		}
 
-        std::string ToString(const RGB& value);
-        std::string ToString(const RGBA& value);
-        std::string ToString(float value);
-        std::string ToString(int value);
+		template <typename T>
+		Attribute& operator=(const T& new_value)
+		{
+			auto it = AttributeValue::registry().find(key_);
 
-        namespace internal
-        {
-            using ConversionFunction = std::function<std::any(const std::string&)>;
-            using ConversionMap = std::unordered_map<std::string, ConversionFunction>;
+			if (it != AttributeValue::registry().end()) {
+				std::shared_ptr<AttributeValue> value = it->second();
 
-            static ConversionMap conversion_map;
-        }
+				if (dynamic_cast<AttributeValueImpl<T>*>(value.get())) {
+					value->set(new_value);
+					attr_value = value;
+				}
+				else {
+					throw std::runtime_error("Type mismatch");
+				}
+			}
+			else {
+				throw std::runtime_error("Type not supported");
+			}
 
-        template<typename T>
-        void RegisterConversionFunction(const std::string& type_name, std::function<T(const std::string&)> conversion_function)
-        {
-			internal::conversion_map.insert(std::pair<std::string, internal::ConversionFunction>(type_name, conversion_function));
-        }
-        
-        template <typename T>
-        T To(const std::string& input)
-        {
-            auto it = internal::conversion_map.find(typeid(T).name());
-            if (it != internal::conversion_map.end())
-            {
-                const internal::ConversionFunction& conversion_function = it->second;
-                return std::any_cast<T>(conversion_function(input));
-            }
-            else
-            {
-                throw std::invalid_argument("Unsupported type.");
-            }
-        }
-    }
+			return *this;
+		}
+
+		std::string key() const {
+			return key_;
+		}
+
+		std::string value_str() const {
+			return attr_value->toString();
+		}
+
+		template <typename T>
+		T value () const {
+			return std::any_cast<T>(attr_value->get());
+		}
+
+		std::any value_any() const
+		{
+			return attr_value->get();
+		}
+
+	private:
+		std::string key_;
+		std::shared_ptr<AttributeValue> attr_value;
+	};
+
+	class AttributeContainer : public std::list<Attribute> {
+	public:
+		Attribute& operator[](const std::string& key) {
+			iterator it = find(key);
+
+			if (it != end())
+				return *it;
+
+			emplace_back(key, "");
+			return back();
+		}
+
+		Attribute& get(const std::string& key) {
+			auto it = find(key);
+
+			if (it != end()) 
+				return *it;
+
+			throw std::runtime_error("AttributeContainer does not contain Attribute with key: " + key);
+		}
+
+		// contains attribute
+		bool contains(const std::string& key) {
+			return find(key) == end() ? false : true;
+		}
+
+		iterator find(const std::string& key) {
+			for (auto it = begin(); it != end(); ++it) {
+				if (it->key() == key) {
+					return it;
+				}
+			}
+			return end();
+		}
+
+		// erase from container by key
+		void erase(const std::string& key) {
+			erase(find(key));
+		}
+
+		void erase(iterator it) {
+			std::list<Attribute>::erase(it);
+		}
+
+		// size
+		size_t size() const {
+			return std::list<Attribute>::size();
+		}
+
+		// clear all attributes
+		void clear() {
+			std::list<Attribute>::clear();
+		}
+	};
 }
 
-#endif // CUSTOM_ANY_H
+#endif // HI_ATTRIBUTE_H

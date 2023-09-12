@@ -1,11 +1,10 @@
-#ifndef DOM_H
-#define DOM_H
-
-#include "markup_elements/div.h"
-#include "markup.h"
-#include "shader.h"
+#ifndef HI_DOM_H
+#define HI_DOM_H
 
 #include <iostream>
+
+#include "markup.h"
+#include "style.h"
 
 namespace higui
 {
@@ -25,7 +24,7 @@ namespace higui
 
 		GLFWwindow* getGLFWwindow();
 
-		MarkupParser markup;
+		Markup markup;
 		ShaderRegistry shaders;
 	
 
@@ -41,4 +40,4 @@ namespace higui
 	};
 }
 
-#endif // DOM_H
+#endif // HI_DOM_H

@@ -1,5 +1,5 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef HI_SHADER_H
+#define HI_SHADER_H
 
 #include <glad/glad.h>
 #include <fstream>
@@ -48,4 +48,4 @@ namespace higui
 		static std::unordered_map<std::string, Shader*> shaders;
 	};
 }
-#endif
+#endif // HI_SHADER_H

@@ -54,7 +54,7 @@ namespace higui
 		{
 			static bool r = false;
 			GUIObject* div_object = markup.central_object->children[0];
-			DivElement* div = dynamic_cast<DivElement*>(div_object);
+			DivTag* div = dynamic_cast<DivTag*>(div_object);
 			ElementDock dock = div->getDock();
 			if (r)
 			{
@@ -67,9 +67,9 @@ namespace higui
 				std::cout << "bottom" << std::endl;
 			}
 			r = !r;
-			for (auto& prop : div_object->properties)
+			for (auto& attr : div_object->attributes)
 			{
-				std::cout << "name: " << prop.first << ", value: " << prop.second << std::endl;
+				std::cout << "name: " << attr.key() << ", value: " << attr.value_str() << std::endl;
 			}
 			div->Update();
 		}

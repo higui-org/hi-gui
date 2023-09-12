@@ -2,33 +2,33 @@
 
 namespace higui
 {
-	DivElement::DivElement() : GUIObject()
+	DivTag::DivTag() : GUIObject()
 	{
 		model = glm::mat4(1.0f);
 		dock = ElementDock::none;
 		dock_ratio = 0.5f;
 	}
 
-	DivElement::~DivElement()
+	DivTag::~DivTag()
 	{
 
 	}
 
-	void DivElement::Render(unsigned int VAO)
+	void DivTag::Render(unsigned int VAO)
 	{
 		ShaderRegistry::shader("default")->use();
 		ShaderRegistry::shader("default")->setMat4("model", model);
 		GUIObject::Render(VAO);
 	}
 
-	void DivElement::Update()
+	void DivTag::Update()
 	{
 		model = glm::mat4(1.0f);
 		CalculateDock();
 		GUIObject::Update();
 	}
 
-	void DivElement::CalculateDock()
+	void DivTag::CalculateDock()
 	{
 		if (parent)
 		{
@@ -38,16 +38,17 @@ namespace higui
 		char dock_char;
 		try
 		{
-			dock_char = get("dock").at(0);
+			//dock_char = get<std::string>("dock").at(0);
 		}
 		catch (std::exception)
 		{
-			return;
+			setDock(ElementDock::none);
+			dock_char = 'n';
 		}
 
 		try 
 		{
-			dock_ratio = get<float>("dock-ratio");
+			//dock_ratio = get<float>("dock-ratio");
 		}
 		catch (std::exception)
 		{
@@ -79,42 +80,42 @@ namespace higui
 		}
 	}
 
-	ElementDock DivElement::getDock()
+	ElementDock DivTag::getDock()
 	{
 		return dock;
 	}
 
-	float DivElement::getDockRatio()
+	float DivTag::getDockRatio()
 	{
 		return dock_ratio;
 	}
 
-	void DivElement::setDock(ElementDock dock_)
+	void DivTag::setDock(ElementDock dock_)
 	{
 		switch (dock_)
 		{
 		case ElementDock::none:
-			set("dock", "none");
+			attr("dock") = "none";
 			break;
 		case ElementDock::top:
-			set("dock", "top");
+			attr("dock") = "top";
 			break;
 		case ElementDock::bottom:
-			set("dock", "bottom");
+			attr("dock") = "bottom";
 			break;
 		case ElementDock::left:
-			set("dock", "left");
+			attr("dock") = "left";
 			break;
 		case ElementDock::right:
-			set("dock", "right");
+			attr("dock") = "right";
 			break;
 		default:
 			break;
 		}
 	}
 
-	void DivElement::setDockRatio(float ratio)
+	void DivTag::setDockRatio(float ratio)
 	{
-		set("dock-ratio", string::ToString(ratio));
+		attr("dock-ratio") = ratio;
 	}
 }

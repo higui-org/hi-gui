@@ -39,18 +39,6 @@ namespace higui
 		children.push_back(obj);
 	}
 
-	void GUIObject::set(std::string attribute, std::string value)
-	{
-		properties[attribute] = value;
-	}
-
-	std::string GUIObject::get(std::string attribute)
-	{
-		if (properties.find(attribute) == properties.end())
-			throw std::runtime_error("Cannot find the attribute in GUI object");
-		return properties[attribute];
-	}
-
 	GUIObject* GUIObject::getParent()
 	{
 		return parent;

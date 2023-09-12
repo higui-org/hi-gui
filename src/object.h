@@ -1,5 +1,5 @@
-﻿#ifndef GUI_OBJECT_H
-#define GUI_OBJECT_H
+﻿#ifndef HI_GUI_OBJECT_H
+#define HI_GUI_OBJECT_H
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -34,18 +34,21 @@ namespace higui
 		virtual void Render(unsigned int VAO);
 		virtual void Update();
 
-		void set(std::string attribute, std::string value);
-
-		template <typename T> 
-		T get(std::string attribute) {
-			if (properties.find(attribute) == properties.end())
-				throw std::runtime_error("Cannot find the attribute in GUI object");
-			return string::To<T>(properties[attribute]);
-		}
-		std::string get(std::string attribute);
-
 		GUIObject* getParent();
 		glm::mat4 getModel();
+
+
+		Attribute& attr(const std::string& key)
+		{
+			return attributes[key];
+		}
+
+		/*template <typename T>
+		T get(const std::string& key)
+		{
+			return attributes.get(key).value<T>();
+		}*/
+
 
 		glm::vec2 Size(int framebuffer_width, int framebuffer_height);
 		glm::vec2 Position(int framebuffer_width, int framebuffer_height);
@@ -61,20 +64,18 @@ namespace higui
 	protected:
 		void AddChild(GUIObject* obj);
 
-		GUIObject* parent;
 		std::vector<GUIObject*> children;
-
+		GUIObject* parent;
 		glm::mat4 model;
-
-		std::unordered_map<std::string, std::string> properties;
+		AttributeContainer attributes;
 
 	private:
 		static float vertices[12];
 		static unsigned int indices[6];
 
-		friend class MarkupParser;
+		friend class Markup;
 		friend class DOM;
 	};
 }
 
-#endif // GUI_OBJECT_H
+#endif // HI_GUI_OBJECT_H

@@ -1,5 +1,5 @@
-#ifndef MARKUP_PARSER_H
-#define MARKUP_PARSER_H
+#ifndef HI_MARKUP_PARSER_H
+#define HI_MARKUP_PARSER_H
 
 #include <string>
 #include <fstream>
@@ -13,11 +13,11 @@
 
 namespace higui
 {
-	class MarkupParser
+	class Markup
 	{
 	public:
-		MarkupParser(const std::string& markup_file);
-		~MarkupParser();
+		Markup(const std::string& markup_file);
+		~Markup();
 
 		template <typename T>
 		static void RegisterClass(const std::string& name);
@@ -40,7 +40,7 @@ namespace higui
 	};
 
 	template <typename T>
-	void MarkupParser::RegisterClass(const std::string& name)
+	void Markup::RegisterClass(const std::string& name)
 	{
 		if (class_factories.find(name) != class_factories.end())
 		{
@@ -51,4 +51,4 @@ namespace higui
 	}
 }
 
-#endif // MARKUP_PARSER_H
+#endif // HI_MARKUP_PARSER_H

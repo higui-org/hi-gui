@@ -2,9 +2,9 @@
 
 namespace higui
 {
-	std::unordered_map<std::string, std::function<void* ()>> MarkupParser::class_factories;
+	std::unordered_map<std::string, std::function<void* ()>> Markup::class_factories;
 
-	MarkupParser::MarkupParser(const std::string& filename)
+	Markup::Markup(const std::string& filename)
 	{
 		central_object = new GUIObject;
 		
@@ -21,12 +21,12 @@ namespace higui
 		markup = stream.str();
 	}
 
-	MarkupParser::~MarkupParser()
+	Markup::~Markup()
 	{
 		delete central_object;	// delete central object
 	}
 
-	void MarkupParser::Init()
+	void Markup::Init()
 	{
 		if (!isMarkupValid())
 		{
@@ -68,9 +68,9 @@ namespace higui
 					{
 						// get and set attributes to object
 						std::unordered_map<std::string, std::string> attributes = ExtractAttributes(tag_block);
-						for (auto& attribute : attributes)
+						for (auto& attr : attributes)
 						{
-							obj->set(attribute.first, attribute.second);
+							obj->attributes[attr.first] = attr.second;
 						}
 						// set object as child of previous object
 						if (!object_stack.empty())
@@ -96,7 +96,7 @@ namespace higui
 
 
 
-	bool MarkupParser::isMarkupValid()
+	bool Markup::isMarkupValid()
 	{
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
@@ -136,7 +136,7 @@ namespace higui
 		return tag_stack.empty(); // markup is valid if all opening tags have corresponding closing tags
 	}
 
-	std::string MarkupParser::ExtractTagBlock(size_t offset)
+	std::string Markup::ExtractTagBlock(size_t offset)
 	{
 		size_t block_pos, block_length;
 		block_pos = block_length = offset;
@@ -153,7 +153,7 @@ namespace higui
 		return markup.substr(block_pos, block_length - block_pos + 1);
 	}
 
-	std::string MarkupParser::ExtractTagName(const std::string& tag_block)
+	std::string Markup::ExtractTagName(const std::string& tag_block)
 	{
 		size_t pos, end_pos;
 		pos = tag_block.find('/');	   // trying to find as closing tag
@@ -168,7 +168,7 @@ namespace higui
 		return tag_block.substr(pos + 1, end_pos - pos - 1);
 	}
 
-	std::string MarkupParser::ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name)
+	std::string Markup::ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name)
 	{
 		size_t key_pos = tag_block.find(attribute_name + "=");
 		if (key_pos == std::string::npos)
@@ -188,7 +188,7 @@ namespace higui
 		return tag_block.substr(value_pos + 1, value_length);
 	}
 
-	std::unordered_map<std::string, std::string> MarkupParser::ExtractAttributes(const std::string& tag_block)
+	std::unordered_map<std::string, std::string> Markup::ExtractAttributes(const std::string& tag_block)
 	{
 		std::unordered_map<std::string, std::string> attributes;
 

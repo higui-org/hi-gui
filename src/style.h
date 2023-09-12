@@ -1,23 +1,23 @@
-#ifndef STYLEPARSER_H
-#define STYLEPARSER_H
+#ifndef HI_STYLE_PARSER_H
+#define HI_STYLE_PARSER_H
 
 #include <string>
 #include <unordered_map>
 #include <glm/glm.hpp>
 
-#include "shader.h"
+#include "higui.h"
 
 namespace higui
 {
-	class StyleParser
+	class Style
 	{
 	public:
-		StyleParser();
-		~StyleParser();
+		Style();
+		~Style();
 
 	private:
 
 	};
 }
 
-#endif // STYLEPARSER_H
+#endif // HI_STYLE_PARSER_H

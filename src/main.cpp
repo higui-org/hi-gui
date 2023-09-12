@@ -1,18 +1,12 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <stb/stb_image.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <iostream>
 
-#include "higui.h"
+#include "attribute.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
+	/*
     // glfw: initialize and configure
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -40,11 +34,28 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+	*/
 
-	higui::string::RegisterConversionFunction<float>("float", higui::string::StringPercentageToFloat);
-	higui::string::RegisterConversionFunction<higui::RGB>("RGB", higui::string::StringToRGB);
-	higui::string::RegisterConversionFunction<higui::RGBA>("RGBA", higui::string::StringToRGBA);
+	using namespace higui;
 
+	IntAttributeValue::RegisterAs("int");
+	Dock::RegisterAs("dock");
+
+	AttributeContainer container;
+
+	container["int"] = 20;
+	container["dock"] = "right";
+
+	int int_value = container.get("int").value<int>();
+	Dock::Position pos = container.get("dock").value<Dock::Position>();
+
+	container.get("int") = 55;
+
+	std::cout << int_value << std::endl;
+	std::cout << container.get("int").value<int>() << std::endl;
+	//std::cout << pos << std::endl;
+
+	/*
     higui::DOM dom(window, "test.markup", "test.style");
     dom.markup.RegisterClass<higui::GUIObject>("object");
     dom.markup.RegisterClass<higui::DivElement>("div");
@@ -64,5 +75,6 @@ int main()
     dom.Delete();
 
     glfwTerminate();
+	*/
     return 0;
 }
