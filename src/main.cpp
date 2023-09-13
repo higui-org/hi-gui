@@ -38,21 +38,35 @@ int main()
 
 	using namespace higui;
 
-	IntAttributeValue::RegisterAs("int");
 	Dock::RegisterAs("dock");
+	IntAttributeValue::RegisterAs("int");
+	FloatAttributeValue::RegisterAs("float");
+	StringAttributeValue::RegisterAs("str");
 
-	AttributeContainer container;
+	Attribute dock("dock");
+	Attribute integer("int", "666");
+	Attribute floating("float");
+	Attribute str("str");
 
-	container["int"] = 20;
-	container["dock"] = "right";
+	std::cout << dock << std::endl;
+	std::cout << integer << std::endl;
+	std::cout << floating << std::endl;
+	std::cout << str << std::endl;
 
-	int int_value = container.get("int").value<int>();
-	Dock::Position pos = container.get("dock").value<Dock::Position>();
+	std::cout << std::endl << std::endl;
 
-	container.get("int") = 55;
+	dock = DockPosition::Right;
+	integer = 40;
+	floating = 66.66666f;
+	str = "Slava Ukraini!";
 
-	std::cout << int_value << std::endl;
-	std::cout << container.get("int").value<int>() << std::endl;
+	std::cout << dock << std::endl;
+	std::cout << integer << std::endl;
+	std::cout << floating << std::endl;
+	std::cout << str << std::endl;
+
+	system("pause");
+
 	//std::cout << pos << std::endl;
 
 	/*

@@ -6,6 +6,8 @@
 #include "markup.h"
 #include "style.h"
 
+#include "markup_elements/div.h"
+
 namespace higui
 {
 	class DOM

@@ -1,11 +1,9 @@
-#ifndef HI_STYLE_PARSER_H
-#define HI_STYLE_PARSER_H
+#ifndef HI_STYLE_H
+#define HI_STYLE_H
 
-#include <string>
-#include <unordered_map>
 #include <glm/glm.hpp>
 
-#include "higui.h"
+#include "attribute.h"
 
 namespace higui
 {
@@ -20,4 +18,4 @@ namespace higui
 	};
 }
 
-#endif // HI_STYLE_PARSER_H
+#endif // HI_STYLE_H

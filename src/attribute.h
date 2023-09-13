@@ -1,70 +1,29 @@
 #ifndef HI_ATTRIBUTE_H
 #define HI_ATTRIBUTE_H
 
-#include <iostream>
-#include <map>
-#include <typeindex>
-#include <functional>
-#include <any>
-#include <string>
-#include <memory>
-#include <stdexcept>
-#include <regex>
-#include <list>
-#include <sstream>
-
 #include "hitypes.h"
 
 namespace higui
 {
-	class Attribute {
+	class Attribute 
+	{
 	public:
-		Attribute(const std::string& key, const std::string& value) : key_(key) 
-		{
-			std::string type = key;
-			std::string real_value = value;
+		Attribute(const std::string& key);
+		Attribute(const std::string& key, const std::string& value);
 
-			size_t colon_pos = value.find(':');
-			if (colon_pos != std::string::npos) 
-			{
-				type = value.substr(0, colon_pos);
-				real_value = value.substr(colon_pos + 1);
-			}
-
-			auto it = AttributeValue::registry().find(type);
-			if (it != AttributeValue::registry().end()) 
-			{
-				std::shared_ptr<AttributeValue> new_value = it->second();
-				new_value->set(real_value);
-				attr_value = new_value;
-			}
-			else {
-				throw std::runtime_error("Invalid Attribute type: " + type);
-			}
+		template <typename T>
+		std::enable_if_t<std::is_convertible_v<T, std::string> || std::is_same_v<T, const char*>, Attribute&> operator=(const T& new_value) {
+			attr_value->fromString(std::string(new_value));
+			return *this;
 		}
 
 		template <typename T>
-		Attribute& operator=(const T& new_value)
-		{
-			auto it = AttributeValue::registry().find(key_);
-
-			if (it != AttributeValue::registry().end()) {
-				std::shared_ptr<AttributeValue> value = it->second();
-
-				if (dynamic_cast<AttributeValueImpl<T>*>(value.get())) {
-					value->set(new_value);
-					attr_value = value;
-				}
-				else {
-					throw std::runtime_error("Type mismatch");
-				}
-			}
-			else {
-				throw std::runtime_error("Type not supported");
-			}
-
+		std::enable_if_t<!std::is_convertible_v<T, std::string> && !std::is_same_v<T, const char*>, Attribute&> operator=(const T& new_value) {
+			attr_value->setValue(std::any(new_value));
 			return *this;
 		}
+
+
 
 		std::string key() const {
 			return key_;
@@ -75,13 +34,18 @@ namespace higui
 		}
 
 		template <typename T>
-		T value () const {
-			return std::any_cast<T>(attr_value->get());
+		T value() const {
+			return std::any_cast<T>(attr_value->getValue());
 		}
 
-		std::any value_any() const
+		std::any value_any() const {
+			return attr_value->getValue();
+		}
+
+		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj)
 		{
-			return attr_value->get();
+			os << "Attribute(key: " << obj.key() << ", value: " << obj.attr_value->toString() << ")";
+			return os;
 		}
 
 	private:

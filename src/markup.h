@@ -1,13 +1,7 @@
-#ifndef HI_MARKUP_PARSER_H
-#define HI_MARKUP_PARSER_H
+#ifndef HI_MARKUP_H
+#define HI_MARKUP_H
 
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <unordered_map>
 #include <stack>
-#include <functional>
-#include <memory>
 
 #include "object.h"
 
@@ -51,4 +45,4 @@ namespace higui
 	}
 }
 
-#endif // HI_MARKUP_PARSER_H
+#endif // HI_MARKUP_H
