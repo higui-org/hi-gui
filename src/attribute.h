@@ -8,12 +8,31 @@ namespace higui
 	class Attribute 
 	{
 	public:
-		Attribute(const std::string& key);
-		Attribute(const std::string& key, const std::string& value);
+		Attribute(const std::string& key = "str") {
+			key_ = key;
+			auto it = AttributeTag::registry().find(key_);
+			if (it != AttributeTag::registry().end())
+			{
+				std::shared_ptr<AttributeTag> new_value = it->second();
+				attr_value = new_value;
+			}
+			else {
+				throw std::runtime_error("Invalid Attribute key: " + key_);
+			}
+		}
+
+		Attribute(const std::string& key, const std::string& tag);
+
+		template <typename T>
+		Attribute(const std::string& key, const T& value)
+		{
+			key_ = key;
+			attr_value->setValue(std::any(value));
+		}
 
 		template <typename T>
 		std::enable_if_t<std::is_convertible_v<T, std::string> || std::is_same_v<T, const char*>, Attribute&> operator=(const T& new_value) {
-			attr_value->fromString(std::string(new_value));
+			attr_value->fromTag(std::string(new_value));
 			return *this;
 		}
 
@@ -23,7 +42,19 @@ namespace higui
 			return *this;
 		}
 
-
+		void setKey(const std::string& key)
+		{
+			key_ = key;
+			auto it = AttributeTag::registry().find(key_);
+			if (it != AttributeTag::registry().end())
+			{
+				std::shared_ptr<AttributeTag> new_value = it->second();
+				attr_value = new_value;
+			}
+			else {
+				throw std::runtime_error("Invalid Attribute key: " + key_);
+			}
+		}
 
 		std::string key() const {
 			return key_;
@@ -44,68 +75,134 @@ namespace higui
 
 		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj)
 		{
-			os << "Attribute(key: " << obj.key() << ", value: " << obj.attr_value->toString() << ")";
+			os << "Attribute(key: " << obj.key();
+
+			if (std::dynamic_pointer_cast<StringAttributeTag>(obj.attr_value)) {
+				os << ", value: \"" <<  obj.attr_value->toString() << "\"";
+			}
+			else {
+				os << ", value: " << obj.attr_value->toString();
+			}
+			os << ")";
 			return os;
 		}
 
 	private:
 		std::string key_;
-		std::shared_ptr<AttributeValue> attr_value;
+		std::shared_ptr<AttributeTag> attr_value;
 	};
 
-	class AttributeContainer : public std::list<Attribute> {
+	class AttributeContainer {
 	public:
+		void add(const std::string& key) {
+			attributes_.push_back(Attribute(key));
+		}
+
+		void add(const std::string& key, const std::string& value) {
+			attributes_.push_back(Attribute(key, value));
+		}
+
+		template <typename T>
+		void add(const std::string& key, const T& value) {
+			Attribute attr(key);
+			attr = value;
+			attributes_.push_back(attr);
+		}
+
+		void remove(const std::string& key) {
+			attributes_.erase(std::remove_if(attributes_.begin(), attributes_.end(),
+				[key](const Attribute& attr) { return attr.key() == key; }), attributes_.end());
+		}
+
+		bool has(const std::string& key) const {
+			for (const auto& attr : attributes_) {
+				if (attr.key() == key) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		Attribute& operator[](const std::string& key) {
-			iterator it = find(key);
-
-			if (it != end())
-				return *it;
-
-			emplace_back(key, "");
-			return back();
+			std::size_t attr_index = find(key);
+			if (attr_index != npos)
+			{
+				return attributes_[attr_index];
+			}
+			add(key);
+			attributes_.back();
 		}
 
 		Attribute& get(const std::string& key) {
-			auto it = find(key);
-
-			if (it != end()) 
-				return *it;
-
-			throw std::runtime_error("AttributeContainer does not contain Attribute with key: " + key);
+			std::size_t attr_index = find(key);
+			if (attr_index != npos)
+			{
+				return attributes_[attr_index];
+			}
+			throw std::runtime_error("Attribute key \"" + key + "\" not found");
 		}
 
-		// contains attribute
-		bool contains(const std::string& key) {
-			return find(key) == end() ? false : true;
-		}
-
-		iterator find(const std::string& key) {
-			for (auto it = begin(); it != end(); ++it) {
-				if (it->key() == key) {
-					return it;
+		std::size_t find(const std::string& key) const {
+			for (std::size_t i = 0; i < attributes_.size(); ++i) {
+				if (attributes_[i].key() == key) {
+					return i;
 				}
 			}
-			return end();
+			return npos;
 		}
 
-		// erase from container by key
-		void erase(const std::string& key) {
-			erase(find(key));
+		class Iterator {
+		public:
+			using iterator_category = std::forward_iterator_tag;
+			using value_type = const Attribute;
+			using reference = const Attribute&;
+			using pointer = const Attribute*;
+			using difference_type = std::ptrdiff_t;
+
+			Iterator(std::vector<Attribute>::const_iterator it) : it_(it) {}
+
+			reference operator*() const {
+				return *it_;
+			}
+
+			pointer operator->() const {
+				return &(*it_);
+			}
+
+			Iterator& operator++() {
+				++it_;
+				return *this;
+			}
+
+			Iterator operator++(int) {
+				Iterator temp = *this;
+				++it_;
+				return temp;
+			}
+
+			bool operator==(const Iterator& other) const {
+				return it_ == other.it_;
+			}
+
+			bool operator!=(const Iterator& other) const {
+				return it_ != other.it_;
+			}
+
+		private:
+			std::vector<Attribute>::const_iterator it_;
+		};
+
+		Iterator begin() const {
+			return Iterator(attributes_.begin());
 		}
 
-		void erase(iterator it) {
-			std::list<Attribute>::erase(it);
+		Iterator end() const {
+			return Iterator(attributes_.end());
 		}
 
-		// size
-		size_t size() const {
-			return std::list<Attribute>::size();
-		}
-
-		// clear all attributes
-		void clear() {
-			std::list<Attribute>::clear();
-		}
+	private:
+		std::vector<Attribute> attributes_;
+		static const std::size_t npos = -1;
 	};
 }
 

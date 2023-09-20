@@ -2,25 +2,26 @@
 
 namespace higui
 {
-	void Dock::fromString(const std::string& new_value) {
-		char dock_char = new_value.at(0);
-
-		switch (dock_char) {
-		case 't':
-			pos = DockPosition::Top;
-			break;
-		case 'l':
+	void Dock::fromTag(const std::string& tag) {
+		if (tag == "left")
+		{
 			pos = DockPosition::Left;
-			break;
-		case 'b':
-			pos = DockPosition::Bottom;
-			break;
-		case 'r':
+		}
+		else if (tag == "top")
+		{
+			pos = DockPosition::Top;
+		}
+		else if (tag == "right")
+		{
 			pos = DockPosition::Right;
-			break;
-		default:
+		}
+		else if (tag == "bottom")
+		{
+			pos = DockPosition::Bottom;
+		}
+		else 
+		{
 			pos = DockPosition::None;
-			break;
 		}
 	}
 

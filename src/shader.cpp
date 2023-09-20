@@ -51,44 +51,14 @@ namespace higui
 		glShaderSource(vertex_object, 1, &vertex_c_str, NULL);
 		glCompileShader(vertex_object);
 
-#ifdef HIGUI_DEBUG_MODE
-		int success;
-		char info_log[512];
-		glGetShaderiv(vertex_object, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(vertex_object, 512, NULL, info_log);
-
-			printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s,\n", info_log);
-		}
-#endif
-
 		fragment_object = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment_object, 1, &fragment_c_str, NULL);
 		glCompileShader(fragment_object);
-
-#ifdef HIGUI_DEBUG_MODE
-		glGetShaderiv(fragment_object, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(fragment_object, 512, NULL, info_log);
-			printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED: %s,\n", info_log);
-		}
-#endif
 
 		this->ID = glCreateProgram();
 		glAttachShader(ID, vertex_object);
 		glAttachShader(ID, fragment_object);
 		glLinkProgram(ID);
-
-#ifdef HIGUI_DEBUG_MODE
-		glGetProgramiv(ID, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			glGetProgramInfoLog(ID, 512, NULL, info_log);
-			printf("ERROR::SHADER::PROGRAM::COMPILATION_FAILED: %s,\n", info_log);
-		}
-#endif
 
 		glDeleteShader(vertex_object);
 		glDeleteShader(fragment_object);

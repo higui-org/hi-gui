@@ -12,6 +12,7 @@ endif()
 set(SOURCES
     src/main.cpp
     src/higui.h
+    src/higui.cpp
     src/hitypes.h
     src/hitypes.cpp
     src/shader.cpp

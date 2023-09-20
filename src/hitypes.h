@@ -23,19 +23,19 @@ namespace higui
 		Right
 	};
 
-	class AttributeValue {
+	class AttributeTag {
 	public:
-		virtual ~AttributeValue() = default;
+		virtual ~AttributeTag() = default;
 
 		virtual std::string toString() = 0;
-		virtual void fromString(const std::string& value) = 0;
+		virtual void fromTag(const std::string& tag) = 0;
 
 		virtual std::any getValue() = 0;
 		virtual void setValue(const std::any& value) = 0;
 	protected:
-		static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValue>()>>& registry()
+		static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeTag>()>>& registry()
 		{
-			static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValue>()>> registry;
+			static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeTag>()>> registry;
 			return registry;
 		}
 
@@ -43,41 +43,35 @@ namespace higui
 		friend class Attribute;
 	};
 
-	template <typename Derived, typename T>
-	class AttributeValueImpl : public AttributeValue {
+	template <typename Derived>
+	class AttributeTagImpl : public AttributeTag {
 	public:
-		AttributeValueImpl() : value_(T()) {}
+		AttributeTagImpl() {}
 
 		static void RegisterAs(const std::string& type)
 		{
-			RegisterAs(type, []() -> std::shared_ptr<AttributeValue>
+			RegisterAs(type, []() -> std::shared_ptr<AttributeTag>
 			{
 				return std::make_shared<Derived>();
 			});
 		}
 
 	private:
-		T parseFromString(const std::string& value) {
-
-		}
-
-		T value_;
-
-		static void RegisterAs(const std::string& type, std::function<std::shared_ptr<AttributeValue>()> factory) {
+		static void RegisterAs(const std::string& type, std::function<std::shared_ptr<AttributeTag>()> factory) {
 			registry()[type] = factory;
 		}
 	};
 
 
-	class IntAttributeValue : public AttributeValueImpl<IntAttributeValue, int> {
+	class IntAttributeTag : public AttributeTagImpl<IntAttributeTag> {
 	public:
-		IntAttributeValue() : int_value(0) {}
+		IntAttributeTag() : int_value(0) {}
 
 		std::string toString() override {
 			return std::to_string(int_value);
 		}
 
-		void fromString(const std::string& value) override {
+		void fromTag(const std::string& value) override {
 			int_value = std::stoi(value);
 		}
 
@@ -93,15 +87,15 @@ namespace higui
 		int int_value;
 	};
 
-	class FloatAttributeValue : public AttributeValueImpl<FloatAttributeValue, float> {
+	class FloatAttributeTag : public AttributeTagImpl<FloatAttributeTag> {
 	public:
-		FloatAttributeValue() : float_value(0.0f) {}
+		FloatAttributeTag() : float_value(0.0f) {}
 
 		std::string toString() override {
 			return std::to_string(float_value);
 		}
 
-		void fromString(const std::string& value) override {
+		void fromTag(const std::string& value) override {
 			float_value = std::stof(value);
 		}
 
@@ -117,16 +111,16 @@ namespace higui
 		float float_value;
 	};
 
-	class StringAttributeValue : public AttributeValueImpl<StringAttributeValue, std::string> {
+	class StringAttributeTag : public AttributeTagImpl<StringAttributeTag> {
 	public:
-		StringAttributeValue() : str("") {}
-		StringAttributeValue(const std::string& value) : str(value) {}
+		StringAttributeTag() : str("") {}
+		StringAttributeTag(const std::string& value) : str(value) {}
 
 		std::string toString() override {
 			return str;
 		}
 
-		void fromString(const std::string& value) override {
+		void fromTag(const std::string& value) override {
 			str = value;
 		}
 
@@ -142,14 +136,14 @@ namespace higui
 		std::string str;
 	};
 
-	class Dock : public AttributeValueImpl<Dock, DockPosition> {
+	class Dock : public AttributeTagImpl<Dock> {
 	public:
 
 		Dock() : pos(DockPosition::None) {}
 
 		std::string toString() override;
 
-		void fromString(const std::string& new_value) override;
+		void fromTag(const std::string& new_value) override;
 
 		std::any getValue() override {
 			return std::any(pos);
