@@ -17,7 +17,7 @@ namespace higui
 		if (it != AttributeTag::registry().end())
 		{
 			std::shared_ptr<AttributeTag> new_value = it->second();
-			new_value->fromTag(value);
+			new_value->fromString(value);
 			attr_value = new_value;
 		}
 		else {

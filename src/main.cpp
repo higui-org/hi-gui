@@ -1,12 +1,13 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
-#include "attribute.h"
+#include "higui.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-	/*
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -34,31 +35,19 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-	*/
 
 	using namespace higui;
 
 	AttributeContainer container;
-
-	container["str"] = "69";
-	container["int"] = "169";
-	container["dock"] = "blah-blah";
-
-	container["dock"] = DockPosition::Right;		// set first founded "dock" to Position::Right
+	container["str"] = "just a string";
 
 	for (const Attribute& attr : container)
 	{
 		std::cout << attr << std::endl;
 	}
 
-	system("pause");
-
-	//std::cout << pos << std::endl;
-
-	/*
+	
     higui::DOM dom(window, "test.markup", "test.style");
-    dom.markup.RegisterClass<higui::GUIObject>("object");
-    dom.markup.RegisterClass<higui::DivElement>("div");
     dom.markup.Init();
     dom.shaders.RegisterShader("default", "default.vert", "default.frag");
         
@@ -75,6 +64,8 @@ int main()
     dom.Delete();
 
     glfwTerminate();
-	*/
+
     return 0;
+
+
 }

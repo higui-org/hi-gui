@@ -23,15 +23,16 @@ namespace higui
 		Right
 	};
 
+	// dont inherit from this. Use AttributeTagImpl.
 	class AttributeTag {
 	public:
 		virtual ~AttributeTag() = default;
 
 		virtual std::string toString() = 0;
-		virtual void fromTag(const std::string& tag) = 0;
+		virtual void fromString(const std::string& tag) = 0;
 
-		virtual std::any getValue() = 0;
-		virtual void setValue(const std::any& value) = 0;
+		virtual void setValue(const std::any value) = 0;
+		virtual void setValue(const std::string value) = 0;
 	protected:
 		static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeTag>()>>& registry()
 		{
@@ -43,21 +44,67 @@ namespace higui
 		friend class Attribute;
 	};
 
+	// for custom attribute tags
 	template <typename Derived>
 	class AttributeTagImpl : public AttributeTag {
 	public:
 		AttributeTagImpl() {}
 
-		static void RegisterAs(const std::string& type)
+		static void Register(const std::string& type)
 		{
-			RegisterAs(type, []() -> std::shared_ptr<AttributeTag>
+			RegisterType(type, []() -> std::shared_ptr<AttributeTag>
 			{
 				return std::make_shared<Derived>();
 			});
 		}
 
+		virtual void setValueFrom(Derived another) = 0;
+
+	protected:
+		std::string getSubTagByIndex(const std::string& tag, size_t index) {
+			size_t start_i = 0;
+			size_t end_i = tag.find(' ');
+
+			while (index > 0 && end_i != std::string::npos) {
+				start_i = end_i + 1;
+				end_i = tag.find(' ', start_i);
+				index--;
+			}
+
+			if (start_i != std::string::npos) {
+				if (end_i == std::string::npos) {
+					if (index != 0)
+					{
+						return "";
+					}
+					return tag.substr(start_i);
+				}
+				else {
+					return tag.substr(start_i, end_i - start_i);
+				}
+			}
+			else {
+				return "";
+			}
+		}
+
 	private:
-		static void RegisterAs(const std::string& type, std::function<std::shared_ptr<AttributeTag>()> factory) {
+		void setValue(const std::any value) override
+		{
+			if (value.type() == typeid(Derived)) {
+				std::shared_ptr<Derived> new_value = std::dynamic_pointer_cast<Derived>(value);
+				setValueFrom(*(new_value.get()));
+			}
+		}
+
+		void setValue(const std::string value) override
+		{
+			std::shared_ptr<Derived> derived_value = std::make_shared<Derived>();
+			derived_value->fromString(value);
+			setValueFrom(*(derived_value.get()));
+		}
+
+		static void RegisterType(const std::string& type, std::function<std::shared_ptr<AttributeTag>()> factory) {
 			registry()[type] = factory;
 		}
 	};
@@ -71,19 +118,14 @@ namespace higui
 			return std::to_string(int_value);
 		}
 
-		void fromTag(const std::string& value) override {
+		void fromString(const std::string& value) override {
 			int_value = std::stoi(value);
 		}
 
-		std::any getValue() override {
-			return std::any(int_value);
+		void setValueFrom(IntAttributeTag another) override {
+			int_value = another.int_value;
 		}
 
-		void setValue(const std::any& value) override {
-			int_value = std::any_cast<int>(value);
-		}
-
-	private:
 		int int_value;
 	};
 
@@ -95,66 +137,52 @@ namespace higui
 			return std::to_string(float_value);
 		}
 
-		void fromTag(const std::string& value) override {
+		void fromString(const std::string& value) override {
 			float_value = std::stof(value);
 		}
 
-		std::any getValue() override {
-			return std::any(float_value);
+		void setValueFrom(FloatAttributeTag another) override {
+			float_value = another.float_value;
 		}
 
-		void setValue(const std::any& value) override {
-			float_value = std::any_cast<float>(value);
-		}
-
-	private:
 		float float_value;
 	};
 
 	class StringAttributeTag : public AttributeTagImpl<StringAttributeTag> {
 	public:
 		StringAttributeTag() : str("") {}
-		StringAttributeTag(const std::string& value) : str(value) {}
 
 		std::string toString() override {
 			return str;
 		}
 
-		void fromTag(const std::string& value) override {
+		void fromString(const std::string& value) override {
 			str = value;
 		}
 
-		std::any getValue() override {
-			return std::any(str);
+		void setValueFrom(StringAttributeTag another) override {
+			str = another.str;
 		}
 
-		void setValue(const std::any& value) override {
-			str = std::any_cast<std::string>(value);
-		}
-
-	private:
 		std::string str;
 	};
 
 	class Dock : public AttributeTagImpl<Dock> {
 	public:
 
-		Dock() : pos(DockPosition::None) {}
+		Dock() : pos(DockPosition::None), ratio(0.5f) {}
 
 		std::string toString() override;
 
-		void fromTag(const std::string& new_value) override;
+		void fromString(const std::string& new_value) override;
 
-		std::any getValue() override {
-			return std::any(pos);
+		void setValueFrom(Dock another) override {
+			pos = another.pos;
+			ratio = another.ratio;
 		}
 
-		void setValue(const std::any& value) override {
-			pos = std::any_cast<DockPosition>(value);
-		}
-
-	private:
 		DockPosition pos;
+		float ratio;
 	};
 
 	struct RGBA {

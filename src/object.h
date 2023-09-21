@@ -14,40 +14,19 @@ namespace higui
 {
 	class DOM;
 
-	enum class ElementDock
-	{
-		none,
-		top,
-		bottom,
-		left,
-		right
-	};
-
+	// dont inherit from this. use GUIObjectImpl instead.
 	class GUIObject
 	{
 	public:
 		GUIObject();
-		virtual ~GUIObject();
 		
-		virtual void Render(unsigned int VAO);
+		void Render(unsigned int VAO);
 		virtual void Update();
 
-		GUIObject* getParent();
+		std::shared_ptr<GUIObject> getParent();
 		glm::mat4 getModel();
 
-
-		Attribute& attr(const std::string& key)
-		{
-			return attributes[key];
-		}
-
-		/*template <typename T>
-		T get(const std::string& key)
-		{
-			return attributes.get(key).value<T>();
-		}*/
-
-
+		// returns a vector of pixels
 		glm::vec2 Size(int framebuffer_width, int framebuffer_height);
 		glm::vec2 Position(int framebuffer_width, int framebuffer_height);
 		glm::vec4 Geometry(int framebuffer_width, int framebuffer_height);
@@ -59,20 +38,50 @@ namespace higui
 		virtual bool OnCursorPos(double xpos, double ypos);
 		virtual bool OnMouseClick(int button, double xpos, double ypos);
 
+		// attributes
+		AttributeContainer attr;
+
 	protected:
-		void AddChild(GUIObject* obj);
+		// Markup class adds children
+		void AddChild(std::shared_ptr<GUIObject> obj);
 
-		std::vector<GUIObject*> children;
-		GUIObject* parent;
+		std::vector<std::shared_ptr<GUIObject>> children;
+		std::shared_ptr<GUIObject> parent;
 		glm::mat4 model;
-		AttributeContainer attributes;
 
-	private:
+		// basic rectangle
 		static float vertices[12];
 		static unsigned int indices[6];
 
+		// friends~
 		friend class Markup;
 		friend class DOM;
+
+		static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObject>()>>& registry()
+		{
+			static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObject>()>> registry;
+			return registry;
+		}
+	};
+
+	// inherit from this GUIObjectImpl
+	template<typename Derived>
+	class GUIObjectImpl : public GUIObject
+	{
+	public:
+		// register markup tag
+		static void Register(const std::string& type)
+		{
+			RegisterType(type, []() -> std::shared_ptr<Derived>
+			{
+				return std::make_shared<Derived>();
+			});
+		}
+
+	private:
+		static void RegisterType(const std::string& type, std::function<std::shared_ptr<GUIObject>()> factory) {
+			registry()[type] = factory;
+		}
 	};
 }
 

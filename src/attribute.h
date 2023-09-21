@@ -32,13 +32,13 @@ namespace higui
 
 		template <typename T>
 		std::enable_if_t<std::is_convertible_v<T, std::string> || std::is_same_v<T, const char*>, Attribute&> operator=(const T& new_value) {
-			attr_value->fromTag(std::string(new_value));
+			attr_value->fromString(std::string(new_value));
 			return *this;
 		}
 
 		template <typename T>
 		std::enable_if_t<!std::is_convertible_v<T, std::string> && !std::is_same_v<T, const char*>, Attribute&> operator=(const T& new_value) {
-			attr_value->setValue(std::any(new_value));
+			attr_value->setValue(new_value);
 			return *this;
 		}
 
@@ -62,15 +62,6 @@ namespace higui
 
 		std::string value_str() const {
 			return attr_value->toString();
-		}
-
-		template <typename T>
-		T value() const {
-			return std::any_cast<T>(attr_value->getValue());
-		}
-
-		std::any value_any() const {
-			return attr_value->getValue();
 		}
 
 		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj)
@@ -130,7 +121,7 @@ namespace higui
 				return attributes_[attr_index];
 			}
 			add(key);
-			attributes_.back();
+			return attributes_.back();
 		}
 
 		Attribute& get(const std::string& key) {

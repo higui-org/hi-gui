@@ -8,14 +8,6 @@ namespace higui
 		model = glm::mat4(1.0f);
 	}
 
-	GUIObject::~GUIObject()
-	{
-		for (auto child : children) 
-		{
-			delete child;
-		}
-	}
-
 	void GUIObject::Render(unsigned int VAO)
 	{
 		glBindVertexArray(VAO);
@@ -34,12 +26,12 @@ namespace higui
 		}
 	}
 
-	void GUIObject::AddChild(GUIObject* obj)
+	void GUIObject::AddChild(std::shared_ptr<GUIObject> obj)
 	{
 		children.push_back(obj);
 	}
 
-	GUIObject* GUIObject::getParent()
+	std::shared_ptr<GUIObject> GUIObject::getParent()
 	{
 		return parent;
 	}

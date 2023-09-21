@@ -53,25 +53,27 @@ namespace higui
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
 		{
 			static bool r = false;
-			GUIObject* div_object = markup.central_object->children[0];
-			DivTag* div = dynamic_cast<DivTag*>(div_object);
-			ElementDock dock = div->getDock();
-			if (r)
+			std::shared_ptr<GUIObject> div_object = markup.central_object->children[0];
+			std::shared_ptr<DivTag> div = std::dynamic_pointer_cast<DivTag>(div_object);
+			if (div)
 			{
-				div->setDock(ElementDock::top);
-				std::cout << "top" << std::endl;
+				Dock dock = div->getDock();
+				dock.pos = r ? DockPosition::Top : DockPosition::Bottom;
+				if (dock.pos == DockPosition::Top)
+				{
+					std::cout << "top" << std::endl;
+				}
+				else
+				{
+					std::cout << "bottom" << std::endl;
+				}
+				r = !r;
+				for (auto& attr : div_object->attr)
+				{
+					std::cout << "name: " << attr.key() << ", value: " << attr.value_str() << std::endl;
+				}
+				div->Update();
 			}
-			else
-			{
-				div->setDock(ElementDock::bottom);
-				std::cout << "bottom" << std::endl;
-			}
-			r = !r;
-			for (auto& attr : div_object->attributes)
-			{
-				std::cout << "name: " << attr.key() << ", value: " << attr.value_str() << std::endl;
-			}
-			div->Update();
 		}
 	}
 

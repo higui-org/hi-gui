@@ -5,27 +5,27 @@
 
 namespace higui 
 {
-	class DivTag : public GUIObject
+	class DivTag : public GUIObjectImpl<DivTag>
 	{
 	public:
 		DivTag();
 		~DivTag();
 
-		void Render(unsigned int VAO) override;
+		void Render(unsigned int VAO);
 		void Update() override;
 
 		void CalculateDock();
 
-
-		ElementDock getDock();
+		Dock getDock();
+		DockPosition getDockPosition();
 		float getDockRatio();
 
-		void setDock(ElementDock dock);
+		void setDock(Dock dock);
+		void setDockPosition(DockPosition dock_pos);
 		void setDockRatio(float ratio);
 
 	protected:
-		ElementDock dock;
-		float dock_ratio;
+		Dock dock;
 	};
 }
 

@@ -4,11 +4,17 @@ namespace higui
 {
 	namespace internal {
 		GlobalInitializer::GlobalInitializer() {
-			IntAttributeTag::RegisterAs("int");
-			FloatAttributeTag::RegisterAs("float");
-			StringAttributeTag::RegisterAs("string");
-			StringAttributeTag::RegisterAs("str");
-			Dock::RegisterAs("dock");
+			// basic attribute tags
+			IntAttributeTag::Register("int");
+			FloatAttributeTag::Register("float");
+			StringAttributeTag::Register("string");
+			StringAttributeTag::Register("str");
+
+			// dock
+			Dock::Register("dock");
+
+			// basic markup tags
+			DivTag::Register("div");
 		}
 
 		GlobalInitializer global_initializer;

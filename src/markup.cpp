@@ -2,12 +2,9 @@
 
 namespace higui
 {
-	std::unordered_map<std::string, std::function<void* ()>> Markup::class_factories;
-
 	Markup::Markup(const std::string& filename)
-	{
-		central_object = new GUIObject;
-		
+	{	
+		central_object = std::make_shared<GUIObject>();
 		std::ifstream file;
 
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -21,11 +18,6 @@ namespace higui
 		markup = stream.str();
 	}
 
-	Markup::~Markup()
-	{
-		delete central_object;	// delete central object
-	}
-
 	void Markup::Init()
 	{
 		if (!isMarkupValid())
@@ -34,7 +26,7 @@ namespace higui
 			return;
 		}
 
-		std::stack<GUIObject*> object_stack;
+		std::stack<std::shared_ptr<GUIObject>> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
@@ -53,7 +45,7 @@ namespace higui
 					tag_stack.pop();
 					if (!object_stack.empty())
 					{
-						GUIObject* obj = object_stack.top();
+						std::shared_ptr<GUIObject> obj = object_stack.top();
 						object_stack.pop();
 					}
 				}
@@ -61,16 +53,17 @@ namespace higui
 			else // opening tag
 			{
 				tag_stack.push(tag_name);
-				if (class_factories.find(tag_name) != class_factories.end())
+				auto& it = GUIObject::registry().find(tag_name);
+				if (it != GUIObject::registry().end())
 				{
-					GUIObject* obj = static_cast<GUIObject*>(class_factories[tag_name]());
+					std::shared_ptr<GUIObject> obj = static_cast<std::shared_ptr<GUIObject>>(it->second());
 					if (obj)
 					{
 						// get and set attributes to object
 						std::unordered_map<std::string, std::string> attributes = ExtractAttributes(tag_block);
-						for (auto& attr : attributes)
+						for (auto& attr_ : attributes)
 						{
-							obj->attributes[attr.first] = attr.second;
+							obj->attr[attr_.first] = attr_.second;
 						}
 						// set object as child of previous object
 						if (!object_stack.empty())

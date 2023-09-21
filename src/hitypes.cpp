@@ -2,27 +2,34 @@
 
 namespace higui
 {
-	void Dock::fromTag(const std::string& tag) {
-		if (tag == "left")
+	void Dock::fromString(const std::string& tag) {
+		std::string dock_str = getSubTagByIndex(tag, 0);
+		if (!dock_str.empty())
 		{
-			pos = DockPosition::Left;
+			if (dock_str == "left")
+			{
+				pos = DockPosition::Left;
+			}
+			else if (dock_str == "top")
+			{
+				pos = DockPosition::Top;
+			}
+			else if (dock_str == "right")
+			{
+				pos = DockPosition::Right;
+			}
+			else if (dock_str == "bottom")
+			{
+				pos = DockPosition::Bottom;
+			}
 		}
-		else if (tag == "top")
+		
+		if (!getSubTagByIndex(tag, 1).empty())
 		{
-			pos = DockPosition::Top;
+			std::cout << getSubTagByIndex(tag, 1) << std::endl;
+			ratio = internal::ToFloat(getSubTagByIndex(tag, 1));
 		}
-		else if (tag == "right")
-		{
-			pos = DockPosition::Right;
-		}
-		else if (tag == "bottom")
-		{
-			pos = DockPosition::Bottom;
-		}
-		else 
-		{
-			pos = DockPosition::None;
-		}
+
 	}
 
 	std::string Dock::toString() {
