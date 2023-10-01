@@ -2,7 +2,7 @@
 
 namespace higui
 {
-	DivTag::DivTag() : GUIObjectImpl()
+	DivTag::DivTag() : GUIObject(), dock()
 	{
 		model = glm::mat4(1.0f);
 	}
@@ -14,18 +14,29 @@ namespace higui
 
 	void DivTag::Render(unsigned int VAO)
 	{
-		ShaderRegistry::shader("default")->use();
-		ShaderRegistry::shader("default")->setMat4("model", model);
-		GUIObject::Render(VAO);
+		auto default_shader = Shader::get("default");
+		default_shader->use();
+		default_shader->setMat4("model", model);
+
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		for (auto& child : children)
+		{
+			child->Render(VAO);
+		}
 	}
 
 	void DivTag::Update()
 	{
-		attr["dock"] = dock;
 		model = glm::mat4(1.0f);
 
 		CalculateDock();
-		GUIObject::Update();
+		
+		for (auto& child : children)
+		{
+			child->Update();
+		}
 	}
 
 	void DivTag::CalculateDock()
@@ -59,7 +70,7 @@ namespace higui
 		}
 	}
 
-	Dock DivTag::getDock()
+	AttributeDock DivTag::getDock()
 	{
 		return dock;
 	}
@@ -74,7 +85,7 @@ namespace higui
 		return dock.ratio;
 	}
 
-	void DivTag::setDock(Dock dock_)
+	void DivTag::setDock(AttributeDock dock_)
 	{
 		dock = dock_;
 	}

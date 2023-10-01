@@ -8,48 +8,67 @@ namespace higui
 	class Attribute 
 	{
 	public:
-		Attribute(const std::string& key = "str") {
-			key_ = key;
-			auto it = AttributeTag::registry().find(key_);
-			if (it != AttributeTag::registry().end())
-			{
-				std::shared_ptr<AttributeTag> new_value = it->second();
-				attr_value = new_value;
-			}
-			else {
-				throw std::runtime_error("Invalid Attribute key: " + key_);
-			}
-		}
+		Attribute(const std::string& key = "str");
+		Attribute(const std::string& key, const std::string& new_value);
 
-		Attribute(const std::string& key, const std::string& tag);
-
+		// for std::shared_ptr
 		template <typename T>
-		Attribute(const std::string& key, const T& value)
+		std::enable_if_t<std::is_same<T, std::shared_ptr<typename std::decay_t<T>::element_type>>::value, 
+			Attribute&>
+			operator=(T&& new_value) 
 		{
-			key_ = key;
-			attr_value->setValue(std::any(value));
+			value = std::forward<T>(new_value);
+			return *this;
 		}
 
+		// T is std::string
 		template <typename T>
-		std::enable_if_t<std::is_convertible_v<T, std::string> || std::is_same_v<T, const char*>, Attribute&> operator=(const T& new_value) {
-			attr_value->fromString(std::string(new_value));
+		std::enable_if_t<std::is_same_v<T, std::string>,
+			Attribute&> 
+			operator=(const T& new_value)
+		{
+			value->fromString(new_value);
+			return *this;
+		}
+
+		// for cloning
+		/*template <typename T>
+		std::enable_if_t<!std::is_pointer_v<T> && (!std::is_same_v<T, std::string>),
+			Attribute&>
+			operator=(const T& new_value)
+		{
+			value = std::make_shared<typename std::decay<T>::type>(new_value);
+			return *this;
+		}*/
+
+		// for cloning
+		template <typename T>
+		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, Attribute&>
+			operator=(const T& new_value)
+		{
+			value = std::make_shared<typename std::decay<T>::type>(new_value);
 			return *this;
 		}
 
 		template <typename T>
-		std::enable_if_t<!std::is_convertible_v<T, std::string> && !std::is_same_v<T, const char*>, Attribute&> operator=(const T& new_value) {
-			attr_value->setValue(new_value);
+		std::enable_if_t<
+			std::is_same_v<T, int> || 
+			std::is_same_v<T, float> || 
+			std::is_same_v<T, double>,
+		Attribute&> operator=(const T& new_value)
+		{
+			value->fromString(std::to_string(new_value));
 			return *this;
 		}
 
 		void setKey(const std::string& key)
 		{
 			key_ = key;
-			auto it = AttributeTag::registry().find(key_);
-			if (it != AttributeTag::registry().end())
+			auto it = internal::AttributeValueBase::registry().find(key_);
+			if (it != internal::AttributeValueBase::registry().end())
 			{
-				std::shared_ptr<AttributeTag> new_value = it->second();
-				attr_value = new_value;
+				std::shared_ptr<internal::AttributeValueBase> new_value = it->second();
+				value = new_value;
 			}
 			else {
 				throw std::runtime_error("Invalid Attribute key: " + key_);
@@ -60,27 +79,22 @@ namespace higui
 			return key_;
 		}
 
-		std::string value_str() const {
-			return attr_value->toString();
-		}
-
 		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj)
 		{
 			os << "Attribute(key: " << obj.key();
-
-			if (std::dynamic_pointer_cast<StringAttributeTag>(obj.attr_value)) {
-				os << ", value: \"" <<  obj.attr_value->toString() << "\"";
-			}
-			else {
-				os << ", value: " << obj.attr_value->toString();
+			if (std::dynamic_pointer_cast<AttributeString>(obj.value)) {
+				os << ", value: \"" << obj.value->toString() << "\"";
+			} else {
+				os << ", value: "   << obj.value->toString();
 			}
 			os << ")";
 			return os;
 		}
 
+		std::shared_ptr<internal::AttributeValueBase> value;
+
 	private:
 		std::string key_;
-		std::shared_ptr<AttributeTag> attr_value;
 	};
 
 	class AttributeContainer {
@@ -89,13 +103,37 @@ namespace higui
 			attributes_.push_back(Attribute(key));
 		}
 
+		void add(Attribute attribute) {
+			attributes_.push_back(attribute);
+		}
+
+		/*
+		template <typename T>
+		std::enable_if_t<std::is_same<T, std::shared_ptr<typename std::decay_t<T>::element_type>>::value, Attribute&>
+		add(std::string key, T&& new_value)
+		{
+			value = std::forward<T>(new_value);
+			attributes_.push_back(attr);
+		}*/
+
 		void add(const std::string& key, const std::string& value) {
 			attributes_.push_back(Attribute(key, value));
 		}
 
 		template <typename T>
-		void add(const std::string& key, const T& value) {
-			Attribute attr(key);
+		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, void>
+			add(std::string key, T& new_value)
+		{
+			Attribute attr{ key };
+			attr = std::make_shared<typename std::decay<T>::type>(new_value);
+			attributes_.push_back(attr);
+		}
+
+
+		template <typename T>
+		void add(const std::string& key, const T& value)
+		{
+			Attribute attr{ key };
 			attr = value;
 			attributes_.push_back(attr);
 		}
@@ -113,7 +151,7 @@ namespace higui
 			}
 			return false;
 		}
-
+		/*
 		Attribute& operator[](const std::string& key) {
 			std::size_t attr_index = find(key);
 			if (attr_index != npos)
@@ -122,7 +160,26 @@ namespace higui
 			}
 			add(key);
 			return attributes_.back();
+		}*/
+
+		template <typename Derived>
+		Derived& get(const std::string& key) {
+			std::size_t attr_index = find(key);
+			if (attr_index != npos) {
+				if (std::shared_ptr<Derived> derived_value = std::dynamic_pointer_cast<Derived>(attributes_[attr_index].value)) {
+					return *derived_value;
+				}
+				else {
+					throw std::runtime_error("Attribute value cannot be converted to the specified type.");
+				}
+			}
+			std::shared_ptr<Derived> new_attribute = std::make_shared<Derived>();
+			Attribute attr(key);
+			attr.value = new_attribute;
+			attributes_.push_back(attr);
+			return *new_attribute;
 		}
+
 
 		Attribute& get(const std::string& key) {
 			std::size_t attr_index = find(key);

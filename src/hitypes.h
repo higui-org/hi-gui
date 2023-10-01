@@ -15,174 +15,14 @@
 
 namespace higui
 {
+	class Attribute;
+
 	enum class DockPosition {
 		None,
 		Top,
 		Left,
 		Bottom,
 		Right
-	};
-
-	// dont inherit from this. Use AttributeTagImpl.
-	class AttributeTag {
-	public:
-		virtual ~AttributeTag() = default;
-
-		virtual std::string toString() = 0;
-		virtual void fromString(const std::string& tag) = 0;
-
-		virtual void setValue(const std::any value) = 0;
-		virtual void setValue(const std::string value) = 0;
-	protected:
-		static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeTag>()>>& registry()
-		{
-			static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeTag>()>> registry;
-			return registry;
-		}
-
-	private:
-		friend class Attribute;
-	};
-
-	// for custom attribute tags
-	template <typename Derived>
-	class AttributeTagImpl : public AttributeTag {
-	public:
-		AttributeTagImpl() {}
-
-		static void Register(const std::string& type)
-		{
-			RegisterType(type, []() -> std::shared_ptr<AttributeTag>
-			{
-				return std::make_shared<Derived>();
-			});
-		}
-
-		virtual void setValueFrom(Derived another) = 0;
-
-	protected:
-		std::string getSubTagByIndex(const std::string& tag, size_t index) {
-			size_t start_i = 0;
-			size_t end_i = tag.find(' ');
-
-			while (index > 0 && end_i != std::string::npos) {
-				start_i = end_i + 1;
-				end_i = tag.find(' ', start_i);
-				index--;
-			}
-
-			if (start_i != std::string::npos) {
-				if (end_i == std::string::npos) {
-					if (index != 0)
-					{
-						return "";
-					}
-					return tag.substr(start_i);
-				}
-				else {
-					return tag.substr(start_i, end_i - start_i);
-				}
-			}
-			else {
-				return "";
-			}
-		}
-
-	private:
-		void setValue(const std::any value) override
-		{
-			if (value.type() == typeid(Derived)) {
-				std::shared_ptr<Derived> new_value = std::dynamic_pointer_cast<Derived>(value);
-				setValueFrom(*(new_value.get()));
-			}
-		}
-
-		void setValue(const std::string value) override
-		{
-			std::shared_ptr<Derived> derived_value = std::make_shared<Derived>();
-			derived_value->fromString(value);
-			setValueFrom(*(derived_value.get()));
-		}
-
-		static void RegisterType(const std::string& type, std::function<std::shared_ptr<AttributeTag>()> factory) {
-			registry()[type] = factory;
-		}
-	};
-
-
-	class IntAttributeTag : public AttributeTagImpl<IntAttributeTag> {
-	public:
-		IntAttributeTag() : int_value(0) {}
-
-		std::string toString() override {
-			return std::to_string(int_value);
-		}
-
-		void fromString(const std::string& value) override {
-			int_value = std::stoi(value);
-		}
-
-		void setValueFrom(IntAttributeTag another) override {
-			int_value = another.int_value;
-		}
-
-		int int_value;
-	};
-
-	class FloatAttributeTag : public AttributeTagImpl<FloatAttributeTag> {
-	public:
-		FloatAttributeTag() : float_value(0.0f) {}
-
-		std::string toString() override {
-			return std::to_string(float_value);
-		}
-
-		void fromString(const std::string& value) override {
-			float_value = std::stof(value);
-		}
-
-		void setValueFrom(FloatAttributeTag another) override {
-			float_value = another.float_value;
-		}
-
-		float float_value;
-	};
-
-	class StringAttributeTag : public AttributeTagImpl<StringAttributeTag> {
-	public:
-		StringAttributeTag() : str("") {}
-
-		std::string toString() override {
-			return str;
-		}
-
-		void fromString(const std::string& value) override {
-			str = value;
-		}
-
-		void setValueFrom(StringAttributeTag another) override {
-			str = another.str;
-		}
-
-		std::string str;
-	};
-
-	class Dock : public AttributeTagImpl<Dock> {
-	public:
-
-		Dock() : pos(DockPosition::None), ratio(0.5f) {}
-
-		std::string toString() override;
-
-		void fromString(const std::string& new_value) override;
-
-		void setValueFrom(Dock another) override {
-			pos = another.pos;
-			ratio = another.ratio;
-		}
-
-		DockPosition pos;
-		float ratio;
 	};
 
 	struct RGBA {
@@ -192,12 +32,131 @@ namespace higui
 
 	namespace internal {
 		RGBA ToRGBA(const std::string& value);
+		float ToNormalizedFloat(const std::string& value);
 
-		float ToFloat(const std::string& value);
+		class AttributeValueBase {
+		public:
+			virtual ~AttributeValueBase() = default;
 
-		int ToInt(const std::string& value);
-	}
+			virtual std::string toString() = 0;
+			virtual void fromString(const std::string& value) = 0;
 
+		protected:
+
+			static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValueBase>()>>& registry()
+			{
+				static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValueBase>()>> registry;
+				return registry;
+			}
+
+			friend class Attribute;
+		};
+	};
+
+	template <typename Derived>
+	class AttributeValue : public internal::AttributeValueBase {
+	public:
+		AttributeValue() {}
+
+		static void Register(const std::string& type)
+		{
+			RegisterType(type, []() -> std::shared_ptr<internal::AttributeValueBase>
+			{
+				return std::make_shared<Derived>();
+			});
+		}
+
+		friend std::ostream& operator<<(std::ostream& os, Derived obj)
+		{
+			os << obj.toString();
+			return os;
+		}
+
+	protected:
+		std::vector<std::string> SplitBySpace(const std::string& value) {
+			std::vector<std::string> result;
+			std::istringstream tokenizer(value);
+			std::string word;
+
+			while (tokenizer >> word) {
+				result.push_back(word);
+			}
+
+			return result;
+		}
+
+	private:
+		static void RegisterType(const std::string& type, std::function<std::shared_ptr<internal::AttributeValueBase>()> factory) {
+			registry()[type] = factory;
+		}
+	};
+
+
+	class AttributeInt : public AttributeValue<AttributeInt> {
+	public:
+		AttributeInt() : int_value(0) {}
+
+		std::string toString() override {
+			return std::to_string(int_value);
+		}
+
+		void fromString(const std::string& value) override {
+			int_value = std::stoi(value);
+		}
+
+		int int_value;
+	};
+
+	class AttributeFloat : public AttributeValue<AttributeFloat> {
+	public:
+		AttributeFloat() : float_value(0.0f) {}
+
+		std::string toString() override {
+			return std::to_string(float_value);
+		}
+
+		void fromString(const std::string& value) override {
+			try
+			{
+				float_value = std::stof(value);
+			}
+			catch (std::invalid_argument)
+			{
+				float_value = internal::ToNormalizedFloat(value);
+			}
+		}
+
+		float float_value;
+	};
+
+	class AttributeString : public AttributeValue<AttributeString> {
+	public:
+		AttributeString() : str("") {}
+
+		std::string toString() override {
+			return str;
+		}
+
+		void fromString(const std::string& value) override {
+			str = value;
+		}
+
+		std::string str;
+	};
+
+	class AttributeDock : public AttributeValue<AttributeDock> {
+	public:
+
+		AttributeDock() : pos(DockPosition::None), ratio(0.5f) {}
+
+		std::string toString() override;
+
+		void fromString(const std::string& new_value) override;
+
+
+		DockPosition pos;
+		float ratio;
+	};
 }
 
 #endif // HI_TYPES_H

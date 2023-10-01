@@ -15,6 +15,16 @@ namespace higui
 		glfwSetMouseButtonCallback(window, DOM::MouseButtonCallbackWrapper);
 		glfwSetFramebufferSizeCallback(window, DOM::FramebufferSizeCallbackWrapper);
 
+		GLfloat vertices[] = {
+			-0.5f,  0.5f, 0.0f,
+			-0.5f, -0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+
+			-0.5f,  0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			 0.5f,  0.5f, 0.0f
+		};
+
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);
@@ -22,14 +32,17 @@ namespace higui
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GUIObject::vertices), GUIObject::vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(internal::GUIObjectBase::vertices), internal::GUIObjectBase::vertices, GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GUIObject::indices), GUIObject::indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(internal::GUIObjectBase::indices), internal::GUIObjectBase::indices, GL_STATIC_DRAW);
 
 		// position attribute
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -42,7 +55,6 @@ namespace higui
 
 	void DOM::Delete()
 	{
-		shaders.Delete();
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 		glDeleteBuffers(1, &EBO);
@@ -53,11 +65,11 @@ namespace higui
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
 		{
 			static bool r = false;
-			std::shared_ptr<GUIObject> div_object = markup.central_object->children[0];
+			std::shared_ptr<internal::GUIObjectBase> div_object = markup.central_object->children[0];
 			std::shared_ptr<DivTag> div = std::dynamic_pointer_cast<DivTag>(div_object);
 			if (div)
 			{
-				Dock dock = div->getDock();
+				AttributeDock dock = div->getDock();
 				dock.pos = r ? DockPosition::Top : DockPosition::Bottom;
 				if (dock.pos == DockPosition::Top)
 				{
@@ -68,9 +80,9 @@ namespace higui
 					std::cout << "bottom" << std::endl;
 				}
 				r = !r;
-				for (auto& attr : div_object->attr)
+				for (auto& attr : div_object->attribute)
 				{
-					std::cout << "name: " << attr.key() << ", value: " << attr.value_str() << std::endl;
+					std::cout << "name: " << attr.key() << ", value: " << attr.value->toString() << std::endl;
 				}
 				div->Update();
 			}

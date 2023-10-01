@@ -20,10 +20,13 @@ namespace higui
 		std::string ExtractTagBlock(size_t offset);
 		std::string ExtractTagName(const std::string& tag_block);
 		std::string ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name);
-		std::unordered_map<std::string, std::string> ExtractAttributes(const std::string& tag_block);
+		std::vector<Attribute> ExtractAttributes(const std::string& tag_block);
+
+		void ProcessOpeningTag(const std::string& tag_block, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack);
+		void ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack);
 
 		std::string markup;
-		std::shared_ptr<GUIObject> central_object;
+		std::shared_ptr<internal::GUIObjectBase> central_object;
 
 		friend class DOM;
 	};

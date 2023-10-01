@@ -34,18 +34,13 @@ namespace higui
 		void setMat2(const std::string& name, const glm::mat2& mat) const;
 		void setMat3(const std::string& name, const glm::mat3& mat) const;
 		void setMat4(const std::string& name, const glm::mat4& mat) const;
-	};
 
-	class ShaderRegistry
-	{
-	public:
-		static Shader* shader(const std::string& shader_name);
+		static std::shared_ptr<Shader> get(const std::string& shader_name);
 
-		static void RegisterShader(const std::string& shader_name, const char* vertex_path, const char* fragment_path);
-		static void Delete();
+		static void Register(const std::string& shader_name, const char* vertex_path, const char* fragment_path);
 
 	private:
-		static std::unordered_map<std::string, Shader*> shaders;
+		static std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
 	};
 }
 #endif // HI_SHADER_H

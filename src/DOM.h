@@ -27,7 +27,8 @@ namespace higui
 		GLFWwindow* getGLFWwindow();
 
 		Markup markup;
-		ShaderRegistry shaders;
+
+		unsigned int VBO, VAO, EBO;
 	
 
 	private:
@@ -38,7 +39,6 @@ namespace higui
 		static void KeyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 		GLFWwindow* window;
-		unsigned int VBO, VAO, EBO;
 	};
 }
 

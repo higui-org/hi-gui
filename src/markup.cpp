@@ -4,7 +4,7 @@ namespace higui
 {
 	Markup::Markup(const std::string& filename)
 	{	
-		central_object = std::make_shared<GUIObject>();
+		central_object = std::make_shared<DivTag>();
 		std::ifstream file;
 
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -23,71 +23,35 @@ namespace higui
 		if (!isMarkupValid())
 		{
 			throw std::runtime_error("Markup isn't valid");
-			return;
 		}
 
-		std::stack<std::shared_ptr<GUIObject>> object_stack;
+		std::stack<std::shared_ptr<internal::GUIObjectBase>> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
 		while (pos < markup.length())
 		{
-			// tag block starts
+			// Tag block starts
 			std::string tag_block = ExtractTagBlock(pos);
 			std::string tag_name = ExtractTagName(tag_block);
 
-			size_t closing_tag_pos = markup.find('>', pos);
-
-			if (tag_block[1] == '/') // closing tag
+			if (tag_block[1] == '/') // Closing tag
 			{
-				if (!tag_stack.empty())
-				{
-					tag_stack.pop();
-					if (!object_stack.empty())
-					{
-						std::shared_ptr<GUIObject> obj = object_stack.top();
-						object_stack.pop();
-					}
-				}
+				ProcessClosingTag(tag_stack, object_stack);
 			}
-			else // opening tag
+			else // Opening tag
 			{
 				tag_stack.push(tag_name);
-				auto& it = GUIObject::registry().find(tag_name);
-				if (it != GUIObject::registry().end())
-				{
-					std::shared_ptr<GUIObject> obj = static_cast<std::shared_ptr<GUIObject>>(it->second());
-					if (obj)
-					{
-						// get and set attributes to object
-						std::unordered_map<std::string, std::string> attributes = ExtractAttributes(tag_block);
-						for (auto& attr_ : attributes)
-						{
-							obj->attr[attr_.first] = attr_.second;
-						}
-						// set object as child of previous object
-						if (!object_stack.empty())
-						{
-							object_stack.top()->AddChild(obj);
-							obj->parent = object_stack.top();
-						}
-						else
-						{
-							central_object->AddChild(obj);
-						}
-						object_stack.push(obj);
-						obj->Update();
-					}
-				}
+				ProcessOpeningTag(tag_block, object_stack);
 			}
 
+			size_t closing_tag_pos = markup.find('>', pos);
 			pos = closing_tag_pos + 1;
 		}
+
 		markup.clear();
 		markup.shrink_to_fit();
 	}
-
-
 
 	bool Markup::isMarkupValid()
 	{
@@ -96,7 +60,7 @@ namespace higui
 
 		while (pos < markup.length())
 		{
-			// tag block starts
+			// Tag block starts
 			std::string tag_block = ExtractTagBlock(pos);
 			std::string tag_name = ExtractTagName(tag_block);
 
@@ -109,7 +73,7 @@ namespace higui
 				return false;
 			}
 
-			if (tag_block[1] == '/') // closing tag
+			if (tag_block[1] == '/') // Closing tag
 			{
 				if (tag_stack.empty() || tag_stack.top() != tag_name)
 				{
@@ -118,7 +82,7 @@ namespace higui
 				}
 				tag_stack.pop();
 			}
-			else // opening tag
+			else // Opening tag
 			{
 				tag_stack.push(tag_name);
 			}
@@ -126,7 +90,7 @@ namespace higui
 			pos = closing_tag_pos + 1;
 		}
 
-		return tag_stack.empty(); // markup is valid if all opening tags have corresponding closing tags
+		return tag_stack.empty(); // Markup is valid if all opening tags have corresponding closing tags
 	}
 
 	std::string Markup::ExtractTagBlock(size_t offset)
@@ -149,11 +113,11 @@ namespace higui
 	std::string Markup::ExtractTagName(const std::string& tag_block)
 	{
 		size_t pos, end_pos;
-		pos = tag_block.find('/');	   // trying to find as closing tag
+		pos = tag_block.find('/');	   // find as closing tag
 		end_pos = tag_block.find('>');
 		if (pos == std::string::npos || end_pos == std::string::npos)
 		{
-			pos = tag_block.find('<'); // trying to find as opening tag
+			pos = tag_block.find('<'); // find as opening tag
 			end_pos = tag_block.find(' ', pos);
 			if (pos == std::string::npos || end_pos == std::string::npos)
 				return "";
@@ -181,44 +145,82 @@ namespace higui
 		return tag_block.substr(value_pos + 1, value_length);
 	}
 
-	std::unordered_map<std::string, std::string> Markup::ExtractAttributes(const std::string& tag_block)
+	std::vector<Attribute> Markup::ExtractAttributes(const std::string& tag_block) {
+		std::vector<Attribute> attributes;
+
+		size_t attr_start = tag_block.find_first_of(' ', 1) + 1;
+
+		while (attr_start < tag_block.length()) {
+			size_t attr_delim_pos = tag_block.find_first_of('=', attr_start);
+
+			// Find a position that closes a double or single quotation mark
+			size_t quote_start = tag_block.find_first_of("\"'", attr_delim_pos);
+			if (quote_start == std::string::npos) {
+				break; // If there are no closing quotes, exit
+			}
+
+			char quote_char = tag_block[quote_start];
+			size_t quote_end = tag_block.find(quote_char, quote_start + 1);
+			if (quote_end == std::string::npos) {
+				break; // If there are no closing quotes, exit
+			}
+
+			// Extract the attribute name and its value
+			std::string attribute_name = tag_block.substr(attr_start, attr_delim_pos - attr_start);
+			std::string attribute_value = tag_block.substr(quote_start + 1, quote_end - quote_start - 1);
+
+			attributes.push_back(Attribute(attribute_name, attribute_value));
+
+			// Go to the next attribute
+			attr_start = tag_block.find_first_not_of(" \t", quote_end + 1);
+		}
+
+		return attributes;
+	}
+
+
+	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack)
 	{
-		std::unordered_map<std::string, std::string> attributes;
+		std::string tag_name = ExtractTagName(tag_block);
 
-		std::istringstream iss(tag_block);
-		std::string tag;
-		iss >> tag;
-
-		while (iss)
+		auto it = internal::GUIObjectBase::registry().find(tag_name);
+		if (it != internal::GUIObjectBase::registry().end())
 		{
-			std::string attr;
-			iss >> attr;
-
-			if (!attr.empty())
+			std::shared_ptr<internal::GUIObjectBase> obj = static_cast<std::shared_ptr<internal::GUIObjectBase>>(it->second());
+			if (obj)
 			{
-				std::size_t equals_pos = attr.find('=');
-				if (equals_pos != std::string::npos)
+				// Extract attributes from tag block and add to the object
+				std::vector<Attribute> attributes = ExtractAttributes(tag_block);
+
+				for (auto& attribute : attributes)
 				{
-					std::string attribute_name = attr.substr(0, equals_pos);
-					std::string attribute_value = attr.substr(equals_pos + 1);
-
-					// remove double quotes and "greater than" sign, if they are present
-					if (!attribute_value.empty())
-					{
-						if (attribute_value.back() == '>')
-						{
-							attribute_value = attribute_value.substr(0, attribute_value.length() - 1);
-						}
-						if (attribute_value.front() == '"' || attribute_value.front() == '\'')
-						{
-							attribute_value = attribute_value.substr(1, attribute_value.length() - 2);
-						}
-					}
-
-					attributes[attribute_name] = attribute_value;
+					obj->attribute.add(attribute);
 				}
+				// Set object as a child of the previous object
+				if (!object_stack.empty())
+				{
+					object_stack.top()->AddChild(obj);
+					obj->parent = object_stack.top();
+				}
+				else
+				{
+					central_object->AddChild(obj);
+				}
+				object_stack.push(obj);
+				obj->Update();
 			}
 		}
-		return attributes;
+	}
+
+	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack)
+	{
+		if (!tag_stack.empty())
+		{
+			tag_stack.pop();
+			if (!object_stack.empty())
+			{
+				object_stack.pop();
+			}
+		}
 	}
 }

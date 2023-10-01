@@ -2,8 +2,12 @@
 
 namespace higui
 {
-	void Dock::fromString(const std::string& tag) {
-		std::string dock_str = getSubTagByIndex(tag, 0);
+	void AttributeDock::fromString(const std::string& tag) {
+		std::vector<std::string> splitted = SplitBySpace(tag);
+		
+		std::string dock_str = splitted[0];
+		std::string ratio_str = splitted[1];
+
 		if (!dock_str.empty())
 		{
 			if (dock_str == "left")
@@ -23,27 +27,25 @@ namespace higui
 				pos = DockPosition::Bottom;
 			}
 		}
-		
-		if (!getSubTagByIndex(tag, 1).empty())
+		if (!ratio_str.empty())
 		{
-			std::cout << getSubTagByIndex(tag, 1) << std::endl;
-			ratio = internal::ToFloat(getSubTagByIndex(tag, 1));
+			ratio = internal::ToNormalizedFloat(ratio_str);
 		}
 
 	}
 
-	std::string Dock::toString() {
+	std::string AttributeDock::toString() {
 		switch (pos) {
 		case DockPosition::Top:
-			return "top";
+			return "top " + std::to_string(ratio);
 		case DockPosition::Left:
-			return "left";
+			return "left " + std::to_string(ratio);
 		case DockPosition::Bottom:
-			return "bottom";
+			return "bottom " + std::to_string(ratio);
 		case DockPosition::Right:
-			return "right";
+			return "right " + std::to_string(ratio);
 		default:
-			return "none";
+			return "none " + std::to_string(ratio);
 		}
 	}
 
@@ -62,20 +64,13 @@ namespace higui
 			throw std::runtime_error("Invalid RGBA format");
 		}
 
-		float ToFloat(const std::string& value) {
+		float ToNormalizedFloat(const std::string& value) {
 			std::smatch match;
 			if (std::regex_match(value, match, std::regex(R"(\s*(\d+(\.\d+)?%)\s*)"))) {
 				float percentage = std::stof(match[1]);
 				return percentage / 100.0f;
 			}
 			throw std::runtime_error("Invalid percentage format");
-		}
-
-		int ToInt(const std::string& value) {
-			if (std::all_of(value.begin(), value.end(), ::isdigit)) {
-				return std::stoi(value);
-			}
-			throw std::runtime_error("Invalid integer format");
 		}
 	}
 }

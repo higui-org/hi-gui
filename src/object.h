@@ -13,60 +13,62 @@
 namespace higui
 {
 	class DOM;
+	class Markup;
 
-	// dont inherit from this. use GUIObjectImpl instead.
-	class GUIObject
+	namespace internal
 	{
-	public:
-		GUIObject();
-		
-		void Render(unsigned int VAO);
-		virtual void Update();
-
-		std::shared_ptr<GUIObject> getParent();
-		glm::mat4 getModel();
-
-		// returns a vector of pixels
-		glm::vec2 Size(int framebuffer_width, int framebuffer_height);
-		glm::vec2 Position(int framebuffer_width, int framebuffer_height);
-		glm::vec4 Geometry(int framebuffer_width, int framebuffer_height);
-		glm::vec2 Size(GLFWwindow* window);
-		glm::vec2 Position(GLFWwindow* window);
-		glm::vec4 Geometry(GLFWwindow* window);
-
-		// events
-		virtual bool OnCursorPos(double xpos, double ypos);
-		virtual bool OnMouseClick(int button, double xpos, double ypos);
-
-		// attributes
-		AttributeContainer attr;
-
-	protected:
-		// Markup class adds children
-		void AddChild(std::shared_ptr<GUIObject> obj);
-
-		std::vector<std::shared_ptr<GUIObject>> children;
-		std::shared_ptr<GUIObject> parent;
-		glm::mat4 model;
-
-		// basic rectangle
-		static float vertices[12];
-		static unsigned int indices[6];
-
-		// friends~
-		friend class Markup;
-		friend class DOM;
-
-		static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObject>()>>& registry()
+		class GUIObjectBase
 		{
-			static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObject>()>> registry;
-			return registry;
-		}
-	};
+		public:
+			GUIObjectBase();
 
-	// inherit from this GUIObjectImpl
+			virtual void Render(unsigned int VAO) {}
+			virtual void Update() {}
+
+			std::shared_ptr<GUIObjectBase> getParent();
+			glm::mat4 getModel();
+
+			// returns a vector of pixels
+			glm::vec2 Size(int framebuffer_width, int framebuffer_height);
+			glm::vec2 Position(int framebuffer_width, int framebuffer_height);
+			glm::vec4 Geometry(int framebuffer_width, int framebuffer_height);
+			glm::vec2 Size(GLFWwindow* window);
+			glm::vec2 Position(GLFWwindow* window);
+			glm::vec4 Geometry(GLFWwindow* window);
+
+			// events
+			virtual bool OnCursorPos(double xpos, double ypos);
+			virtual bool OnMouseClick(int button, double xpos, double ypos);
+
+			// attributes
+			AttributeContainer attribute;
+
+		protected:
+			// Markup class adds children
+			void AddChild(std::shared_ptr<GUIObjectBase> obj);
+
+			std::vector<std::shared_ptr<GUIObjectBase>> children;
+			std::shared_ptr<GUIObjectBase> parent;
+			glm::mat4 model;
+
+			// basic rectangle
+			static float vertices[12];
+			static unsigned int indices[6];
+
+			// friends~
+			friend class DOM;
+			friend class Markup;
+
+			static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObjectBase>()>>& registry()
+			{
+				static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObjectBase>()>> registry;
+				return registry;
+			}
+		};
+	}
+
 	template<typename Derived>
-	class GUIObjectImpl : public GUIObject
+	class GUIObject : public internal::GUIObjectBase
 	{
 	public:
 		// register markup tag
@@ -79,7 +81,7 @@ namespace higui
 		}
 
 	private:
-		static void RegisterType(const std::string& type, std::function<std::shared_ptr<GUIObject>()> factory) {
+		static void RegisterType(const std::string& type, std::function<std::shared_ptr<GUIObjectBase>()> factory) {
 			registry()[type] = factory;
 		}
 	};

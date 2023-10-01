@@ -133,34 +133,25 @@ namespace higui
 	}
 
 
-	Shader* ShaderRegistry::shader(const std::string& name)
+	std::shared_ptr<Shader> Shader::get(const std::string& name)
 	{
-		auto it = ShaderRegistry::shaders.find(name);
+		auto it = shaders.find(name);
 
-		if (it != ShaderRegistry::shaders.end())
+		if (it != shaders.end())
 		{
 			return it->second;
 		}
 		else
 		{
-			throw std::runtime_error("ShaderManager cannot find shader with name: " + name);
+			throw std::runtime_error("Cannot find shader with name: " + name);
 		}
 	}
 
-	void ShaderRegistry::RegisterShader(const std::string& shader_name, const char* vertex_path, const char* fragment_path)
+	void Shader::Register(const std::string& shader_name, const char* vertex_path, const char* fragment_path)
 	{
-		Shader* shader = new Shader(vertex_path, fragment_path);
-		ShaderRegistry::shaders.insert(std::make_pair(shader_name, shader));
+		std::shared_ptr<Shader> new_shader = std::make_shared<Shader>(vertex_path, fragment_path);
+		shaders[shader_name] = new_shader;
 	}
 
-	void ShaderRegistry::Delete()
-	{
-		for (auto& shader : shaders)
-		{
-			shader.second->Delete();
-			delete shader.second;
-		}
-	}
-
-	inline std::unordered_map<std::string, Shader*> ShaderRegistry::shaders;
+	inline std::unordered_map<std::string, std::shared_ptr<Shader>> Shader::shaders;
 }

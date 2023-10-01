@@ -5,18 +5,18 @@ namespace higui
 	namespace internal {
 		GlobalInitializer::GlobalInitializer() {
 			// basic attribute tags
-			IntAttributeTag::Register("int");
-			FloatAttributeTag::Register("float");
-			StringAttributeTag::Register("string");
-			StringAttributeTag::Register("str");
+			AttributeInt::Register("int");
+			AttributeFloat::Register("float");
+			AttributeString::Register("string");
+			AttributeString::Register("str");
 
 			// dock
-			Dock::Register("dock");
+			AttributeDock::Register("dock");
 
 			// basic markup tags
 			DivTag::Register("div");
 		}
 
-		GlobalInitializer global_initializer;
+		GlobalInitializer global_initializer{};
 	}
 }
