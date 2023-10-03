@@ -49,24 +49,16 @@ int main()
       
 	AttributeContainer container;
 
-	container.add("int", 42);
-	container.add("float", 3.14f);
-	//container.add("str", "Hello, world!");
-	AttributeDock d;
-	d.pos = DockPosition::Top;
-	d.ratio = 0.4f;
-	container.add("dock", d);
+	container.add("int", 42);								 // type: int
+	container.add("float", "3.14f");						 // type: float
+	container.add("str", "Hello, world!");					 // type: std::string
+	container.add("dock", AttributeDock(DockPosition::Top)); // type: Dock
 
 	try {
-		AttributeInt intValue = container.get<AttributeInt>("int");
-		AttributeFloat floatValue = container.get<AttributeFloat>("float");
-		//AttributeString stringValue = container.get<AttributeString>("str");
-		AttributeDock dockValue = container.get<AttributeDock>("dock");
-
-		std::cout << "int_attribute: " << intValue << std::endl;
-		std::cout << "float_attribute: " << floatValue << std::endl;
-		//std::cout << "string_attribute: " << stringValue << std::endl;
-		std::cout << "dock_attribute: " << dockValue.toString() << std::endl;
+		for (auto& attr : container)
+		{
+			std::cout << attr << std::endl;
+		}
 	}
 	catch (const std::runtime_error& e) {
 		std::cerr << "Error: " << e.what() << std::endl;

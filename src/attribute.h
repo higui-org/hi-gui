@@ -15,17 +15,14 @@ namespace higui
 		template <typename T>
 		std::enable_if_t<std::is_same<T, std::shared_ptr<typename std::decay_t<T>::element_type>>::value, 
 			Attribute&>
-			operator=(T&& new_value) 
+			operator=(T&& new_value)
 		{
 			value = std::forward<T>(new_value);
 			return *this;
 		}
 
-		// T is std::string
-		template <typename T>
-		std::enable_if_t<std::is_same_v<T, std::string>,
-			Attribute&> 
-			operator=(const T& new_value)
+		// T is std::string 
+		Attribute& operator=(const std::string& new_value)
 		{
 			value->fromString(new_value);
 			return *this;
@@ -81,13 +78,12 @@ namespace higui
 
 		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj)
 		{
-			os << "Attribute(key: " << obj.key();
+			os << "key: " << obj.key() << "\t";
 			if (std::dynamic_pointer_cast<AttributeString>(obj.value)) {
-				os << ", value: \"" << obj.value->toString() << "\"";
+				os << "value: \"" << obj.value->toString() << "\"";
 			} else {
-				os << ", value: "   << obj.value->toString();
+				os << "value: "   << obj.value->toString();
 			}
-			os << ")";
 			return os;
 		}
 

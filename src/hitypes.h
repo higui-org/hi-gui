@@ -148,6 +148,7 @@ namespace higui
 	public:
 
 		AttributeDock() : pos(DockPosition::None), ratio(0.5f) {}
+		AttributeDock(DockPosition pos, float ratio = 0.5f) : pos(pos), ratio(ratio) {}
 
 		std::string toString() override;
 
