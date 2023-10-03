@@ -69,9 +69,9 @@ namespace higui
 			std::shared_ptr<DivTag> div = std::dynamic_pointer_cast<DivTag>(div_object);
 			if (div)
 			{
-				AttributeDock dock = div->getDock();
-				dock.pos = r ? DockPosition::Top : DockPosition::Bottom;
-				if (dock.pos == DockPosition::Top)
+				attr::Alignment alignment = div->getAlign();
+				alignment.pos = r ? Align::Top : Align::Bottom;
+				if (alignment.pos == Align::Top)
 				{
 					std::cout << "top" << std::endl;
 				}

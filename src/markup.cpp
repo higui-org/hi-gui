@@ -15,12 +15,13 @@ namespace higui
 		stream << file.rdbuf();
 		file.close();
 
-		markup = stream.str();
+		markup_raw = stream.str();
 	}
 
 	void Markup::Init()
 	{
-		if (!isMarkupValid())
+		std::string markup = CookMarkup();
+		if (!markup.empty())
 		{
 			throw std::runtime_error("Markup isn't valid");
 		}
@@ -53,19 +54,19 @@ namespace higui
 		markup.shrink_to_fit();
 	}
 
-	bool Markup::isMarkupValid()
+	const std::string& Markup::CookMarkup()
 	{
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
-		while (pos < markup.length())
+		while (pos < markup_raw.length())
 		{
 			// Tag block starts
 			std::string tag_block = ExtractTagBlock(pos);
 			std::string tag_name = ExtractTagName(tag_block);
 
-			size_t opening_tag_pos = markup.find('<', pos);
-			size_t closing_tag_pos = markup.find('>', pos);
+			size_t opening_tag_pos = markup_raw.find('<', pos);
+			size_t closing_tag_pos = markup_raw.find('>', pos);
 
 			if (closing_tag_pos == std::string::npos || closing_tag_pos < opening_tag_pos)
 			{
@@ -90,7 +91,30 @@ namespace higui
 			pos = closing_tag_pos + 1;
 		}
 
-		return tag_stack.empty(); // Markup is valid if all opening tags have corresponding closing tags
+		if (tag_stack.empty())	// Markup is valid if all opening tags have corresponding closing tags
+		{
+			std::string cleaned_markup;
+			bool inside_quotes = false;
+			bool first_attribute = true;
+
+			for (char c : markup_raw) {
+				if (c == '"') {
+					inside_quotes = !inside_quotes;
+				}
+
+				if (inside_quotes || !std::isspace(c)) {
+					cleaned_markup += c;
+					if (!inside_quotes && c == '=' && first_attribute) {
+						cleaned_markup += ' ';
+						first_attribute = false;
+					}
+				}
+			}
+
+			return cleaned_markup;
+		}
+
+		return "";
 	}
 
 	std::string Markup::ExtractTagBlock(size_t offset)
@@ -98,8 +122,8 @@ namespace higui
 		size_t block_pos, block_length;
 		block_pos = block_length = offset;
 
-		block_pos = markup.find('<', offset);
-		block_length = markup.find('>', block_pos);
+		block_pos = markup_raw.find('<', offset);
+		block_length = markup_raw.find('>', block_pos);
 
 		if (block_pos == std::string::npos || block_length == std::string::npos)
 		{
@@ -107,7 +131,7 @@ namespace higui
 			return "";
 		}
 
-		return markup.substr(block_pos, block_length - block_pos + 1);
+		return markup_raw.substr(block_pos, block_length - block_pos + 1);
 	}
 
 	std::string Markup::ExtractTagName(const std::string& tag_block)

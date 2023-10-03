@@ -2,7 +2,7 @@
 
 namespace higui
 {
-	void AttributeDock::fromString(const std::string& tag) {
+	void attr::Alignment::fromString(const std::string& tag) {
 		std::vector<std::string> splitted = SplitBySpace(tag);
 		
 		std::string dock_str = splitted[0];
@@ -12,19 +12,19 @@ namespace higui
 		{
 			if (dock_str == "left")
 			{
-				pos = DockPosition::Left;
+				pos = Align::Left;
 			}
 			else if (dock_str == "top")
 			{
-				pos = DockPosition::Top;
+				pos = Align::Top;
 			}
 			else if (dock_str == "right")
 			{
-				pos = DockPosition::Right;
+				pos = Align::Right;
 			}
 			else if (dock_str == "bottom")
 			{
-				pos = DockPosition::Bottom;
+				pos = Align::Bottom;
 			}
 		}
 		if (!ratio_str.empty())
@@ -34,15 +34,15 @@ namespace higui
 
 	}
 
-	std::string AttributeDock::toString() {
+	std::string attr::Alignment::toString() {
 		switch (pos) {
-		case DockPosition::Top:
+		case Align::Top:
 			return "top " + std::to_string(ratio);
-		case DockPosition::Left:
+		case Align::Left:
 			return "left " + std::to_string(ratio);
-		case DockPosition::Bottom:
+		case Align::Bottom:
 			return "bottom " + std::to_string(ratio);
-		case DockPosition::Right:
+		case Align::Right:
 			return "right " + std::to_string(ratio);
 		default:
 			return "none " + std::to_string(ratio);

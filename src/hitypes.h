@@ -17,7 +17,7 @@ namespace higui
 {
 	class Attribute;
 
-	enum class DockPosition {
+	enum class Align {
 		None,
 		Top,
 		Left,
@@ -34,130 +34,136 @@ namespace higui
 		RGBA ToRGBA(const std::string& value);
 		float ToNormalizedFloat(const std::string& value);
 
-		class AttributeValueBase {
-		public:
-			virtual ~AttributeValueBase() = default;
+		namespace attr
+		{
+			class ValueBase {
+			public:
+				virtual ~ValueBase() = default;
 
-			virtual std::string toString() = 0;
-			virtual void fromString(const std::string& value) = 0;
+				virtual std::string toString() = 0;
+				virtual void fromString(const std::string& value) = 0;
+
+			protected:
+
+				static std::unordered_map<std::string, std::function<std::shared_ptr<ValueBase>()>>& registry()
+				{
+					static std::unordered_map<std::string, std::function<std::shared_ptr<ValueBase>()>> registry;
+					return registry;
+				}
+
+				friend class Attribute;
+			};
+		}
+	};
+
+	namespace attr
+	{
+		template <typename Derived>
+		class Value : public internal::attr::ValueBase {
+		public:
+			Value() {}
+
+			static void Register(const std::string& type)
+			{
+				RegisterType(type, []() -> std::shared_ptr<internal::attr::ValueBase>
+				{
+					return std::make_shared<Derived>();
+				});
+			}
+
+			friend std::ostream& operator<<(std::ostream& os, Derived obj)
+			{
+				os << obj.toString();
+				return os;
+			}
 
 		protected:
+			std::vector<std::string> SplitBySpace(const std::string& value) {
+				std::vector<std::string> result;
+				std::istringstream tokenizer(value);
+				std::string word;
 
-			static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValueBase>()>>& registry()
-			{
-				static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValueBase>()>> registry;
-				return registry;
+				while (tokenizer >> word) {
+					result.push_back(word);
+				}
+
+				return result;
 			}
 
-			friend class Attribute;
+		private:
+			static void RegisterType(const std::string& type, std::function<std::shared_ptr<internal::attr::ValueBase>()> factory) {
+				registry()[type] = factory;
+			}
 		};
-	};
 
-	template <typename Derived>
-	class AttributeValue : public internal::AttributeValueBase {
-	public:
-		AttributeValue() {}
 
-		static void Register(const std::string& type)
-		{
-			RegisterType(type, []() -> std::shared_ptr<internal::AttributeValueBase>
-			{
-				return std::make_shared<Derived>();
-			});
-		}
+		class Int : public Value<Int> {
+		public:
+			Int() : int_value(0) {}
 
-		friend std::ostream& operator<<(std::ostream& os, Derived obj)
-		{
-			os << obj.toString();
-			return os;
-		}
-
-	protected:
-		std::vector<std::string> SplitBySpace(const std::string& value) {
-			std::vector<std::string> result;
-			std::istringstream tokenizer(value);
-			std::string word;
-
-			while (tokenizer >> word) {
-				result.push_back(word);
+			std::string toString() override {
+				return std::to_string(int_value);
 			}
 
-			return result;
-		}
-
-	private:
-		static void RegisterType(const std::string& type, std::function<std::shared_ptr<internal::AttributeValueBase>()> factory) {
-			registry()[type] = factory;
-		}
-	};
-
-
-	class AttributeInt : public AttributeValue<AttributeInt> {
-	public:
-		AttributeInt() : int_value(0) {}
-
-		std::string toString() override {
-			return std::to_string(int_value);
-		}
-
-		void fromString(const std::string& value) override {
-			int_value = std::stoi(value);
-		}
-
-		int int_value;
-	};
-
-	class AttributeFloat : public AttributeValue<AttributeFloat> {
-	public:
-		AttributeFloat() : float_value(0.0f) {}
-
-		std::string toString() override {
-			return std::to_string(float_value);
-		}
-
-		void fromString(const std::string& value) override {
-			try
-			{
-				float_value = std::stof(value);
+			void fromString(const std::string& value) override {
+				int_value = std::stoi(value);
 			}
-			catch (std::invalid_argument)
-			{
-				float_value = internal::ToNormalizedFloat(value);
+
+			int int_value;
+		};
+
+		class Float : public Value<Float> {
+		public:
+			Float() : float_value(0.0f) {}
+
+			std::string toString() override {
+				return std::to_string(float_value);
 			}
-		}
 
-		float float_value;
-	};
+			void fromString(const std::string& value) override {
+				try
+				{
+					float_value = std::stof(value);
+				}
+				catch (std::invalid_argument)
+				{
+					float_value = internal::ToNormalizedFloat(value);
+				}
+			}
 
-	class AttributeString : public AttributeValue<AttributeString> {
-	public:
-		AttributeString() : str("") {}
+			float float_value;
+		};
 
-		std::string toString() override {
-			return str;
-		}
+		class String : public Value<String> {
+		public:
+			String() : str("") {}
 
-		void fromString(const std::string& value) override {
-			str = value;
-		}
+			std::string toString() override {
+				return str;
+			}
 
-		std::string str;
-	};
+			void fromString(const std::string& value) override {
+				str = value;
+			}
 
-	class AttributeDock : public AttributeValue<AttributeDock> {
-	public:
+			std::string str;
+		};
 
-		AttributeDock() : pos(DockPosition::None), ratio(0.5f) {}
-		AttributeDock(DockPosition pos, float ratio = 0.5f) : pos(pos), ratio(ratio) {}
+		class Alignment : public Value<Alignment> {
+		public:
 
-		std::string toString() override;
+			Alignment() : pos(Align::None), ratio(0.5f) {}
+			Alignment(Align alignment, float ratio = 0.5f) : pos(alignment), ratio(ratio) {}
 
-		void fromString(const std::string& new_value) override;
+			std::string toString() override;
+
+			void fromString(const std::string& new_value) override;
 
 
-		DockPosition pos;
-		float ratio;
-	};
+			Align pos;
+			float ratio;
+		};
+	}
 }
 
 #endif // HI_TYPES_H

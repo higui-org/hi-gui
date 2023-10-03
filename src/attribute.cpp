@@ -4,10 +4,10 @@ namespace higui
 {
 	Attribute::Attribute(const std::string& key) {
 		key_ = key;
-		auto it = internal::AttributeValueBase::registry().find(key_);
-		if (it != internal::AttributeValueBase::registry().end())
+		auto it = internal::attr::ValueBase::registry().find(key_);
+		if (it != internal::attr::ValueBase::registry().end())
 		{
-			std::shared_ptr<internal::AttributeValueBase> new_value = it->second();
+			std::shared_ptr<internal::attr::ValueBase> new_value = it->second();
 			value = new_value;
 		}
 		else {
@@ -31,10 +31,10 @@ namespace higui
 
 		}
 
-		auto it = internal::AttributeValueBase::registry().find(type);
-		if (it != internal::AttributeValueBase::registry().end())
+		auto it = internal::attr::ValueBase::registry().find(type);
+		if (it != internal::attr::ValueBase::registry().end())
 		{
-			std::shared_ptr<internal::AttributeValueBase> value_attr = it->second();
+			std::shared_ptr<internal::attr::ValueBase> value_attr = it->second();
 			value_attr->fromString(new_value);
 			value = value_attr;
 		}

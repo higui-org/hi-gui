@@ -30,7 +30,7 @@ namespace higui
 
 		// for cloning
 		template <typename T>
-		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, Attribute&>
+		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::attr::ValueBase, std::decay_t<T>>::value, Attribute&>
 			operator=(const T& new_value)
 		{
 			value = std::make_shared<typename std::decay<T>::type>(new_value);
@@ -51,10 +51,10 @@ namespace higui
 		void setKey(const std::string& key)
 		{
 			key_ = key;
-			auto it = internal::AttributeValueBase::registry().find(key_);
-			if (it != internal::AttributeValueBase::registry().end())
+			auto it = internal::attr::ValueBase::registry().find(key_);
+			if (it != internal::attr::ValueBase::registry().end())
 			{
-				std::shared_ptr<internal::AttributeValueBase> new_value = it->second();
+				std::shared_ptr<internal::attr::ValueBase> new_value = it->second();
 				value = new_value;
 			}
 			else {
@@ -69,7 +69,7 @@ namespace higui
 		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj)
 		{
 			os << "key: " << obj.key() << "\t";
-			if (std::dynamic_pointer_cast<AttributeString>(obj.value)) {
+			if (std::dynamic_pointer_cast<attr::String>(obj.value)) {
 				os << "value: \"" << obj.value->toString() << "\"";
 			} else {
 				os << "value: "   << obj.value->toString();
@@ -77,7 +77,7 @@ namespace higui
 			return os;
 		}
 
-		std::shared_ptr<internal::AttributeValueBase> value;
+		std::shared_ptr<internal::attr::ValueBase> value;
 
 	private:
 		std::string key_;
@@ -98,10 +98,10 @@ namespace higui
 		}
 
 		template <typename T>
-		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, void>
+		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::attr::ValueBase, std::decay_t<T>>::value, void>
 			add(std::string key, T& new_value)
 		{
-			Attribute attr{ key };
+			attr attr{ key };
 			attr = std::make_shared<typename std::decay<T>::type>(new_value);
 			attributes_.push_back(attr);
 		}
@@ -109,7 +109,7 @@ namespace higui
 		template <typename T>
 		void add(const std::string& key, const T& value)
 		{
-			Attribute attr{ key };
+			attr attr{ key };
 			attr = value;
 			attributes_.push_back(attr);
 		}
@@ -150,7 +150,7 @@ namespace higui
 				}
 			}
 			std::shared_ptr<Derived> new_attribute = std::make_shared<Derived>();
-			Attribute attr(key);
+			attr attr(key);
 			attr.value = new_attribute;
 			attributes_.push_back(attr);
 			return *new_attribute;

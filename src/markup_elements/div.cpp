@@ -2,7 +2,7 @@
 
 namespace higui
 {
-	DivTag::DivTag() : GUIObject(), dock()
+	DivTag::DivTag() : GUIObject(), alignment()
 	{
 		model = glm::mat4(1.0f);
 	}
@@ -45,58 +45,58 @@ namespace higui
 		{
 			model = parent->getModel() * model;
 		}
-		switch (dock.pos)
+		switch (alignment.pos)
 		{
-		case DockPosition::None:
+		case Align::None:
 			break;
-		case DockPosition::Top:
-			model = glm::translate(model, glm::vec3(0.0f, 1.0f - dock.ratio, 0.0f));
-			model = glm::scale(model, glm::vec3(1.0f, dock.ratio, 1.0f));
+		case Align::Top:
+			model = glm::translate(model, glm::vec3(0.0f, 1.0f - alignment.ratio, 0.0f));
+			model = glm::scale(model, glm::vec3(1.0f, alignment.ratio, 1.0f));
 			break;
-		case DockPosition::Bottom:
-			model = glm::translate(model, glm::vec3(0.0f, dock.ratio - 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(1.0f, dock.ratio, 1.0f));
+		case Align::Bottom:
+			model = glm::translate(model, glm::vec3(0.0f, alignment.ratio - 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(1.0f, alignment.ratio, 1.0f));
 			break;
-		case DockPosition::Left:
-			model = glm::translate(model, glm::vec3(dock.ratio - 1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(dock.ratio, 1.0f, 1.0f));
+		case Align::Left:
+			model = glm::translate(model, glm::vec3(alignment.ratio - 1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(alignment.ratio, 1.0f, 1.0f));
 			break;
-		case DockPosition::Right:
-			model = glm::translate(model, glm::vec3(1.0f - dock.ratio, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(dock.ratio, 1.0f, 1.0f));
+		case Align::Right:
+			model = glm::translate(model, glm::vec3(1.0f - alignment.ratio, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(alignment.ratio, 1.0f, 1.0f));
 			break;
 		default:
 			break;
 		}
 	}
 
-	AttributeDock DivTag::getDock()
+	attr::Alignment DivTag::getAlign()
 	{
-		return dock;
+		return alignment;
 	}
 
-	DockPosition DivTag::getDockPosition()
+	Align DivTag::getAlignPos()
 	{
-		return dock.pos;
+		return alignment.pos;
 	}
 
-	float DivTag::getDockRatio()
+	float DivTag::getAlignRatio()
 	{
-		return dock.ratio;
+		return alignment.ratio;
 	}
 
-	void DivTag::setDock(AttributeDock dock_)
+	void DivTag::setAlign(attr::Alignment alignment_)
 	{
-		dock = dock_;
+		alignment = alignment_;
 	}
 
-	void DivTag::setDockPosition(DockPosition dock_pos)
+	void DivTag::setAlignPos(Align dock_pos)
 	{
-		dock.pos = dock_pos;
+		alignment.pos = dock_pos;
 	}
 
-	void DivTag::setDockRatio(float ratio)
+	void DivTag::setAlignRatio(float ratio)
 	{
-		dock.ratio = ratio;
+		alignment.ratio = ratio;
 	}
 }

@@ -11,21 +11,22 @@ namespace higui
 		DivTag();
 		~DivTag();
 
+		// overrided and derived from GUIObject
 		void Render(unsigned int VAO) override;
 		void Update() override;
 
 		void CalculateDock();
 
-		AttributeDock getDock();
-		DockPosition getDockPosition();
-		float getDockRatio();
+		attr::Alignment getAlign();
+		Align getAlignPos();
+		float getAlignRatio();
 
-		void setDock(AttributeDock dock);
-		void setDockPosition(DockPosition dock_pos);
-		void setDockRatio(float ratio);
+		void setAlign(attr::Alignment dock);
+		void setAlignPos(Align dock_pos);
+		void setAlignRatio(float ratio);
 
 	protected:
-		AttributeDock dock;
+		attr::Alignment alignment;
 	};
 }
 

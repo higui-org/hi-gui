@@ -5,13 +5,13 @@ namespace higui
 	namespace internal {
 		GlobalInitializer::GlobalInitializer() {
 			// basic attribute tags
-			AttributeInt::Register("int");
-			AttributeFloat::Register("float");
-			AttributeString::Register("string");
-			AttributeString::Register("str");
+			higui::attr::Int::Register("int");
+			higui::attr::Float::Register("float");
+			higui::attr::String::Register("string");
+			higui::attr::String::Register("str");
 
-			// dock
-			AttributeDock::Register("dock");
+			// alignment
+			higui::attr::Alignment::Register("align");
 
 			// basic markup tags
 			DivTag::Register("div");

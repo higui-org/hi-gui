@@ -3,14 +3,12 @@
 
 #include "higui.h"
 
-/*
+
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-*/
 int main()
 {
-	/*
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -39,45 +37,14 @@ int main()
 		return -1;
 	}
 
-	*/
 	// higui
 	using namespace higui;
+	Shader::Register("default", "default.vert", "default.frag");
+    DOM dom(window, "test.markup", "test.style");
+    dom.markup.Init();
 	
-	//Shader::Register("default", "default.vert", "default.frag");
-    //DOM dom(window, "test.markup", "test.style");
-    //dom.markup.Init();
-      
-	AttributeContainer container;
-
-	container.add("int", 42);								 // type: int
-	container.add("float", "3.14f");						 // type: float
-	container.add("str", "Hello, world!");					 // type: std::string
-
-	AttributeDock dock = AttributeDock(DockPosition::Top, 0.25f);
-	container.add("dock", dock); // type: Dock
-	container.add("str", "Yes, I am");
-
-	container["int"] = "344";
-	container["float"] = "60%";
-
-	container.remove("str"); // delete all attrs with 'str' key
-	if (container.has("float"))
-	{
-		std::cout << "has float key" << std::endl;
-	}
-
-	for (auto& attr : container)										// for each
-	{
-		std::cout << attr << std::endl;
-	}
-
-	for (auto it = container.begin(); it != container.end(); it++)		// iterator
-	{
-		std::cout << *it << std::endl;
-	}
-
-	/*
 	// main cycle
+	/*
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -88,12 +55,11 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+	*/
     dom.Delete();
 
     glfwTerminate();
-	*/
+	
 
     return 0;
-
-
 }
