@@ -29,16 +29,6 @@ namespace higui
 		}
 
 		// for cloning
-		/*template <typename T>
-		std::enable_if_t<!std::is_pointer_v<T> && (!std::is_same_v<T, std::string>),
-			Attribute&>
-			operator=(const T& new_value)
-		{
-			value = std::make_shared<typename std::decay<T>::type>(new_value);
-			return *this;
-		}*/
-
-		// for cloning
 		template <typename T>
 		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, Attribute&>
 			operator=(const T& new_value)
@@ -103,15 +93,6 @@ namespace higui
 			attributes_.push_back(attribute);
 		}
 
-		/*
-		template <typename T>
-		std::enable_if_t<std::is_same<T, std::shared_ptr<typename std::decay_t<T>::element_type>>::value, Attribute&>
-		add(std::string key, T&& new_value)
-		{
-			value = std::forward<T>(new_value);
-			attributes_.push_back(attr);
-		}*/
-
 		void add(const std::string& key, const std::string& value) {
 			attributes_.push_back(Attribute(key, value));
 		}
@@ -124,7 +105,6 @@ namespace higui
 			attr = std::make_shared<typename std::decay<T>::type>(new_value);
 			attributes_.push_back(attr);
 		}
-
 
 		template <typename T>
 		void add(const std::string& key, const T& value)
@@ -147,7 +127,7 @@ namespace higui
 			}
 			return false;
 		}
-		/*
+		
 		Attribute& operator[](const std::string& key) {
 			std::size_t attr_index = find(key);
 			if (attr_index != npos)
@@ -156,7 +136,7 @@ namespace higui
 			}
 			add(key);
 			return attributes_.back();
-		}*/
+		}
 
 		template <typename Derived>
 		Derived& get(const std::string& key) {

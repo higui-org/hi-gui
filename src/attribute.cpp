@@ -16,14 +16,19 @@ namespace higui
 	}
 
 	Attribute::Attribute(const std::string& key, const std::string& type_tag) : key_(key) {
-		std::string type = key;
-		std::string new_value = type_tag;
+		std::string type{};
+		std::string new_value{ type_tag };
 
-		size_t colon_pos = type_tag.find(':');
+		size_t colon_pos{ type_tag.find(':') };
 		if (colon_pos != std::string::npos)
 		{
 			type = type_tag.substr(0, colon_pos);
 			new_value = type_tag.substr(colon_pos + 1);
+		}
+
+		if (!type.empty())
+		{
+
 		}
 
 		auto it = internal::AttributeValueBase::registry().find(type);
