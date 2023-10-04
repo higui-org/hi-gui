@@ -42,6 +42,7 @@ namespace higui
 
 				virtual std::string toString() = 0;
 				virtual void fromString(const std::string& value) = 0;
+				virtual std::shared_ptr<ValueBase> instance() const = 0;
 
 			protected:
 
@@ -62,6 +63,7 @@ namespace higui
 		class Value : public internal::attr::ValueBase {
 		public:
 			Value() {}
+			virtual ~Value() = default;
 
 			static void Register(const std::string& type)
 			{
@@ -69,6 +71,11 @@ namespace higui
 				{
 					return std::make_shared<Derived>();
 				});
+			}
+
+			std::shared_ptr<internal::attr::ValueBase> instance() const override
+			{
+				return std::make_shared<Derived>();
 			}
 
 			friend std::ostream& operator<<(std::ostream& os, Derived obj)
@@ -99,7 +106,7 @@ namespace higui
 
 		class Int : public Value<Int> {
 		public:
-			Int() : int_value(0) {}
+			Int(int value = 0) : int_value(value) {}
 
 			std::string toString() override {
 				return std::to_string(int_value);
@@ -114,7 +121,7 @@ namespace higui
 
 		class Float : public Value<Float> {
 		public:
-			Float() : float_value(0.0f) {}
+			Float(float value = 0.0f) : float_value(value) {}
 
 			std::string toString() override {
 				return std::to_string(float_value);
@@ -136,7 +143,7 @@ namespace higui
 
 		class String : public Value<String> {
 		public:
-			String() : str("") {}
+			String(std::string str = "") : str(str) {}
 
 			std::string toString() override {
 				return str;
@@ -152,8 +159,7 @@ namespace higui
 		class Alignment : public Value<Alignment> {
 		public:
 
-			Alignment() : pos(Align::None), ratio(0.5f) {}
-			Alignment(Align alignment, float ratio = 0.5f) : pos(alignment), ratio(ratio) {}
+			Alignment(Align alignment = Align::None, float ratio = 0.5f) : pos(alignment), ratio(ratio) {}
 
 			std::string toString() override;
 

@@ -17,12 +17,12 @@ namespace higui
 
 		void CalculateDock();
 
-		attr::Alignment getAlign();
+		attr::Alignment getAlignment();
 		Align getAlignPos();
 		float getAlignRatio();
 
-		void setAlign(attr::Alignment dock);
-		void setAlignPos(Align dock_pos);
+		void setAlignment(attr::Alignment alignment);
+		void setAlignPos(Align align);
 		void setAlignRatio(float ratio);
 
 	protected:

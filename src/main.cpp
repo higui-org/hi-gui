@@ -1,8 +1,7 @@
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "higui.h"
-
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -10,6 +9,7 @@ const unsigned int SCR_HEIGHT = 600;
 int main()
 {
 	// glfw: initialize and configure
+	/*
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -36,12 +36,32 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-
+	*/
 	// higui
+	//Shader::Register("default", "default.vert", "default.frag");
+    //DOM dom(window, "test.markup", "test.style");
+    //dom.markup.Init();
+	
+
 	using namespace higui;
-	Shader::Register("default", "default.vert", "default.frag");
-    DOM dom(window, "test.markup", "test.style");
-    dom.markup.Init();
+
+	AttributeContainer cont;
+	cont["int"] = 34;
+	cont["hello"] = 77;
+	cont["nu take"] = "tak, ce je string";
+	cont["chyslo pi"] = 3.14f;
+	cont["a ce je cile chyslo"] = "int: 666";
+	cont["align"] = attr::Alignment(Align::Bottom);
+	cont["wasd"] = "align: top 25.6%";
+	
+	attr::Alignment& align = cont.value<attr::Alignment>("align");
+	align.pos = Align::Right;
+	align.ratio = 0.95223f;
+
+	for (auto& attr : cont)
+	{
+		std::cout << attr << std::endl;
+	}
 	
 	// main cycle
 	/*
@@ -56,9 +76,9 @@ int main()
         glfwPollEvents();
     }
 	*/
-    dom.Delete();
+    //dom.Delete();
 
-    glfwTerminate();
+    //glfwTerminate();
 	
 
     return 0;

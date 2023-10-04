@@ -70,7 +70,7 @@ namespace higui
 		}
 	}
 
-	attr::Alignment DivTag::getAlign()
+	attr::Alignment DivTag::getAlignment()
 	{
 		return alignment;
 	}
@@ -85,7 +85,7 @@ namespace higui
 		return alignment.ratio;
 	}
 
-	void DivTag::setAlign(attr::Alignment alignment_)
+	void DivTag::setAlignment(attr::Alignment alignment_)
 	{
 		alignment = alignment_;
 	}

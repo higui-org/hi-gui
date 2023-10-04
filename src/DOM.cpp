@@ -69,7 +69,7 @@ namespace higui
 			std::shared_ptr<DivTag> div = std::dynamic_pointer_cast<DivTag>(div_object);
 			if (div)
 			{
-				attr::Alignment alignment = div->getAlign();
+				attr::Alignment alignment = div->getAlignment();
 				alignment.pos = r ? Align::Top : Align::Bottom;
 				if (alignment.pos == Align::Top)
 				{

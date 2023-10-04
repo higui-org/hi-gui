@@ -13,7 +13,7 @@ namespace higui
 
 		// for std::shared_ptr
 		template <typename T>
-		std::enable_if_t<std::is_same<T, std::shared_ptr<typename std::decay_t<T>::element_type>>::value, 
+		std::enable_if_t<std::is_same<T, std::shared_ptr<typename std::decay_t<T>::element_type>>::value,
 			Attribute&>
 			operator=(T&& new_value)
 		{
@@ -22,11 +22,7 @@ namespace higui
 		}
 
 		// T is std::string 
-		Attribute& operator=(const std::string& new_value)
-		{
-			value->fromString(new_value);
-			return *this;
-		}
+		Attribute& operator=(const std::string& type_value);
 
 		// for cloning
 		template <typename T>
@@ -39,43 +35,33 @@ namespace higui
 
 		template <typename T>
 		std::enable_if_t<
-			std::is_same_v<T, int> || 
-			std::is_same_v<T, float> || 
+			std::is_same_v<T, int> ||
+			std::is_same_v<T, float> ||
 			std::is_same_v<T, double>,
-		Attribute&> operator=(const T& new_value)
+			Attribute&>
+			operator=(T new_value)
 		{
-			value->fromString(std::to_string(new_value));
+			if (typeid(T) == typeid(int))
+			{
+				value = std::make_shared<attr::Int>(static_cast<int>(new_value));
+			}
+			else if (typeid(T) == typeid(float) || typeid(T) == typeid(double))
+			{
+				value = std::make_shared<attr::Float>(static_cast<float>(new_value));
+			}
+			else
+			{
+				value = std::make_shared<attr::String>();
+				value->fromString(std::to_string(new_value));
+			}
 			return *this;
 		}
 
-		void setKey(const std::string& key)
-		{
-			key_ = key;
-			auto it = internal::attr::ValueBase::registry().find(key_);
-			if (it != internal::attr::ValueBase::registry().end())
-			{
-				std::shared_ptr<internal::attr::ValueBase> new_value = it->second();
-				value = new_value;
-			}
-			else {
-				throw std::runtime_error("Invalid Attribute key: " + key_);
-			}
-		}
+		void setKey(const std::string& key);
 
-		std::string key() const {
-			return key_;
-		}
+		std::string key() const { return key_; }
 
-		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj)
-		{
-			os << "key: " << obj.key() << "\t";
-			if (std::dynamic_pointer_cast<attr::String>(obj.value)) {
-				os << "value: \"" << obj.value->toString() << "\"";
-			} else {
-				os << "value: "   << obj.value->toString();
-			}
-			return os;
-		}
+		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj);
 
 		std::shared_ptr<internal::attr::ValueBase> value;
 
@@ -93,25 +79,18 @@ namespace higui
 			attributes_.push_back(attribute);
 		}
 
-		void add(const std::string& key, const std::string& value) {
-			attributes_.push_back(Attribute(key, value));
-		}
-
 		template <typename T>
-		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::attr::ValueBase, std::decay_t<T>>::value, void>
-			add(std::string key, T& new_value)
+		std::enable_if_t<!std::is_same_v<T, std::string>, 
+			void>
+			add(const std::string& key, const T& value)
 		{
-			attr attr{ key };
-			attr = std::make_shared<typename std::decay<T>::type>(new_value);
-			attributes_.push_back(attr);
-		}
-
-		template <typename T>
-		void add(const std::string& key, const T& value)
-		{
-			attr attr{ key };
+			Attribute attr{ key };
 			attr = value;
 			attributes_.push_back(attr);
+		}
+
+		void add(const std::string& key, const std::string& value) {
+			attributes_.push_back(Attribute(key, value));
 		}
 
 		void remove(const std::string& key) {
@@ -139,7 +118,7 @@ namespace higui
 		}
 
 		template <typename Derived>
-		Derived& get(const std::string& key) {
+		Derived& value(const std::string& key) {
 			std::size_t attr_index = find(key);
 			if (attr_index != npos) {
 				if (std::shared_ptr<Derived> derived_value = std::dynamic_pointer_cast<Derived>(attributes_[attr_index].value)) {
@@ -150,12 +129,11 @@ namespace higui
 				}
 			}
 			std::shared_ptr<Derived> new_attribute = std::make_shared<Derived>();
-			attr attr(key);
+			Attribute attr(key);
 			attr.value = new_attribute;
 			attributes_.push_back(attr);
 			return *new_attribute;
 		}
-
 
 		Attribute& get(const std::string& key) {
 			std::size_t attr_index = find(key);

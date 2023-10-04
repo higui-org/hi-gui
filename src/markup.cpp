@@ -20,21 +20,20 @@ namespace higui
 
 	void Markup::Init()
 	{
-		std::string markup = CookMarkup();
-		if (!markup.empty())
+		markup_cooked = CookMarkup(markup_raw);
+		if (markup_cooked.empty())
 		{
-			throw std::runtime_error("Markup isn't valid");
+			throw std::runtime_error("Invalid markup");
 		}
 
 		std::stack<std::shared_ptr<internal::GUIObjectBase>> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
-		while (pos < markup.length())
+		while (pos < markup_cooked.length())
 		{
 			// Tag block starts
 			std::string tag_block = ExtractTagBlock(pos);
-			std::string tag_name = ExtractTagName(tag_block);
 
 			if (tag_block[1] == '/') // Closing tag
 			{
@@ -42,79 +41,60 @@ namespace higui
 			}
 			else // Opening tag
 			{
-				tag_stack.push(tag_name);
+				tag_stack.push(ExtractTagName(tag_block));
 				ProcessOpeningTag(tag_block, object_stack);
 			}
 
-			size_t closing_tag_pos = markup.find('>', pos);
+			size_t closing_tag_pos = markup_cooked.find('>', pos);
 			pos = closing_tag_pos + 1;
 		}
 
-		markup.clear();
-		markup.shrink_to_fit();
+		markup_cooked.clear();
+		markup_cooked.shrink_to_fit();
 	}
 
-	const std::string& Markup::CookMarkup()
+	std::string Markup::CookMarkup(const std::string& markup)
 	{
-		std::stack<std::string> tag_stack;
-		size_t pos = 0;
+		std::string cooked{};
+		bool inside_quotes = false;
+		bool tag_name_found = false;
+		bool add_space = false;
 
-		while (pos < markup_raw.length())
-		{
-			// Tag block starts
-			std::string tag_block = ExtractTagBlock(pos);
-			std::string tag_name = ExtractTagName(tag_block);
-
-			size_t opening_tag_pos = markup_raw.find('<', pos);
-			size_t closing_tag_pos = markup_raw.find('>', pos);
-
-			if (closing_tag_pos == std::string::npos || closing_tag_pos < opening_tag_pos)
+		for (char c : markup) {
+			if (!cooked.empty())
 			{
-				throw std::runtime_error("MarkupParser::syntax_error_invalid_tag");
-				return false;
-			}
-
-			if (tag_block[1] == '/') // Closing tag
-			{
-				if (tag_stack.empty() || tag_stack.top() != tag_name)
+				if (cooked.back() == '<')
 				{
-					throw std::runtime_error("MarkupParser::syntax_error_invalid_tag");
-					return false;
+					tag_name_found = false;
 				}
-				tag_stack.pop();
+
+				if (cooked.back() != '<' && c == ' ' && !tag_name_found)
+				{
+					add_space = true;
+					tag_name_found = true;
+				}
 			}
-			else // Opening tag
+
+			if (c == '"' || c == '\'')
 			{
-				tag_stack.push(tag_name);
-			}
-
-			pos = closing_tag_pos + 1;
-		}
-
-		if (tag_stack.empty())	// Markup is valid if all opening tags have corresponding closing tags
-		{
-			std::string cleaned_markup;
-			bool inside_quotes = false;
-			bool first_attribute = true;
-
-			for (char c : markup_raw) {
-				if (c == '"') {
-					inside_quotes = !inside_quotes;
-				}
-
-				if (inside_quotes || !std::isspace(c)) {
-					cleaned_markup += c;
-					if (!inside_quotes && c == '=' && first_attribute) {
-						cleaned_markup += ' ';
-						first_attribute = false;
-					}
+				inside_quotes = !inside_quotes;
+				if (!inside_quotes)
+				{
+					add_space = true;
 				}
 			}
-
-			return cleaned_markup;
+			if (c != ' ' || inside_quotes)
+			{
+				cooked += c;
+			}
+			if (add_space)
+			{
+				cooked += ' ';
+				add_space = false;
+			}
 		}
 
-		return "";
+		return cooked;
 	}
 
 	std::string Markup::ExtractTagBlock(size_t offset)
@@ -122,8 +102,8 @@ namespace higui
 		size_t block_pos, block_length;
 		block_pos = block_length = offset;
 
-		block_pos = markup_raw.find('<', offset);
-		block_length = markup_raw.find('>', block_pos);
+		block_pos = markup_cooked.find('<', offset);
+		block_length = markup_cooked.find('>', block_pos);
 
 		if (block_pos == std::string::npos || block_length == std::string::npos)
 		{
@@ -131,7 +111,7 @@ namespace higui
 			return "";
 		}
 
-		return markup_raw.substr(block_pos, block_length - block_pos + 1);
+		return markup_cooked.substr(block_pos, block_length - block_pos + 1);
 	}
 
 	std::string Markup::ExtractTagName(const std::string& tag_block)

@@ -16,7 +16,7 @@ namespace higui
 		void Init();
 
 	private:
-		const std::string& CookMarkup();
+		std::string CookMarkup(const std::string& markup);
 
 		std::string ExtractTagBlock(size_t offset);
 		std::string ExtractTagName(const std::string& tag_block);
@@ -27,6 +27,7 @@ namespace higui
 		void ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack);
 
 		std::string markup_raw;
+		std::string markup_cooked;
 		std::shared_ptr<internal::GUIObjectBase> central_object;
 
 		friend class DOM;
