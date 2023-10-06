@@ -14,6 +14,7 @@ namespace higui
 		Markup(const std::string& markup_file);
 
 		void Init();
+		std::shared_ptr<internal::GUIObjectBase> central_object;
 
 	private:
 		std::string CookMarkup(const std::string& markup);
@@ -28,7 +29,7 @@ namespace higui
 
 		std::string markup_raw;
 		std::string markup_cooked;
-		std::shared_ptr<internal::GUIObjectBase> central_object;
+		//std::shared_ptr<internal::GUIObjectBase> central_object;
 
 		friend class DOM;
 	};

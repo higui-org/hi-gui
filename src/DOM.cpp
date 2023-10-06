@@ -15,16 +15,6 @@ namespace higui
 		glfwSetMouseButtonCallback(window, DOM::MouseButtonCallbackWrapper);
 		glfwSetFramebufferSizeCallback(window, DOM::FramebufferSizeCallbackWrapper);
 
-		GLfloat vertices[] = {
-			-0.5f,  0.5f, 0.0f,
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-
-			-0.5f,  0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f
-		};
-
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);
