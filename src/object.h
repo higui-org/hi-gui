@@ -20,13 +20,22 @@ namespace higui
 		class GUIObjectBase
 		{
 		public:
-			GUIObjectBase();
+			GUIObjectBase() : parent(nullptr), model(1.0f) {}
 
 			virtual void Render(unsigned int VAO) {}
 			virtual void Update() {}
 
-			std::shared_ptr<GUIObjectBase> getParent();
-			glm::mat4 getModel();
+			template <class AttributeValue>
+			std::enable_if_t<std::is_base_of_v<internal::attr::ValueBase, AttributeValue>, AttributeValue&>
+				attr(const std::string& key)
+			{
+				return attribute[key].value<AttributeValue>();
+			}
+
+			Attribute& attr(const std::string& key) { return attribute[key]; }
+
+			std::shared_ptr<GUIObjectBase> getParent() { return parent; }
+			glm::mat4 getModel() { return model; }
 
 			// returns a vector of pixels
 			glm::vec2 Size(int framebuffer_width, int framebuffer_height);
@@ -40,14 +49,14 @@ namespace higui
 			virtual bool OnCursorPos(double xpos, double ypos);
 			virtual bool OnMouseClick(int button, double xpos, double ypos);
 
+		protected:
+			// Markup class adds children
+			void AddChild(std::shared_ptr<GUIObjectBase> obj) { children.push_back(obj); }
+
 			// attributes
 			AttributeContainer attribute;
 
-		protected:
-			// Markup class adds children
-			void AddChild(std::shared_ptr<GUIObjectBase> obj);
-
-			std::vector<std::shared_ptr<GUIObjectBase>> children;
+			std::vector<std::shared_ptr<GUIObjectBase>> children{};
 			std::shared_ptr<GUIObjectBase> parent;
 			glm::mat4 model;
 
@@ -67,7 +76,7 @@ namespace higui
 		};
 	}
 
-	template<typename Derived>
+	template<class Derived>
 	class GUIObject : public internal::GUIObjectBase
 	{
 	public:

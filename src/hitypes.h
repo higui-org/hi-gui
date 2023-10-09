@@ -16,6 +16,7 @@
 namespace higui
 {
 	class Attribute;
+	class AttributeContainer;
 
 	enum class Align {
 		None,
@@ -52,14 +53,16 @@ namespace higui
 					return registry;
 				}
 
+				// friends~
 				friend class Attribute;
+				friend class AttributeContainer;
 			};
 		}
 	};
 
 	namespace attr
 	{
-		template <typename Derived>
+		template <class Derived>
 		class Value : public internal::attr::ValueBase {
 		public:
 			Value() {}

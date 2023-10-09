@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 
 set(PROJECT_NAME higui)
 project(${PROJECT_NAME} VERSION 1.0.0)
@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(CMAKE_CXX_COMPILER /usr/bin/g++-8)
 endif()
-
 
 set(SOURCES
     src/main.cpp
@@ -48,8 +47,6 @@ add_executable(${PROJECT_NAME}
 ${SOURCES} 
 ${TAG_CLASSES} 
 ${THIRD_PARTY})
-
-
 
 if(MSVC)
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")

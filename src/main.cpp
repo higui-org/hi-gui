@@ -19,7 +19,7 @@ int main()
 #endif
 
 	// glfw window
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "BioText - GUI test", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "GUI test", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -41,15 +41,13 @@ int main()
     DOM dom(window, "test.markup", "test.style");
     dom.markup.Init();
 	
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// main cycle
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-		dom.markup.central_object->Update();
         dom.Render();
 
         glfwSwapBuffers(window);

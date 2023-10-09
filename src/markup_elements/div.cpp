@@ -14,7 +14,7 @@ namespace higui
 
 	void DivTag::Render(unsigned int VAO)
 	{
-		auto default_shader = Shader::get("default");
+		auto default_shader = Shader::get();
 		default_shader->use();
 		default_shader->setMat4("model", model);
 
@@ -30,7 +30,7 @@ namespace higui
 	void DivTag::Update()
 	{
 		model = glm::mat4(1.0f);
-		alignment = attribute.value<attr::Alignment>("align");
+		alignment = attribute.value<attr::Alignment>();
 
 		CalculateDock();
 		

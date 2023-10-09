@@ -54,28 +54,22 @@ namespace higui
 	{
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
 		{
-			static bool r = false;
-			std::shared_ptr<internal::GUIObjectBase> div_object = markup.central_object->children[0];
-			std::shared_ptr<DivTag> div = std::dynamic_pointer_cast<DivTag>(div_object);
-			if (div)
+			std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->children[0];
+			attr::Alignment& align = obj->attr<attr::Alignment>("align");
+
+			if (align.pos == Align::Top)
 			{
-				attr::Alignment alignment = div->getAlignment();
-				alignment.pos = r ? Align::Top : Align::Bottom;
-				if (alignment.pos == Align::Top)
-				{
-					std::cout << "top" << std::endl;
-				}
-				else
-				{
-					std::cout << "bottom" << std::endl;
-				}
-				r = !r;
-				for (auto& attr : div_object->attribute)
-				{
-					std::cout << "name: " << attr.key() << ", value: " << attr.value->toString() << std::endl;
-				}
-				div->Update();
+				std::cout << "top!! i change it! " << std::endl;
+				align.pos = Align::Bottom;
+
+				std::cout << obj->attr<attr::Alignment>("align") << std::endl;
 			}
+			else
+			{
+				std::cout << "bottom>.. top now!" << std::endl;
+				align.pos = Align::Top;
+			}
+			obj->Update();
 		}
 	}
 

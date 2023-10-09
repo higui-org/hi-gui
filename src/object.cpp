@@ -4,27 +4,6 @@ namespace higui
 {
 	namespace internal
 	{
-		GUIObjectBase::GUIObjectBase()
-		{
-			parent = nullptr;
-			model = glm::mat4(1.0f);
-		}
-
-		void GUIObjectBase::AddChild(std::shared_ptr<GUIObjectBase> obj)
-		{
-			children.push_back(obj);
-		}
-
-		std::shared_ptr<GUIObjectBase> GUIObjectBase::getParent()
-		{
-			return parent;
-		}
-
-		glm::mat4 GUIObjectBase::getModel()
-		{
-			return model;
-		}
-
 		glm::vec2 GUIObjectBase::Size(GLFWwindow* window)
 		{
 			int w, h;

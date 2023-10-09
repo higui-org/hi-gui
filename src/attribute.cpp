@@ -2,21 +2,19 @@
 
 namespace higui
 {
-	Attribute::Attribute(const std::string& key) {
-		key_ = key;
+	Attribute::Attribute(const std::string& key) : key_(key) {
 		auto it = internal::attr::ValueBase::registry().find(key_);
 		if (it != internal::attr::ValueBase::registry().end())
 		{
 			std::shared_ptr<internal::attr::ValueBase> new_value = it->second();
-			value = new_value;
+			value_ = new_value;
 		}
 		else {
-			value = nullptr;
+			value_ = nullptr;
 		}
 	}
 
 	Attribute::Attribute(const std::string& key, const std::string& type_value) : key_(key) {
-		key_ = key;
 		this->operator=(type_value);
 	}
 
@@ -38,10 +36,10 @@ namespace higui
 			auto it_type = internal::attr::ValueBase::registry().find(type);	// find by ':'
 			if (it_type != internal::attr::ValueBase::registry().end())
 			{
-				value = it_type->second();
+				value_ = it_type->second();
 
 				auto RegisterDerived = [this]() -> std::shared_ptr<internal::attr::ValueBase> {	// register new key
-					return value->instance();
+					return value_->instance();
 				};
 
 				internal::attr::ValueBase::registry()[key_] = RegisterDerived;
@@ -49,9 +47,9 @@ namespace higui
 		}
 		else
 		{
-			value = it_key->second();		// just create
+			value_ = it_key->second();		// just create
 		}
-		value->fromString(new_value);
+		value_->fromString(new_value);
 		return *this;
 	}
 
@@ -62,7 +60,7 @@ namespace higui
 		if (it != internal::attr::ValueBase::registry().end())
 		{
 			std::shared_ptr<internal::attr::ValueBase> new_value = it->second();
-			value = new_value;
+			value_ = new_value;
 		}
 		else {
 			throw std::runtime_error("Invalid Attribute key: " + key_);
@@ -72,11 +70,11 @@ namespace higui
 	std::ostream& operator<<(std::ostream& os, const Attribute& obj)
 	{
 		os << "key: " << obj.key() << "\tvalue: ";
-		if (std::dynamic_pointer_cast<attr::String>(obj.value)) {
-			os << "\"" << obj.value->toString() << "\"";
+		if (std::dynamic_pointer_cast<attr::String>(obj.value_)) {
+			os << "\"" << obj.value_->toString() << "\"";
 		}
 		else {
-			os << obj.value->toString();
+			os << obj.value_->toString();
 		}
 		return os;
 	}

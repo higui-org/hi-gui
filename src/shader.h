@@ -35,7 +35,7 @@ namespace higui
 		void setMat3(const std::string& name, const glm::mat3& mat) const;
 		void setMat4(const std::string& name, const glm::mat4& mat) const;
 
-		static std::shared_ptr<Shader> get(const std::string& shader_name);
+		static std::shared_ptr<Shader> get(const std::string& shader_name = "default");
 
 		static void Register(const std::string& shader_name, const char* vertex_path, const char* fragment_path);
 
