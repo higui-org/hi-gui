@@ -5,6 +5,8 @@
 
 namespace higui
 {
+	using namespace internal;
+
 	class Attribute 
 	{
 	public:
@@ -26,7 +28,7 @@ namespace higui
 
 		// for cloning
 		template <class T>
-		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::attr::ValueBase, std::decay_t<T>>::value, Attribute&>
+		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<AttributeValueBase, std::decay_t<T>>::value, Attribute&>
 			operator=(const T& new_value)
 		{
 			value_ = std::make_shared<class std::decay<T>::type>(new_value);
@@ -43,21 +45,21 @@ namespace higui
 		{
 			if (typeid(T) == typeid(int))
 			{
-				value_ = std::make_shared<attr::Int>(static_cast<int>(new_value));
+				value_ = std::make_shared<attribute::Int>(static_cast<int>(new_value));
 			}
 			else if (typeid(T) == typeid(float) || typeid(T) == typeid(double))
 			{
-				value_ = std::make_shared<attr::Float>(static_cast<float>(new_value));
+				value_ = std::make_shared<attribute::Float>(static_cast<float>(new_value));
 			}
 			else
 			{
-				value_ = std::make_shared<attr::String>();
-				value_->fromString(std::to_string(new_value));
+				value_ = std::make_shared<attribute::String>();
+				value_->from_str(std::to_string(new_value));
 			}
 			return *this;
 		}
 
-		void setKey(const std::string& key);
+		//void setKey(const std::string& key);
 
 		std::string key() const { return key_; }
 
@@ -73,7 +75,7 @@ namespace higui
 		
 
 	private:
-		std::shared_ptr<internal::attr::ValueBase> value_;
+		std::shared_ptr<AttributeValueBase> value_;
 		std::string key_;
 
 		friend class AttributeContainer;
@@ -91,8 +93,7 @@ namespace higui
 
 		template <typename T>
 		std::enable_if_t<!std::is_same_v<T, std::string>, 
-			void>
-			add(const std::string& key, const T& value)
+		void> add(const std::string& key, const T& value)
 		{
 			Attribute attr{ key };
 			attr = value;
@@ -131,7 +132,7 @@ namespace higui
 		Derived& value(const std::string& key = "") {
 			std::string effective_key = key;
 			if (effective_key.empty()) {
-				for (const auto& entry : internal::attr::ValueBase::registry()) {
+				for (const auto& entry : AttributeValueBase::registry()) {
 					if (std::dynamic_pointer_cast<Derived>(entry.second())) {
 						effective_key = entry.first;
 						break;

@@ -2,102 +2,108 @@
 
 namespace higui
 {
-	DivTag::DivTag() : GUIObject(), alignment()
+	namespace tag
 	{
-		model = glm::mat4(1.0f);
-	}
-
-	DivTag::~DivTag()
-	{
-
-	}
-
-	void DivTag::Render(unsigned int VAO)
-	{
-		auto default_shader = Shader::get();
-		default_shader->use();
-		default_shader->setMat4("model", model);
-
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		
-		for (auto& child : children)
+		Div::Div() : GUIObject(), alignment()
 		{
-			child->Render(VAO);
+			model = glm::mat4(1.0f);
 		}
-	}
 
-	void DivTag::Update()
-	{
-		model = glm::mat4(1.0f);
-		alignment = attribute.value<attr::Alignment>();
-
-		CalculateDock();
-		
-		for (auto& child : children)
+		void Div::Render(unsigned int VAO)
 		{
-			child->Update();
-		}
-	}
+			auto default_shader = Shader::get();
+			default_shader->use();
+			default_shader->setMat4("model", model);
 
-	void DivTag::CalculateDock()
-	{
-		if (parent)
+			glBindVertexArray(VAO);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+			for (auto& child : children)
+			{
+				child->Render(VAO);
+			}
+		}
+
+		void Div::Update()
 		{
-			model = parent->getModel() * model;
+			model = glm::mat4(1.0f);
+			alignment = attribute_container.value<attribute::Alignment>();
+
+			CalculateDock();
+
+			for (auto& child : children)
+			{
+				child->Update();
+			}
 		}
-		switch (alignment.pos)
+
+		void Div::CalculateDock() 
 		{
-		case Align::None:
-			break;
-		case Align::Top:
-			model = glm::translate(model, glm::vec3(0.0f, 1.0f - alignment.ratio, 0.0f));
-			model = glm::scale(model, glm::vec3(1.0f, alignment.ratio, 1.0f));
-			break;
-		case Align::Bottom:
-			model = glm::translate(model, glm::vec3(0.0f, alignment.ratio - 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(1.0f, alignment.ratio, 1.0f));
-			break;
-		case Align::Left:
-			model = glm::translate(model, glm::vec3(alignment.ratio - 1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(alignment.ratio, 1.0f, 1.0f));
-			break;
-		case Align::Right:
-			model = glm::translate(model, glm::vec3(1.0f - alignment.ratio, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(alignment.ratio, 1.0f, 1.0f));
-			break;
-		default:
-			break;
+			if (parent)
+			{
+				model = parent->getModel() * model;
+			}
+
+			glm::vec3 t(0.0f, 0.0f, 0.0f); // stand for translation
+			glm::vec3 s(1.0f, 1.0f, 1.0f); // stand for scaling
+
+			switch (alignment.pos)
+			{
+			case Align::None:
+				s = glm::vec3(alignment.ratio);
+				break;
+			case Align::Top:
+				t.y = 1.0f - alignment.ratio;
+				s.y = alignment.ratio;
+				break;
+			case Align::Bottom:
+				t.y = alignment.ratio - 1.0f;
+				s.y = alignment.ratio;
+				break;
+			case Align::Left:
+				t.x = alignment.ratio - 1.0f;
+				s.x = alignment.ratio;
+				break;
+			case Align::Right:
+				t.x = 1.0f - alignment.ratio;
+				s.x = alignment.ratio;
+				break;
+			default:
+				break;
+			}
+
+			model = glm::translate(model, t);
+			model = glm::scale(model, s);
 		}
-	}
 
-	attr::Alignment DivTag::getAlignment()
-	{
-		return alignment;
-	}
+		attribute::Alignment Div::getAlignment()
+		{
+			return alignment;
+		}
 
-	Align DivTag::getAlignPos()
-	{
-		return alignment.pos;
-	}
+		Align Div::getAlignPos()
+		{
+			return alignment.pos;
+		}
 
-	float DivTag::getAlignRatio()
-	{
-		return alignment.ratio;
-	}
+		float Div::getAlignRatio()
+		{
+			return alignment.ratio;
+		}
 
-	void DivTag::setAlignment(attr::Alignment alignment_)
-	{
-		alignment = alignment_;
-	}
+		void Div::setAlignment(attribute::Alignment alignment_)
+		{
+			alignment = alignment_;
+		}
 
-	void DivTag::setAlignPos(Align dock_pos)
-	{
-		alignment.pos = dock_pos;
-	}
+		void Div::setAlignPos(Align dock_pos)
+		{
+			alignment.pos = dock_pos;
+		}
 
-	void DivTag::setAlignRatio(float ratio)
-	{
-		alignment.ratio = ratio;
+		void Div::setAlignRatio(float ratio)
+		{
+			alignment.ratio = ratio;
+		}
 	}
 }

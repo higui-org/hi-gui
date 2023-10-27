@@ -4,7 +4,7 @@ namespace higui
 {
 	Markup::Markup(const std::string& filename)
 	{	
-		central_object = std::make_shared<DivTag>();
+		central_object = std::make_shared<tag::Object>();
 		std::ifstream file;
 
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -198,7 +198,7 @@ namespace higui
 
 				for (auto& attribute : attributes)
 				{
-					obj->attribute.add(attribute);
+					obj->attribute_container.add(attribute);
 				}
 				// Set object as a child of the previous object
 				if (!object_stack.empty())

@@ -2,11 +2,27 @@
 
 namespace higui
 {
-	void attr::Alignment::fromString(const std::string& tag) {
+	void attribute::Alignment::from_str(const std::string& tag) {
 		std::vector<std::string> splitted = SplitBySpace(tag);
 		
-		std::string dock_str = splitted[0];
-		std::string ratio_str = splitted[1];
+		std::string dock_str, ratio_str;
+		try
+		{
+			dock_str = splitted.at(0);
+		}
+		catch (std::out_of_range)
+		{
+			dock_str = "none";
+		}
+
+		try
+		{
+			ratio_str = splitted.at(1);
+		}
+		catch (std::out_of_range)
+		{
+			ratio_str = "25%";
+		}
 
 		if (!dock_str.empty())
 		{
@@ -34,7 +50,7 @@ namespace higui
 
 	}
 
-	std::string attr::Alignment::toString() {
+	std::string attribute::Alignment::to_str() {
 		switch (pos) {
 		case Align::Top:
 			return "top " + std::to_string(ratio);
@@ -71,6 +87,11 @@ namespace higui
 				return percentage / 100.0f;
 			}
 			throw std::runtime_error("Invalid percentage format");
+		}
+
+		bool isPointInsideRect(const glm::vec2& point, const glm::vec4& rect) {
+			return point.x >= rect.x && point.x <= rect.x + rect.z &&
+				   point.y >= rect.y && point.y <= rect.y + rect.w;
 		}
 	}
 }

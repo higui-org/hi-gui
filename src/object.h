@@ -12,49 +12,49 @@
 
 namespace higui
 {
+	using namespace internal;
+
 	class DOM;
 	class Markup;
 
 	namespace internal
 	{
-		class GUIObjectBase
+		class GUIObjectBase : public std::enable_shared_from_this<GUIObjectBase>
 		{
 		public:
 			GUIObjectBase() : parent(nullptr), model(1.0f) {}
 
-			virtual void Render(unsigned int VAO) {}
-			virtual void Update() {}
+			virtual void Render(unsigned int VAO);
+			virtual void Update();
 
 			template <class AttributeValue>
-			std::enable_if_t<std::is_base_of_v<internal::attr::ValueBase, AttributeValue>, AttributeValue&>
-				attr(const std::string& key)
+			std::enable_if_t<std::is_base_of_v<AttributeValueBase, AttributeValue>, AttributeValue&>
+				attr(const std::string& key = "")
 			{
-				return attribute[key].value<AttributeValue>();
+				return attribute_container.value<AttributeValue>();
 			}
 
-			Attribute& attr(const std::string& key) { return attribute[key]; }
+			Attribute& attr(const std::string& key) { return attribute_container[key]; }
 
 			std::shared_ptr<GUIObjectBase> getParent() { return parent; }
 			glm::mat4 getModel() { return model; }
 
 			// returns a vector of pixels
-			glm::vec2 Size(int framebuffer_width, int framebuffer_height);
-			glm::vec2 Position(int framebuffer_width, int framebuffer_height);
-			glm::vec4 Geometry(int framebuffer_width, int framebuffer_height);
-			glm::vec2 Size(GLFWwindow* window);
-			glm::vec2 Position(GLFWwindow* window);
-			glm::vec4 Geometry(GLFWwindow* window);
+			glm::vec2 size(GLFWwindow* window);
+			glm::vec2 pos(GLFWwindow* window);
+			glm::vec4 geometry(GLFWwindow* window);
 
 			// events
 			virtual bool OnCursorPos(double xpos, double ypos);
 			virtual bool OnMouseClick(int button, double xpos, double ypos);
 
 		protected:
-			// Markup class adds children
 			void AddChild(std::shared_ptr<GUIObjectBase> obj) { children.push_back(obj); }
 
+			std::shared_ptr<GUIObjectBase> Hover(glm::vec2 point, GLFWwindow* win);
+
 			// attributes
-			AttributeContainer attribute;
+			AttributeContainer attribute_container;
 
 			std::vector<std::shared_ptr<GUIObjectBase>> children{};
 			std::shared_ptr<GUIObjectBase> parent;
@@ -77,7 +77,7 @@ namespace higui
 	}
 
 	template<class Derived>
-	class GUIObject : public internal::GUIObjectBase
+	class GUIObject : public GUIObjectBase
 	{
 	public:
 		// register markup tag
@@ -94,6 +94,11 @@ namespace higui
 			registry()[type] = factory;
 		}
 	};
+
+	namespace tag
+	{
+		class Object : public GUIObject<Object> {};
+	}
 }
 
 #endif // HI_GUI_OBJECT_H

@@ -2,6 +2,8 @@
 
 namespace higui
 {
+	bool DOM::resizeFlag = false;
+	std::chrono::steady_clock::time_point DOM::lastResizeTime;
 
 	DOM::DOM(GLFWwindow* window, const std::string& markup_file, const std::string& style_file)
 		: markup(markup_file)
@@ -52,23 +54,32 @@ namespace higui
 
 	void DOM::MouseButtonCallback(int button, int action, int mods)
 	{
-		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->Hover({x, y}, window);
+
+		if (obj)
 		{
-			std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->children[0];
-			attr::Alignment& align = obj->attr<attr::Alignment>("align");
-
-			if (align.pos == Align::Top)
+			if (button == GLFW_MOUSE_BUTTON_1)
 			{
-				std::cout << "top!! i change it! " << std::endl;
-				align.pos = Align::Bottom;
-
-				std::cout << obj->attr<attr::Alignment>("align") << std::endl;
+				std::cout << "+" << std::endl;
+				obj->attr<attribute::Alignment>().ratio += 0.03f;
 			}
-			else
+			if (button == GLFW_MOUSE_BUTTON_2)
 			{
-				std::cout << "bottom>.. top now!" << std::endl;
-				align.pos = Align::Top;
+				std::cout << "-" << std::endl;
+				obj->attr<attribute::Alignment>().ratio -= 0.03f;
 			}
+
+			glm::vec4 c = obj->geometry(window);
+			std::cout << "obj: " << obj << ", x: " << c.x << ", y: " << c.y << ", w: " << c.z << ", h: " << c.w << std::endl;
+			for (auto child : obj->children)
+			{
+				glm::vec4 g = child->geometry(window);
+
+				std::cout << "obj: " << child << ", x: " << g.x << ", y: " << g.y << ", w: " << g.z << ", h: " << g.w << std::endl;
+			}
+
 			obj->Update();
 		}
 	}

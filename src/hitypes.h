@@ -13,6 +13,8 @@
 #include <list>
 #include <sstream>
 
+#include <glm/glm.hpp>
+
 namespace higui
 {
 	class Attribute;
@@ -32,51 +34,50 @@ namespace higui
 	};
 
 	namespace internal {
+
 		RGBA ToRGBA(const std::string& value);
 		float ToNormalizedFloat(const std::string& value);
+		bool isPointInsideRect(const glm::vec2& point, const glm::vec4& rect);
 
-		namespace attr
-		{
-			class ValueBase {
-			public:
-				virtual ~ValueBase() = default;
+		class AttributeValueBase {
+		public:
+			virtual ~AttributeValueBase() = default;
 
-				virtual std::string toString() = 0;
-				virtual void fromString(const std::string& value) = 0;
-				virtual std::shared_ptr<ValueBase> instance() const = 0;
+			virtual std::string to_str() = 0;
+			virtual void from_str(const std::string& value) = 0;
+			virtual std::shared_ptr<AttributeValueBase> instance() const = 0;
 
-			protected:
+		protected:
 
-				static std::unordered_map<std::string, std::function<std::shared_ptr<ValueBase>()>>& registry()
-				{
-					static std::unordered_map<std::string, std::function<std::shared_ptr<ValueBase>()>> registry;
-					return registry;
-				}
+			static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValueBase>()>>& registry()
+			{
+				static std::unordered_map<std::string, std::function<std::shared_ptr<AttributeValueBase>()>> registry;
+				return registry;
+			}
 
-				// friends~
-				friend class Attribute;
-				friend class AttributeContainer;
-			};
-		}
+			// friends~
+			friend class Attribute;
+			friend class AttributeContainer;
+		};
 	};
 
-	namespace attr
+	namespace attribute
 	{
 		template <class Derived>
-		class Value : public internal::attr::ValueBase {
+		class AttributeValue : public internal::AttributeValueBase {
 		public:
-			Value() {}
-			virtual ~Value() = default;
+			AttributeValue() {}
+			virtual ~AttributeValue() = default;
 
 			static void Register(const std::string& type)
 			{
-				RegisterType(type, []() -> std::shared_ptr<internal::attr::ValueBase>
+				RegisterType(type, []() -> std::shared_ptr<internal::AttributeValueBase>
 				{
 					return std::make_shared<Derived>();
 				});
 			}
 
-			std::shared_ptr<internal::attr::ValueBase> instance() const override
+			std::shared_ptr<internal::AttributeValueBase> instance() const override
 			{
 				return std::make_shared<Derived>();
 			}
@@ -101,36 +102,36 @@ namespace higui
 			}
 
 		private:
-			static void RegisterType(const std::string& type, std::function<std::shared_ptr<internal::attr::ValueBase>()> factory) {
+			static void RegisterType(const std::string& type, std::function<std::shared_ptr<internal::AttributeValueBase>()> factory) {
 				registry()[type] = factory;
 			}
 		};
 
 
-		class Int : public Value<Int> {
+		class Int : public AttributeValue<Int> {
 		public:
 			Int(int value = 0) : int_value(value) {}
 
-			std::string toString() override {
+			std::string to_str() override {
 				return std::to_string(int_value);
 			}
 
-			void fromString(const std::string& value) override {
+			void from_str(const std::string& value) override {
 				int_value = std::stoi(value);
 			}
 
 			int int_value;
 		};
 
-		class Float : public Value<Float> {
+		class Float : public AttributeValue<Float> {
 		public:
 			Float(float value = 0.0f) : float_value(value) {}
 
-			std::string toString() override {
+			std::string to_str() override {
 				return std::to_string(float_value);
 			}
 
-			void fromString(const std::string& value) override {
+			void from_str(const std::string& value) override {
 				try
 				{
 					float_value = std::stof(value);
@@ -144,29 +145,29 @@ namespace higui
 			float float_value;
 		};
 
-		class String : public Value<String> {
+		class String : public AttributeValue<String> {
 		public:
 			String(std::string str = "") : str(str) {}
 
-			std::string toString() override {
+			std::string to_str() override {
 				return str;
 			}
 
-			void fromString(const std::string& value) override {
+			void from_str(const std::string& value) override {
 				str = value;
 			}
 
 			std::string str;
 		};
 
-		class Alignment : public Value<Alignment> {
+		class Alignment : public AttributeValue<Alignment> {
 		public:
 
 			Alignment(Align alignment = Align::None, float ratio = 0.5f) : pos(alignment), ratio(ratio) {}
 
-			std::string toString() override;
+			std::string to_str() override;
 
-			void fromString(const std::string& new_value) override;
+			void from_str(const std::string& new_value) override;
 
 
 			Align pos;

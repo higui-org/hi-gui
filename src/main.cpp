@@ -1,5 +1,6 @@
 ﻿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <chrono>
 
 #include "higui.h"
 
@@ -48,6 +49,7 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+		dom.markup.central_object->Update();
         dom.Render();
 
         glfwSwapBuffers(window);

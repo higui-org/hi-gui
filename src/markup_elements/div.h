@@ -5,29 +5,31 @@
 
 namespace higui 
 {
-	class DivTag : public GUIObject<DivTag>
+	namespace tag
 	{
-	public:
-		DivTag();
-		~DivTag();
+		class Div : public GUIObject<Div>
+		{
+		public:
+			Div();
 
-		// overrided and derived from GUIObject
-		void Render(unsigned int VAO) override;
-		void Update() override;
+			// overrided and derived from GUIObject
+			void Render(unsigned int VAO) override;
+			void Update() override;
 
-		void CalculateDock();
+			void CalculateDock();
 
-		attr::Alignment getAlignment();
-		Align getAlignPos();
-		float getAlignRatio();
+			attribute::Alignment getAlignment();
+			Align getAlignPos();
+			float getAlignRatio();
 
-		void setAlignment(attr::Alignment alignment);
-		void setAlignPos(Align align);
-		void setAlignRatio(float ratio);
+			void setAlignment(attribute::Alignment alignment);
+			void setAlignPos(Align align);
+			void setAlignRatio(float ratio);
 
-	protected:
-		attr::Alignment alignment;
-	};
+		protected:
+			attribute::Alignment alignment;
+		};
+	}
 }
 
 #endif // DIV_H

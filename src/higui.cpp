@@ -4,17 +4,18 @@ namespace higui
 {
 	namespace internal {
 		GlobalInitializer::GlobalInitializer() {
-			// basic attribute tags
-			higui::attr::Int::Register("int");
-			higui::attr::Float::Register("float");
-			higui::attr::String::Register("string");
-			higui::attr::String::Register("str");
+			// basic attributes
+			higui::attribute::Int::Register("int");
+			higui::attribute::Float::Register("float");
+			higui::attribute::String::Register("string");
+			higui::attribute::String::Register("str");
 
-			// alignment
-			higui::attr::Alignment::Register("align");
+			// attribute alignment
+			higui::attribute::Alignment::Register("align");
 
-			// basic markup tags
-			DivTag::Register("div");
+			// basic tags
+			tag::Object::Register("obj");
+			tag::Div::Register("div");
 		}
 
 		GlobalInitializer global_initializer{};

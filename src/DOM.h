@@ -2,6 +2,7 @@
 #define HI_DOM_H
 
 #include <iostream>
+#include <chrono>
 
 #include "markup.h"
 #include "style.h"
@@ -29,6 +30,9 @@ namespace higui
 		Markup markup;
 
 		unsigned int VBO, VAO, EBO;
+
+		static bool resizeFlag;
+		static std::chrono::steady_clock::time_point lastResizeTime;
 	
 
 	private:

@@ -3,10 +3,10 @@
 namespace higui
 {
 	Attribute::Attribute(const std::string& key) : key_(key) {
-		auto it = internal::attr::ValueBase::registry().find(key_);
-		if (it != internal::attr::ValueBase::registry().end())
+		auto it = AttributeValueBase::registry().find(key_);
+		if (it != AttributeValueBase::registry().end())
 		{
-			std::shared_ptr<internal::attr::ValueBase> new_value = it->second();
+			std::shared_ptr<AttributeValueBase> new_value = it->second();
 			value_ = new_value;
 		}
 		else {
@@ -30,51 +30,53 @@ namespace higui
 			new_value.erase(0, new_value.find_first_not_of(' '));
 		}
 
-		auto it_key = internal::attr::ValueBase::registry().find(key_);
-		if (it_key == internal::attr::ValueBase::registry().end())		// not found
+		auto it_key = AttributeValueBase::registry().find(key_);
+		if (it_key == AttributeValueBase::registry().end())		// not found
 		{
-			auto it_type = internal::attr::ValueBase::registry().find(type);	// find by ':'
-			if (it_type != internal::attr::ValueBase::registry().end())
+			auto it_type = AttributeValueBase::registry().find(type);	// find by ':'
+			if (it_type != AttributeValueBase::registry().end())
 			{
 				value_ = it_type->second();
 
-				auto RegisterDerived = [this]() -> std::shared_ptr<internal::attr::ValueBase> {	// register new key
+				auto RegisterDerived = [this]() -> std::shared_ptr<AttributeValueBase> {	// register new key
 					return value_->instance();
 				};
 
-				internal::attr::ValueBase::registry()[key_] = RegisterDerived;
+				AttributeValueBase::registry()[key_] = RegisterDerived;
 			}
 		}
 		else
 		{
 			value_ = it_key->second();		// just create
 		}
-		value_->fromString(new_value);
+		value_->from_str(new_value);
 		return *this;
 	}
 
+	/*
 	void Attribute::setKey(const std::string& key)
 	{
 		key_ = key;
-		auto it = internal::attr::ValueBase::registry().find(key_);
-		if (it != internal::attr::ValueBase::registry().end())
+		auto it = AttributeValueBase::registry().find(key_);
+		if (it != AttributeValueBase::registry().end())
 		{
-			std::shared_ptr<internal::attr::ValueBase> new_value = it->second();
+			std::shared_ptr<AttributeValueBase> new_value = it->second();
 			value_ = new_value;
 		}
 		else {
 			throw std::runtime_error("Invalid Attribute key: " + key_);
 		}
 	}
+	*/
 
 	std::ostream& operator<<(std::ostream& os, const Attribute& obj)
 	{
 		os << "key: " << obj.key() << "\tvalue: ";
-		if (std::dynamic_pointer_cast<attr::String>(obj.value_)) {
-			os << "\"" << obj.value_->toString() << "\"";
+		if (std::dynamic_pointer_cast<attribute::String>(obj.value_)) {
+			os << "\"" << obj.value_->to_str() << "\"";
 		}
 		else {
-			os << obj.value_->toString();
+			os << obj.value_->to_str();
 		}
 		return os;
 	}
