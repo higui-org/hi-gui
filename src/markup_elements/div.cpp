@@ -37,20 +37,21 @@ namespace higui
 			}
 		}
 
-		void Div::CalculateDock() 
+		void Div::CalculateDock()
 		{
 			if (parent)
 			{
 				model = parent->getModel() * model;
 			}
 
-			glm::vec3 t(0.0f, 0.0f, 0.0f); // stand for translation
-			glm::vec3 s(1.0f, 1.0f, 1.0f); // stand for scaling
+			glm::vec3 t{ 0.0f, 0.0f, 0.0f }; // t stands for translation
+			glm::vec3 s{ 1.0f, 1.0f, 1.0f }; // s stands for scaling
 
 			switch (alignment.pos)
 			{
 			case Align::None:
 				s = glm::vec3(alignment.ratio);
+				s.z = 0.0f;
 				break;
 			case Align::Top:
 				t.y = 1.0f - alignment.ratio;

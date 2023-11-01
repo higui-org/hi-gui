@@ -93,5 +93,19 @@ namespace higui
 			return point.x >= rect.x && point.x <= rect.x + rect.z &&
 				   point.y >= rect.y && point.y <= rect.y + rect.w;
 		}
+
+		glm::vec4 RectsIntersect(const glm::vec4& a, const glm::vec4& b) noexcept {
+			float x1 = std::max(a.x, b.x);
+			float y1 = std::max(a.y, b.y);
+			float x2 = std::min(a.x + a.z, b.x + b.z);
+			float y2 = std::min(a.y + a.w, b.y + b.w);
+
+			if (x1 < x2 && y1 < y2) {
+				return glm::vec4(x1, y1, x2 - x1, y2 - y1); // intersect
+			}
+			else {
+				return glm::vec4(-1.0f, -1.0f, -1.0f, -1.0f); // rects doesnt intersect, return -1
+			}
+		}
 	}
 }

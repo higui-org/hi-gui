@@ -23,12 +23,17 @@ namespace higui
 		glm::vec2 GUIObjectBase::size(GLFWwindow* window)
 		{
 			int w, h;
-			glfwGetFramebufferSize(window, &w, &h);
+			glfwGetFramebufferSize(window, &w, &h); // Отримуємо розміри буфера кадру
 
-			float nw = model[0][0] - model[0][2];
-			float nh = model[1][1] - model[0][1];
+			// Обчислюємо розміри об'єкта у нормалізованих координатах пристрою (NDC)
+			float ndcWidth = (model[0][0] - model[0][2]) * 2.0f; // множимо на 2.0f, оскільки NDC змінюються від -1 до 1
+			float ndcHeight = (model[1][1] - model[1][2]) * 2.0f; // множимо на 2.0f з тієї ж причини
 
-			return glm::vec2(nw * w, nh * h);
+			// Переводимо NDC в пікселі
+			float pixelWidth = ndcWidth * w * 0.5f; // ділимо на 0.5f, оскільки розмір екрана - це від 0 до w
+			float pixelHeight = ndcHeight * h * 0.5f; // аналогічно для висоти
+
+			return glm::vec2(pixelWidth, pixelHeight);
 		}
 
 		void printMatrix(const glm::mat4 &matrix) {
@@ -42,30 +47,39 @@ namespace higui
 
 		glm::vec2 GUIObjectBase::pos(GLFWwindow* window)
 		{
-			
 			int framebuffer_w, framebuffer_h;
 			glfwGetFramebufferSize(window, &framebuffer_w, &framebuffer_h);
 
 			float nx = model[3][0];
-			float ny = model[1][1];
+			float ny =  model[3][1] * 2.0f;
 
-			if (attr<attribute::Alignment>("align").pos == Align::Left)
+			/*switch (attr<attribute::Alignment>("align").pos)
 			{
+			case Align::Left:
 				nx += 1.0f - model[0][0] - model[0][2];
-			}
-			else if (attr<attribute::Alignment>("align").pos == Align::Top)
-			{
+				break;
+			case Align::Top:
 				ny += 1.0f - model[1][1] - model[0][1];
-			}
-			else if (attr<attribute::Alignment>("align").pos == Align::Bottom)
-			{
+				break;
+			case Align::Bottom:
 				ny -= 1.0f - model[1][1] - model[0][1];
-			}
+				break;
+			case Align::None:
+				nx += 1.0f - model[0][0] - model[0][2];
+				ny -= 1.0f - model[1][1] - model[0][1];
+				break;
+			default:
+				break;
+			}*/
 
-			float x = (nx) * framebuffer_w;
-			float y = (1.0f - ny) * (framebuffer_h / 2);
+			glm::vec2 vec;
+			vec.x = (nx) * (framebuffer_w / 2);
+			vec.y = (ny) * (framebuffer_h / 2);
 
-			return glm::vec2(x, y);
+			if (parent)
+				vec += parent->pos(window);
+
+			return vec;
 		}
 
 		glm::vec4 GUIObjectBase::geometry(GLFWwindow* window)

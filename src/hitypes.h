@@ -38,6 +38,7 @@ namespace higui
 		RGBA ToRGBA(const std::string& value);
 		float ToNormalizedFloat(const std::string& value);
 		bool isPointInsideRect(const glm::vec2& point, const glm::vec4& rect);
+		glm::vec4 RectsIntersect(const glm::vec4& a_rect, const glm::vec4& b_rect) noexcept;
 
 		class AttributeValueBase {
 		public:

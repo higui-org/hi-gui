@@ -56,7 +56,7 @@ namespace higui
 	{
 		double x, y;
 		glfwGetCursorPos(window, &x, &y);
-		std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->Hover({x, y}, window);
+		std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->Hover({ x, y }, window);
 
 		if (obj)
 		{
