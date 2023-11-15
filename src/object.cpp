@@ -130,7 +130,7 @@ namespace higui
 			glfwGetFramebufferSize(window, &framebuff_w, &framebuff_h);
 
 			// Transformation of coordinates into normalized camera space
-			glm::vec4 clip_coords = model * glm::vec4(Position(), 1.0f);
+			glm::vec4 clip_coords = model * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 			// Checking for correct conversion
 			if (clip_coords.w == 0.0f) {

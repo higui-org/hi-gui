@@ -64,7 +64,13 @@ namespace higui
 				geometry3 geo = obj->ScreenGeometry(window);
 				attribute::Alignment& align = obj->attr<attribute::Alignment>();
 
-				std::cout << "obj: " << obj << ", " << geo << ", " << "align: " << align << std::endl;
+				std::cout << "=== clicked === obj: " << obj << " ===" << std::endl;
+				std::cout << "x: " << geo.pos.x << " \t\t y: " << geo.pos.y << " \t\t z: " << geo.pos.z << std::endl;
+				std::cout << "w: " << geo.dim.x << " \t\t h: " << geo.dim.y << " \t z: " << geo.dim.z << std::endl;
+				std::cout << "\t align: \t" << align << std::endl;
+				std::cout << "====================" << std::endl;
+
+
 
 				if (button == GLFW_MOUSE_BUTTON_1)
 				{
