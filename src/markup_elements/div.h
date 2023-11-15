@@ -1,5 +1,5 @@
-#ifndef DIV_H
-#define DIV_H
+#ifndef Hi_DIV_H
+#define Hi_DIV_H
 
 #include "object.h"
 
@@ -32,4 +32,4 @@ namespace higui
 	}
 }
 
-#endif // DIV_H
+#endif // Hi_DIV_H

@@ -54,34 +54,55 @@ namespace higui
 
 	void DOM::MouseButtonCallback(int button, int action, int mods)
 	{
-		double x, y;
-		glfwGetCursorPos(window, &x, &y);
-		std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->Hover({ x, y }, window);
-
-		if (obj)
+		if (action == GLFW_PRESS)
 		{
-			if (button == GLFW_MOUSE_BUTTON_1)
+			double x, y;
+			glfwGetCursorPos(window, &x, &y);
+			std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->children[0]->MouseIn({ x, y }, window);
+			if (obj)
 			{
-				std::cout << "+" << std::endl;
-				obj->attr<attribute::Alignment>().ratio += 0.03f;
-			}
-			if (button == GLFW_MOUSE_BUTTON_2)
-			{
-				std::cout << "-" << std::endl;
-				obj->attr<attribute::Alignment>().ratio -= 0.03f;
-			}
+				geometry3 geo = obj->ScreenGeometry(window);
+				attribute::Alignment& align = obj->attr<attribute::Alignment>();
 
-			glm::vec4 c = obj->geometry(window);
-			std::cout << "obj: " << obj << ", x: " << c.x << ", y: " << c.y << ", w: " << c.z << ", h: " << c.w << std::endl;
-			for (auto child : obj->children)
-			{
-				glm::vec4 g = child->geometry(window);
+				std::cout << "obj: " << obj << ", " << geo << ", " << "align: " << align << std::endl;
 
-				std::cout << "obj: " << child << ", x: " << g.x << ", y: " << g.y << ", w: " << g.z << ", h: " << g.w << std::endl;
+				if (button == GLFW_MOUSE_BUTTON_1)
+				{
+					align.ratio -= 0.05f;
+				}
+				else if (button == GLFW_MOUSE_BUTTON_2)
+				{
+					align.ratio += 0.05f;
+				}
+
+				obj->Update();
 			}
-
-			obj->Update();
 		}
+
+		//if (obj)
+		//{
+		//	if (button == GLFW_MOUSE_BUTTON_1)
+		//	{
+		//		std::cout << "+" << std::endl;
+		//		obj->attr<attribute::Alignment>().ratio += 0.03f;
+		//	}
+		//	if (button == GLFW_MOUSE_BUTTON_2)
+		//	{
+		//		std::cout << "-" << std::endl;
+		//		obj->attr<attribute::Alignment>().ratio -= 0.03f;
+		//	}
+
+		//	geometry3 obj_geo = obj->ScreenGeometry(window);
+		//	std::cout << "obj: " << obj << ", x: " << obj_geo.pos.x << ", y: " << obj_geo.pos.y << ", w: " << obj_geo.dim.x << ", h: " << obj_geo.dim.y << std::endl;
+		//	for (auto child : obj->children)
+		//	{
+		//		geometry3 child_geo = child->ScreenGeometry(window);
+
+		//		std::cout << "obj: " << child << ", x: " << child_geo.pos.x << ", y: " << child_geo.pos.y << ", w: " << child_geo.dim.x << ", h: " << child_geo.dim.y << std::endl;
+		//	}
+
+			// obj->Update();
+		// }
 	}
 
 	void DOM::CursorPosCallback(double xpos, double ypos)

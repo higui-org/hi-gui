@@ -1,5 +1,5 @@
-#ifndef HI_STYLE_H
-#define HI_STYLE_H
+#ifndef Hi_STYLE_H
+#define Hi_STYLE_H
 
 #include <glm/glm.hpp>
 

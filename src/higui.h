@@ -1,5 +1,5 @@
-#ifndef HIGUI_H
-#define HIGUI_H
+#ifndef Hi_GUI_H
+#define Hi_GUI_H
 
 #include "DOM.h"
 #include "markup_elements/div.h"
@@ -11,6 +11,8 @@ namespace higui
 			GlobalInitializer();
 		};
 	}
+
+	
 }
 
-#endif // HIGUI_H
+#endif // Hi_GUI_H

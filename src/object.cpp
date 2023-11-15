@@ -20,71 +20,44 @@ namespace higui
 			}
 		}
 
-		glm::vec2 GUIObjectBase::size(GLFWwindow* window)
+		void GUIObjectBase::ResetModel(
+			const glm::vec3& position = glm::vec3(1.0f), 
+			const glm::vec3& scale    = glm::vec3(1.0f),
+			const glm::quat& rotation = glm::vec3(1.0f))
 		{
-			int w, h;
-			glfwGetFramebufferSize(window, &w, &h); // Отримуємо розміри буфера кадру
-
-			// Обчислюємо розміри об'єкта у нормалізованих координатах пристрою (NDC)
-			float ndcWidth = (model[0][0] - model[0][2]) * 2.0f; // множимо на 2.0f, оскільки NDC змінюються від -1 до 1
-			float ndcHeight = (model[1][1] - model[1][2]) * 2.0f; // множимо на 2.0f з тієї ж причини
-
-			// Переводимо NDC в пікселі
-			float pixelWidth = ndcWidth * w * 0.5f; // ділимо на 0.5f, оскільки розмір екрана - це від 0 до w
-			float pixelHeight = ndcHeight * h * 0.5f; // аналогічно для висоти
-
-			return glm::vec2(pixelWidth, pixelHeight);
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, position);
+			model = model * glm::toMat4(rotation);
+			model = glm::scale(model, scale);
 		}
 
-		void printMatrix(const glm::mat4 &matrix) {
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 4; j++) {
-					std::cout << matrix[i][j] << " ";
-				}
-				std::cout << std::endl;
-			}
+		glm::vec3 GUIObjectBase::Position()
+		{
+			return glm::vec3(model[3]);
 		}
 
-		glm::vec2 GUIObjectBase::pos(GLFWwindow* window)
+		glm::vec3 GUIObjectBase::Scale()
 		{
-			int framebuffer_w, framebuffer_h;
-			glfwGetFramebufferSize(window, &framebuffer_w, &framebuffer_h);
-
-			float nx = model[3][0];
-			float ny =  model[3][1] * 2.0f;
-
-			/*switch (attr<attribute::Alignment>("align").pos)
-			{
-			case Align::Left:
-				nx += 1.0f - model[0][0] - model[0][2];
-				break;
-			case Align::Top:
-				ny += 1.0f - model[1][1] - model[0][1];
-				break;
-			case Align::Bottom:
-				ny -= 1.0f - model[1][1] - model[0][1];
-				break;
-			case Align::None:
-				nx += 1.0f - model[0][0] - model[0][2];
-				ny -= 1.0f - model[1][1] - model[0][1];
-				break;
-			default:
-				break;
-			}*/
-
-			glm::vec2 vec;
-			vec.x = (nx) * (framebuffer_w / 2);
-			vec.y = (ny) * (framebuffer_h / 2);
-
-			if (parent)
-				vec += parent->pos(window);
-
-			return vec;
+			glm::vec3 scale;
+			scale.x = glm::length(glm::vec3(model[0]));
+			scale.y = glm::length(glm::vec3(model[1]));
+			scale.z = glm::length(glm::vec3(model[2]));
+			return scale;
 		}
 
-		glm::vec4 GUIObjectBase::geometry(GLFWwindow* window)
+		glm::quat GUIObjectBase::Rotation()
 		{
-			return glm::vec4(pos(window), size(window));
+			glm::vec3 scale = Scale();
+			glm::mat3 rotation_mat(
+				glm::vec3(model[0]) / scale.x,
+				glm::vec3(model[1]) / scale.y,
+				glm::vec3(model[2]) / scale.z);
+			return glm::quat_cast(rotation_mat);
+		}
+
+		geometry3 GUIObjectBase::Geometry()
+		{
+			return { Position(), Scale() };
 		}
 
 		bool GUIObjectBase::OnCursorPos(double xpos, double ypos) 
@@ -109,22 +82,86 @@ namespace higui
 					1, 2, 3  // second triangle
 		};
 
-		std::shared_ptr<GUIObjectBase> GUIObjectBase::Hover(glm::vec2 point, GLFWwindow* win)
-		{
-			if (internal::isPointInsideRect(point, geometry(win)))
-			{
-				for (auto& child : children)
-				{
-					std::shared_ptr<GUIObjectBase> hovered_child = nullptr;
-					hovered_child = child->Hover(point, win);
-					if (hovered_child)
-					{
-						return hovered_child;
+		std::shared_ptr<GUIObjectBase> GUIObjectBase::MouseIn(glm::vec2 point, GLFWwindow* win) {
+			std::shared_ptr<GUIObjectBase> closest_object = nullptr;
+			std::shared_ptr<GUIObjectBase> intersected_object = nullptr;
+			float closest_distance = std::numeric_limits<float>::max();
+
+			std::function<void(std::shared_ptr<GUIObjectBase>, const geometry2&)> getObjectWhereMouse =
+				[&](std::shared_ptr<GUIObjectBase> obj, const geometry2& parent_geometry) {
+				geometry2 obj_geometry = geometry2{ obj->ScreenGeometry(win) };
+
+				// Перевіряємо, чи точка лежить всередині геометрії поточного об'єкта
+				if (isPointInsideGeometry(point, obj_geometry)) {
+					float distance = DistanceToGeometryCenter(point, obj_geometry);
+					if (distance < closest_distance) {
+						closest_distance = distance;
+						closest_object = obj;
 					}
 				}
-				return shared_from_this();
+
+				// Перевіряємо перетин з батьківською геометрією
+				geometry2 intersect_geometry = getGeometriesIntersect(parent_geometry, obj_geometry);
+				if (intersect_geometry.dim.x > 0 && intersect_geometry.dim.y > 0) { // Якщо перетин існує
+					if (isPointInsideGeometry(point, intersect_geometry)) {
+						intersected_object = obj; // Точка лежить на перетині
+					}
+				}
+
+				for (auto& child : obj->children) {
+					getObjectWhereMouse(child, obj_geometry);
+				}
+			};
+
+			geometry2 root_geometry = geometry2{ ScreenGeometry(win) };
+			if (parent)
+			{
+				root_geometry = parent->ScreenGeometry(win);
 			}
-			return nullptr;
+			getObjectWhereMouse(shared_from_this(), root_geometry);
+
+			// Якщо точка лежить на перетині дочірнього об'єкта, повертаємо дочірній об'єкт
+			return intersected_object ? intersected_object : closest_object;
+		}
+
+		glm::vec3 GUIObjectBase::ScreenCoords(GLFWwindow* window)
+		{
+			int framebuff_w, framebuff_h;
+			glfwGetFramebufferSize(window, &framebuff_w, &framebuff_h);
+
+			// Transformation of coordinates into normalized camera space
+			glm::vec4 clip_coords = model * glm::vec4(Position(), 1.0f);
+
+			// Checking for correct conversion
+			if (clip_coords.w == 0.0f) {
+				return glm::vec3(0.0f);
+			}
+
+			// Conversion from normalized camera space to normalized device coordinates
+			glm::vec3 ndc = glm::vec3(clip_coords) / clip_coords.w;
+
+			// Conversion from normalized device coordinates to pixel coordinates
+			glm::vec3 screen_сoords;
+			glm::vec3 scale = Scale();
+			screen_сoords.x = (ndc.x + 1.0f - scale.x) / 2.0f * framebuff_w;
+			screen_сoords.y = (1.0f - ndc.y - scale.y) / 2.0f * framebuff_h; // Y-coordinate is inverted
+			screen_сoords.z = (ndc.z + 1.0f - scale.z) / 2.0f; // Z-coordinate for depth
+
+			return screen_сoords;
+		}
+
+		glm::vec3 GUIObjectBase::ScreenDimensions(GLFWwindow* window)
+		{
+			int framebuff_w, framebuff_h;
+			glfwGetFramebufferSize(window, &framebuff_w, &framebuff_h);
+
+			glm::vec3 volume = { framebuff_w, framebuff_h, 1.0f };
+			return volume * Scale();
+		}
+
+		geometry3 GUIObjectBase::ScreenGeometry(GLFWwindow* window)
+		{
+			return { ScreenCoords(window), ScreenDimensions(window) };
 		}
 	}
 }

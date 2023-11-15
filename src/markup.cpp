@@ -108,7 +108,6 @@ namespace higui
 		if (block_pos == std::string::npos || block_length == std::string::npos)
 		{
 			throw std::runtime_error("MarkupParser::syntax_error_closing_tag_missing_or_mismatched");
-			return "";
 		}
 
 		return markup_cooked.substr(block_pos, block_length - block_pos + 1);
@@ -194,14 +193,10 @@ namespace higui
 			if (obj)
 			{
 				// Extract attributes from tag block and add to the object
-				std::vector<Attribute> attributes = ExtractAttributes(tag_block);
+				obj->attribute_container = ExtractAttributes(tag_block);
 
-				for (auto& attribute : attributes)
-				{
-					obj->attribute_container.add(attribute);
-				}
 				// Set object as a child of the previous object
-				if (!object_stack.empty())
+				if (!object_stack.empty() && !obj->attribute_container.has("adopted") | obj->attr<attribute::Bool>("adopted").value == false)
 				{
 					object_stack.top()->AddChild(obj);
 					obj->parent = object_stack.top();

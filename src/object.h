@@ -1,12 +1,17 @@
-﻿#ifndef HI_GUI_OBJECT_H
-#define HI_GUI_OBJECT_H
+﻿#ifndef Hi_GUI_OBJECT_H
+#define Hi_GUI_OBJECT_H
 
+// glfw
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+// glm
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// higui
 #include "attribute.h"
 #include "shader.h"
 
@@ -38,11 +43,16 @@ namespace higui
 
 			std::shared_ptr<GUIObjectBase> getParent() { return parent; }
 			glm::mat4 getModel() { return model; }
+			void ResetModel(const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation);
 
-			// returns a vector of pixels
-			glm::vec2 size(GLFWwindow* window);
-			glm::vec2 pos(GLFWwindow* window);
-			glm::vec4 geometry(GLFWwindow* window);
+			glm::vec3 Position();
+			glm::vec3 Scale();
+			glm::quat Rotation();
+			geometry3 Geometry();
+
+			glm::vec3 ScreenCoords(GLFWwindow* window);
+			glm::vec3 ScreenDimensions(GLFWwindow* window);
+			geometry3 ScreenGeometry(GLFWwindow* window);
 
 			// events
 			virtual bool OnCursorPos(double xpos, double ypos);
@@ -51,7 +61,7 @@ namespace higui
 		protected:
 			void AddChild(std::shared_ptr<GUIObjectBase> obj) { children.push_back(obj); }
 
-			std::shared_ptr<GUIObjectBase> Hover(glm::vec2 point, GLFWwindow* win);
+			std::shared_ptr<GUIObjectBase> MouseIn(glm::vec2 point, GLFWwindow* win);
 
 			// attributes
 			AttributeContainer attribute_container;
@@ -74,7 +84,7 @@ namespace higui
 				return registry;
 			}
 		};
-	}
+	} // end of 'internal' namespace
 
 	template<class Derived>
 	class GUIObject : public GUIObjectBase
@@ -101,4 +111,4 @@ namespace higui
 	}
 }
 
-#endif // HI_GUI_OBJECT_H
+#endif // Hi_GUI_OBJECT_H

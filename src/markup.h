@@ -1,5 +1,5 @@
-#ifndef HI_MARKUP_H
-#define HI_MARKUP_H
+#ifndef Hi_MARKUP_H
+#define Hi_MARKUP_H
 
 #include <stack>
 #include <cctype>
@@ -35,4 +35,4 @@ namespace higui
 	};
 }
 
-#endif // HI_MARKUP_H
+#endif // Hi_MARKUP_H

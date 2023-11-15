@@ -26,10 +26,18 @@ namespace higui
 
 		void Div::Update()
 		{
-			model = glm::mat4(1.0f);
-			alignment = attribute_container.value<attribute::Alignment>();
+			if (parent)
+			{
+				model = parent->getModel();
+			}
+			else
+			{
+				model = glm::mat4(1.0f);
+			}
 
-			CalculateDock();
+			alignment = attribute_container.value<attribute::Alignment>();	// update alignment from container
+
+			CalculateDock();												// calculate alignment
 
 			for (auto& child : children)
 			{
@@ -39,42 +47,35 @@ namespace higui
 
 		void Div::CalculateDock()
 		{
-			if (parent)
-			{
-				model = parent->getModel() * model;
-			}
-
-			glm::vec3 t{ 0.0f, 0.0f, 0.0f }; // t stands for translation
-			glm::vec3 s{ 1.0f, 1.0f, 1.0f }; // s stands for scaling
+			geometry3 g{ glm::vec3(0.0f), glm::vec3(1.0f) };
 
 			switch (alignment.pos)
 			{
 			case Align::None:
-				s = glm::vec3(alignment.ratio);
-				s.z = 0.0f;
+				g.dim = glm::vec3(alignment.ratio);
 				break;
 			case Align::Top:
-				t.y = 1.0f - alignment.ratio;
-				s.y = alignment.ratio;
+				g.pos.y = 1.0f - alignment.ratio;
+				g.dim.y = alignment.ratio;
 				break;
 			case Align::Bottom:
-				t.y = alignment.ratio - 1.0f;
-				s.y = alignment.ratio;
+				g.pos.y = -(1.0f - alignment.ratio);
+				g.dim.y = alignment.ratio;
 				break;
 			case Align::Left:
-				t.x = alignment.ratio - 1.0f;
-				s.x = alignment.ratio;
+				g.pos.x = -(1.0f - alignment.ratio);
+				g.dim.x = alignment.ratio;
 				break;
 			case Align::Right:
-				t.x = 1.0f - alignment.ratio;
-				s.x = alignment.ratio;
+				g.pos.x = 1.0f - alignment.ratio;
+				g.dim.x = alignment.ratio;
 				break;
 			default:
 				break;
 			}
 
-			model = glm::translate(model, t);
-			model = glm::scale(model, s);
+			model = glm::translate(model, g.pos);
+			model = glm::scale(model, g.dim);
 		}
 
 		attribute::Alignment Div::getAlignment()

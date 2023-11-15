@@ -1,5 +1,5 @@
-#ifndef HI_ATTRIBUTE_H
-#define HI_ATTRIBUTE_H
+#ifndef Hi_ATTRIBUTE_H
+#define Hi_ATTRIBUTE_H
 
 #include "hitypes.h"
 
@@ -83,6 +83,8 @@ namespace higui
 
 	class AttributeContainer {
 	public:
+		AttributeContainer(const std::vector<Attribute>& attributes = {}) : attributes_(attributes) {}
+
 		void add(const std::string& key) {
 			attributes_.push_back(Attribute(key));
 		}
@@ -232,4 +234,4 @@ namespace higui
 	};
 }
 
-#endif // HI_ATTRIBUTE_H
+#endif // Hi_ATTRIBUTE_H

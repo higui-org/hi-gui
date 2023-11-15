@@ -1,5 +1,5 @@
-#ifndef HI_SHADER_H
-#define HI_SHADER_H
+#ifndef Hi_SHADER_H
+#define Hi_SHADER_H
 
 #include <glad/glad.h>
 #include <fstream>
@@ -43,4 +43,4 @@ namespace higui
 		static std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
 	};
 }
-#endif // HI_SHADER_H
+#endif // Hi_SHADER_H

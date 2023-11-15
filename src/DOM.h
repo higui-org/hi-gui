@@ -1,5 +1,5 @@
-#ifndef HI_DOM_H
-#define HI_DOM_H
+#ifndef Hi_DOM_H
+#define Hi_DOM_H
 
 #include <iostream>
 #include <chrono>
@@ -46,4 +46,4 @@ namespace higui
 	};
 }
 
-#endif // HI_DOM_H
+#endif // Hi_DOM_H
