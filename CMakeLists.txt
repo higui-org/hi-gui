@@ -49,11 +49,11 @@ ${TAG_CLASSES}
 ${THIRD_PARTY})
 
 if(MSVC)
-	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+	if("${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
 		target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw3Rel64.lib)
 	endif()
 
-	if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
+	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
 		target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw3Rel32.lib)
 	endif()
 else()

@@ -26,7 +26,7 @@ namespace higui
 			throw std::runtime_error("Invalid markup");
 		}
 
-		std::stack<std::shared_ptr<internal::GUIObjectBase>> object_stack;
+		std::stack<GUIObjectPtr> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
@@ -182,21 +182,21 @@ namespace higui
 	}
 
 
-	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack)
+	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<GUIObjectPtr>& object_stack)
 	{
 		std::string tag_name = ExtractTagName(tag_block);
 
 		auto it = internal::GUIObjectBase::registry().find(tag_name);
 		if (it != internal::GUIObjectBase::registry().end())
 		{
-			std::shared_ptr<internal::GUIObjectBase> obj = static_cast<std::shared_ptr<internal::GUIObjectBase>>(it->second());
+			GUIObjectPtr obj = static_cast<GUIObjectPtr>(it->second());
 			if (obj)
 			{
 				// Extract attributes from tag block and add to the object
-				obj->attribute_container = ExtractAttributes(tag_block);
+				obj->container = ExtractAttributes(tag_block);
 
 				// Set object as a child of the previous object
-				if (!object_stack.empty() && !obj->attribute_container.has("adopted") | obj->attr<attribute::Bool>("adopted").value == false)
+				if (!object_stack.empty() && !obj->container.has("adopted") && obj->attr<attribute::Bool>("adopted").value == false)
 				{
 					object_stack.top()->AddChild(obj);
 					obj->parent = object_stack.top();
@@ -211,7 +211,7 @@ namespace higui
 		}
 	}
 
-	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack)
+	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<GUIObjectPtr>& object_stack)
 	{
 		if (!tag_stack.empty())
 		{

@@ -54,14 +54,15 @@ namespace higui
 	using geometry3 = geometry<float, 3>;
 	using geometry4 = geometry<float, 4>;
 
+	// std::cout for geometry
 	template <typename T, int D>
 	std::ostream& operator<<(std::ostream& os, const geometry<T, D>& geo) {
-		os << "geometry{ (";
+		os << "geometry { pos: (";
 		for (int i = 0; i < D; ++i) {
 			os << geo.pos[i];
 			if (i < D - 1) os << ", ";
 		}
-		os << "), (";
+		os << "), dim: (";
 		for (int i = 0; i < D; ++i) {
 			os << geo.dim[i];
 			if (i < D - 1) os << ", ";
@@ -78,7 +79,7 @@ namespace higui
 		template <typename T, int Dimensions>
 		bool isPointInsideGeometry(const glm::vec<Dimensions, T, glm::defaultp>& point, const geometry<T, Dimensions>& geometry) {
 			bool inside = true;
-			for (int i = 0; i < Dimensions; i+=3) {
+			for (int i = 0; i < Dimensions; i++) {
 				inside &= point[i] >= geometry.pos[i] && point[i] <= geometry.pos[i] + geometry.dim[i];
 			}
 			return inside;
@@ -87,15 +88,15 @@ namespace higui
 		
 		// intersect
 		template <typename T, int Dimensions>
-		geometry<T, Dimensions> getGeometriesIntersect(const geometry<T, Dimensions>& a, const geometry<T, Dimensions>& b)
+		geometry<T, Dimensions> GeometryIntersection(const geometry<T, Dimensions>& a, const geometry<T, Dimensions>& b)
 		{
-			static_assert(Dimensions >= 2, "getGeometriesIntersect can only be used with Dimensions >= 2");
+			static_assert(Dimensions >= 2, "GeometryIntersection can only be used with Dimensions >= 2");
 
 			glm::vec<Dimensions, T, glm::defaultp> pos;
 			glm::vec<Dimensions, T, glm::defaultp> dim;
 
 			bool intersects = true;
-			for (int i = 0; i < Dimensions; i+=3) {
+			for (int i = 0; i < Dimensions; i++) {
 				pos[i] = std::max(a.pos[i], b.pos[i]);
 				T min_edge = std::min(a.pos[i] + a.dim[i], b.pos[i] + b.dim[i]);
 				if (pos[i] < min_edge) {
@@ -154,129 +155,6 @@ namespace higui
 		};
 	};
 	// end of internal
-
-
-	// basic attributes' values
-	namespace attribute
-	{
-		template <class Derived>
-		class AttributeValue : public internal::AttributeValueBase {
-		public:
-			AttributeValue() {}
-			virtual ~AttributeValue() = default;
-
-			static void Register(const std::string& type)
-			{
-				RegisterType(type, []() -> std::shared_ptr<internal::AttributeValueBase>
-				{
-					return std::make_shared<Derived>();
-				});
-			}
-
-			std::shared_ptr<internal::AttributeValueBase> instance() const override
-			{
-				return std::make_shared<Derived>();
-			}
-
-			friend std::ostream& operator<<(std::ostream& os, Derived obj)
-			{
-				return os << obj.to_str();
-			}
-
-		protected:
-			std::vector<std::string> SplitBySpace(const std::string& value) {
-				std::vector<std::string> result;
-				std::istringstream tokenizer(value);
-				std::string word;
-
-				while (tokenizer >> word) {
-					result.push_back(word);
-				}
-
-				return result;
-			}
-
-		private:
-			static void RegisterType(const std::string& type, std::function<std::shared_ptr<internal::AttributeValueBase>()> factory) {
-				registry()[type] = factory;
-			}
-		};
-
-
-		class Int : public AttributeValue<Int> {
-		public:
-			Int(int value = 0) : int_value(value) {}
-
-			std::string to_str() override {
-				return std::to_string(int_value);
-			}
-
-			void from_str(const std::string& value) override {
-				int_value = std::stoi(value);
-			}
-
-			int int_value;
-		};
-
-		class Float : public AttributeValue<Float> {
-		public:
-			Float(float value = 0.0f) : float_value(value) {}
-
-			std::string to_str() override {
-				return std::to_string(float_value);
-			}
-			void from_str(const std::string& value) override {
-				try
-				{
-					float_value = std::stof(value);
-				}
-				catch (std::invalid_argument)
-				{
-					float_value = internal::ToNormalizedFloat(value);
-				}
-			}
-
-			float float_value;
-		};
-
-		class String : public AttributeValue<String> {
-		public:
-			String(std::string str = "") : str(str) {}
-
-			std::string to_str() override {
-				return str;
-			}
-			void from_str(const std::string& value) override {
-				str = value;
-			}
-
-			std::string str;
-		};
-
-		class Alignment : public AttributeValue<Alignment> {
-		public:
-
-			Alignment(Align alignment = Align::None, float ratio = 0.5f) : pos(alignment), ratio(ratio) {}
-
-			std::string to_str() override;
-			void from_str(const std::string& new_value) override;
-
-
-			Align pos;
-			float ratio;
-		};
-
-		class Bool : public AttributeValue<Bool>
-		{
-		public:
-			Bool(bool value_ = false) : value(value_) {}
-
-			std::string to_str() override;
-			void from_str(const std::string& new_value) override;
-
-			bool value;
-		};
-	}
 }
 
 #endif // HI_TYPES_H

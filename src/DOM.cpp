@@ -4,11 +4,12 @@ namespace higui
 {
 	bool DOM::resizeFlag = false;
 	std::chrono::steady_clock::time_point DOM::lastResizeTime;
+	GUIObjectPtr DOM::obj = nullptr;
 
 	DOM::DOM(GLFWwindow* window, const std::string& markup_file, const std::string& style_file)
-		: markup(markup_file)
+		: markup(markup_file), window(window)
 	{
-		this->window = window;
+		obj = nullptr;
 		glfwSetWindowUserPointer(window, this);
 		
 		glfwSetKeyCallback(window, DOM::KeyCallbackWrapper);
@@ -54,71 +55,36 @@ namespace higui
 
 	void DOM::MouseButtonCallback(int button, int action, int mods)
 	{
-		if (action == GLFW_PRESS)
-		{
-			double x, y;
-			glfwGetCursorPos(window, &x, &y);
-			std::shared_ptr<internal::GUIObjectBase> obj = markup.central_object->children[0]->MouseIn({ x, y }, window);
-			if (obj)
-			{
-				geometry3 geo = obj->ScreenGeometry(window);
-				attribute::Alignment& align = obj->attr<attribute::Alignment>();
-
-				std::cout << "=== clicked === obj: " << obj << " ===" << std::endl;
-				std::cout << "x: " << geo.pos.x << " \t\t y: " << geo.pos.y << " \t\t z: " << geo.pos.z << std::endl;
-				std::cout << "w: " << geo.dim.x << " \t\t h: " << geo.dim.y << " \t z: " << geo.dim.z << std::endl;
-				std::cout << "\t align: \t" << align << std::endl;
-				std::cout << "====================" << std::endl;
-
-
-
-				if (button == GLFW_MOUSE_BUTTON_1)
-				{
-					align.ratio -= 0.05f;
-				}
-				else if (button == GLFW_MOUSE_BUTTON_2)
-				{
-					align.ratio += 0.05f;
-				}
-
-				obj->Update();
-			}
-		}
-
-		//if (obj)
-		//{
-		//	if (button == GLFW_MOUSE_BUTTON_1)
-		//	{
-		//		std::cout << "+" << std::endl;
-		//		obj->attr<attribute::Alignment>().ratio += 0.03f;
-		//	}
-		//	if (button == GLFW_MOUSE_BUTTON_2)
-		//	{
-		//		std::cout << "-" << std::endl;
-		//		obj->attr<attribute::Alignment>().ratio -= 0.03f;
-		//	}
-
-		//	geometry3 obj_geo = obj->ScreenGeometry(window);
-		//	std::cout << "obj: " << obj << ", x: " << obj_geo.pos.x << ", y: " << obj_geo.pos.y << ", w: " << obj_geo.dim.x << ", h: " << obj_geo.dim.y << std::endl;
-		//	for (auto child : obj->children)
-		//	{
-		//		geometry3 child_geo = child->ScreenGeometry(window);
-
-		//		std::cout << "obj: " << child << ", x: " << child_geo.pos.x << ", y: " << child_geo.pos.y << ", w: " << child_geo.dim.x << ", h: " << child_geo.dim.y << std::endl;
-		//	}
-
-			// obj->Update();
-		// }
+		
 	}
 
 	void DOM::CursorPosCallback(double xpos, double ypos)
 	{
-
+		GUIObjectPtr temp = markup.central_object->MouseIn({ xpos, ypos }, window);
+		if (obj != temp)
+		{
+			obj = temp;
+			system("cls");
+			std::cout << obj << std::endl;
+		}
 	}
 
 	void DOM::ScrollCallback(double xoffset, double yoffset)
 	{
-
+		int x, y;
+		glfwGetFramebufferSize(window, &x, &y);
+		attribute::Alignment& align = obj->attr<attribute::Alignment>();
+		if (yoffset > 0)
+		{
+			align.ratio += 0.03f;
+		}
+		else if (yoffset < 0)
+		{
+			align.ratio -= 0.03f;
+		}
+		obj->Update();
+		system("cls");
+		std::cout << obj << std::endl;
 	}
 
 	void DOM::FramebufferSizeCallback(int width, int height)

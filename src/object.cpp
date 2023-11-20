@@ -4,6 +4,7 @@ namespace higui
 {
 	namespace internal
 	{
+
 		void GUIObjectBase::Render(unsigned int VAO)
 		{
 			for (auto& child : children)
@@ -31,11 +32,14 @@ namespace higui
 			model = glm::scale(model, scale);
 		}
 
+
+
+		// normalized
 		glm::vec3 GUIObjectBase::Position()
 		{
 			return glm::vec3(model[3]);
 		}
-
+		
 		glm::vec3 GUIObjectBase::Scale()
 		{
 			glm::vec3 scale;
@@ -44,7 +48,7 @@ namespace higui
 			scale.z = glm::length(glm::vec3(model[2]));
 			return scale;
 		}
-
+		
 		glm::quat GUIObjectBase::Rotation()
 		{
 			glm::vec3 scale = Scale();
@@ -60,6 +64,9 @@ namespace higui
 			return { Position(), Scale() };
 		}
 
+
+
+		// events
 		bool GUIObjectBase::OnCursorPos(double xpos, double ypos) 
 		{
 			return false;
@@ -70,6 +77,9 @@ namespace higui
 			return false;
 		}
 
+
+
+		// figure
 		float GUIObjectBase::vertices[12] = {
 					-1.0f, 1.0f, 0.0f,  // upper left angle
 					1.0f, 1.0f, 0.0f,   // upper right angle
@@ -82,16 +92,20 @@ namespace higui
 					1, 2, 3  // second triangle
 		};
 
-		std::shared_ptr<GUIObjectBase> GUIObjectBase::MouseIn(glm::vec2 point, GLFWwindow* win) {
-			std::shared_ptr<GUIObjectBase> closest_object = nullptr;
-			std::shared_ptr<GUIObjectBase> intersected_object = nullptr;
+
+
+		
+		GUIObjectPtr GUIObjectBase::MouseIn(glm::vec2 point, GLFWwindow* win) {
+			GUIObjectPtr closest_object = nullptr;
+			GUIObjectPtr intersected_object = nullptr;
 			float closest_distance = std::numeric_limits<float>::max();
 
-			std::function<void(std::shared_ptr<GUIObjectBase>, const geometry2&)> getObjectWhereMouse =
-				[&](std::shared_ptr<GUIObjectBase> obj, const geometry2& parent_geometry) {
+			std::function<void(GUIObjectPtr, const geometry2&)> getObjectWhereMouse = 
+				[&](GUIObjectPtr obj, const geometry2& parent_geometry) 
+			{
 				geometry2 obj_geometry = geometry2{ obj->ScreenGeometry(win) };
 
-				// Перевіряємо, чи точка лежить всередині геометрії поточного об'єкта
+				// check whether the point lies inside the geometry of the current object
 				if (isPointInsideGeometry(point, obj_geometry)) {
 					float distance = DistanceToGeometryCenter(point, obj_geometry);
 					if (distance < closest_distance) {
@@ -100,11 +114,11 @@ namespace higui
 					}
 				}
 
-				// Перевіряємо перетин з батьківською геометрією
-				geometry2 intersect_geometry = getGeometriesIntersect(parent_geometry, obj_geometry);
-				if (intersect_geometry.dim.x > 0 && intersect_geometry.dim.y > 0) { // Якщо перетин існує
+				// check the intersection with the parent geometry
+				geometry2 intersect_geometry = GeometryIntersection(parent_geometry, obj_geometry);
+				if (intersect_geometry.dim.x > 0 && intersect_geometry.dim.y > 0) { // If the intersection exists
 					if (isPointInsideGeometry(point, intersect_geometry)) {
-						intersected_object = obj; // Точка лежить на перетині
+						intersected_object = obj; // The point lies on the intersection
 					}
 				}
 
@@ -120,10 +134,14 @@ namespace higui
 			}
 			getObjectWhereMouse(shared_from_this(), root_geometry);
 
-			// Якщо точка лежить на перетині дочірнього об'єкта, повертаємо дочірній об'єкт
+			// If the point lies at the intersection of the child object, return the child object
 			return intersected_object ? intersected_object : closest_object;
 		}
 
+
+
+
+		// screen
 		glm::vec3 GUIObjectBase::ScreenCoords(GLFWwindow* window)
 		{
 			int framebuff_w, framebuff_h;
@@ -162,6 +180,16 @@ namespace higui
 		geometry3 GUIObjectBase::ScreenGeometry(GLFWwindow* window)
 		{
 			return { ScreenCoords(window), ScreenDimensions(window) };
+		}
+
+		std::ostream& operator<<(std::ostream& os, const GUIObjectPtr& obj)
+		{
+			os << "====================" << std::endl;
+			os << "obj: " << reinterpret_cast<int>(&obj) << std::endl;
+			os << obj->Geometry() << std::endl;
+			std::for_each(obj->container.begin(), obj->container.end(), [&](Attribute attr) { os << attr << std::endl; });
+			os << "====================" << std::endl;
+			return os;
 		}
 	}
 }

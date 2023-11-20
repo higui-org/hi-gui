@@ -17,10 +17,12 @@
 
 namespace higui
 {
-	using namespace internal;
-
 	class DOM;
 	class Markup;
+	namespace internal
+	{ class GUIObjectBase; }
+
+	using GUIObjectPtr = std::shared_ptr<internal::GUIObjectBase>;
 
 	namespace internal
 	{
@@ -36,20 +38,27 @@ namespace higui
 			std::enable_if_t<std::is_base_of_v<AttributeValueBase, AttributeValue>, AttributeValue&>
 				attr(const std::string& key = "")
 			{
-				return attribute_container.value<AttributeValue>();
+				return container.value<AttributeValue>();
 			}
 
-			Attribute& attr(const std::string& key) { return attribute_container[key]; }
+			Attribute& attr(const std::string& key) 
+			{ 
+				return container[key]; 
+			}
 
-			std::shared_ptr<GUIObjectBase> getParent() { return parent; }
+
+
+			GUIObjectPtr getParent() { return parent; }
 			glm::mat4 getModel() { return model; }
 			void ResetModel(const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation);
 
+			// normalized
 			glm::vec3 Position();
 			glm::vec3 Scale();
 			glm::quat Rotation();
 			geometry3 Geometry();
 
+			// screen
 			glm::vec3 ScreenCoords(GLFWwindow* window);
 			glm::vec3 ScreenDimensions(GLFWwindow* window);
 			geometry3 ScreenGeometry(GLFWwindow* window);
@@ -58,16 +67,19 @@ namespace higui
 			virtual bool OnCursorPos(double xpos, double ypos);
 			virtual bool OnMouseClick(int button, double xpos, double ypos);
 
-		protected:
-			void AddChild(std::shared_ptr<GUIObjectBase> obj) { children.push_back(obj); }
+			// output
+			friend std::ostream& operator<<(std::ostream& os, const GUIObjectPtr& obj);
 
-			std::shared_ptr<GUIObjectBase> MouseIn(glm::vec2 point, GLFWwindow* win);
+		protected:
+			void AddChild(GUIObjectPtr obj_ptr) { children.push_back(obj_ptr); }
+
+			GUIObjectPtr MouseIn(glm::vec2 point, GLFWwindow* win);
 
 			// attributes
-			AttributeContainer attribute_container;
+			AttributeContainer container;
 
-			std::vector<std::shared_ptr<GUIObjectBase>> children{};
-			std::shared_ptr<GUIObjectBase> parent;
+			std::vector<GUIObjectPtr> children{};
+			GUIObjectPtr parent;
 			glm::mat4 model;
 
 			// basic rectangle
@@ -78,16 +90,16 @@ namespace higui
 			friend class DOM;
 			friend class Markup;
 
-			static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObjectBase>()>>& registry()
+			static std::unordered_map<std::string, std::function<GUIObjectPtr()>>& registry()
 			{
-				static std::unordered_map<std::string, std::function<std::shared_ptr<GUIObjectBase>()>> registry;
+				static std::unordered_map<std::string, std::function<GUIObjectPtr()>> registry;
 				return registry;
 			}
 		};
 	} // end of 'internal' namespace
 
 	template<class Derived>
-	class GUIObject : public GUIObjectBase
+	class GUIObject : public internal::GUIObjectBase
 	{
 	public:
 		// register markup tag
@@ -100,7 +112,7 @@ namespace higui
 		}
 
 	private:
-		static void RegisterType(const std::string& type, std::function<std::shared_ptr<GUIObjectBase>()> factory) {
+		static void RegisterType(const std::string& type, std::function<GUIObjectPtr()> factory) {
 			registry()[type] = factory;
 		}
 	};

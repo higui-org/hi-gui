@@ -5,10 +5,132 @@
 
 namespace higui
 {
-	using namespace internal;
+	// basic attribute values
+	namespace attribute
+	{
+		template <class Derived>
+		class AttributeValue : public internal::AttributeValueBase {
+		public:
+			AttributeValue() {}
+			virtual ~AttributeValue() = default;
+
+			static void Register(const std::string& type)
+			{
+				RegisterType(type, []() -> std::shared_ptr<internal::AttributeValueBase>
+				{
+					return std::make_shared<Derived>();
+				});
+			}
+
+			std::shared_ptr<internal::AttributeValueBase> instance() const override
+			{
+				return std::make_shared<Derived>();
+			}
+
+			friend std::ostream& operator<<(std::ostream& os, Derived obj)
+			{
+				return os << obj.to_str();
+			}
+
+		protected:
+			std::vector<std::string> SplitBySpace(const std::string& value) {
+				std::vector<std::string> result;
+				std::istringstream tokenizer(value);
+				std::string word;
+
+				while (tokenizer >> word) {
+					result.push_back(word);
+				}
+
+				return result;
+			}
+
+		private:
+			static void RegisterType(const std::string& type, std::function<std::shared_ptr<internal::AttributeValueBase>()> factory) {
+				registry()[type] = factory;
+			}
+		};
+
+
+		class Int : public AttributeValue<Int> {
+		public:
+			Int(int value = 0) : int_value(value) {}
+
+			std::string to_str() override {
+				return std::to_string(int_value);
+			}
+
+			void from_str(const std::string& value) override {
+				int_value = std::stoi(value);
+			}
+
+			int int_value;
+		};
+
+		class Float : public AttributeValue<Float> {
+		public:
+			Float(float value = 0.0f) : float_value(value) {}
+
+			std::string to_str() override {
+				return std::to_string(float_value);
+			}
+			void from_str(const std::string& value) override {
+				try
+				{
+					float_value = std::stof(value);
+				}
+				catch (std::invalid_argument)
+				{
+					float_value = internal::ToNormalizedFloat(value);
+				}
+			}
+
+			float float_value;
+		};
+
+		class String : public AttributeValue<String> {
+		public:
+			String(std::string str = "") : str(str) {}
+
+			std::string to_str() override {
+				return str;
+			}
+			void from_str(const std::string& value) override {
+				str = value;
+			}
+
+			std::string str;
+		};
+
+		class Alignment : public AttributeValue<Alignment> {
+		public:
+
+			Alignment(Align alignment = Align::None, float ratio = 0.5f) : pos(alignment), ratio(ratio) {}
+
+			std::string to_str() override;
+			void from_str(const std::string& new_value) override;
+
+
+			Align pos;
+			float ratio;
+		};
+
+		class Bool : public AttributeValue<Bool>
+		{
+		public:
+			Bool(bool value_ = false) : value(value_) {}
+
+			std::string to_str() override;
+			void from_str(const std::string& new_value) override;
+
+			bool value;
+		};
+	}
 
 	class Attribute 
 	{
+		using ValueBase = internal::AttributeValueBase;
+		using ValuePtr = std::shared_ptr<internal::AttributeValueBase>;
 	public:
 		Attribute(const std::string& key = "str");
 		Attribute(const std::string& key, const std::string& new_value);
@@ -28,7 +150,7 @@ namespace higui
 
 		// for cloning
 		template <class T>
-		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<AttributeValueBase, std::decay_t<T>>::value, Attribute&>
+		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, Attribute&>
 			operator=(const T& new_value)
 		{
 			value_ = std::make_shared<class std::decay<T>::type>(new_value);
@@ -75,7 +197,7 @@ namespace higui
 		
 
 	private:
-		std::shared_ptr<AttributeValueBase> value_;
+		std::shared_ptr<internal::AttributeValueBase> value_;
 		std::string key_;
 
 		friend class AttributeContainer;
@@ -83,14 +205,14 @@ namespace higui
 
 	class AttributeContainer {
 	public:
-		AttributeContainer(const std::vector<Attribute>& attributes = {}) : attributes_(attributes) {}
+		AttributeContainer(const std::vector<Attribute>& attributes = {}) : elements(attributes) {}
 
 		void add(const std::string& key) {
-			attributes_.push_back(Attribute(key));
+			elements.push_back(Attribute(key));
 		}
 
 		void add(Attribute attribute) {
-			attributes_.push_back(attribute);
+			elements.push_back(attribute);
 		}
 
 		template <typename T>
@@ -99,20 +221,20 @@ namespace higui
 		{
 			Attribute attr{ key };
 			attr = value;
-			attributes_.push_back(attr);
+			elements.push_back(attr);
 		}
 
 		void add(const std::string& key, const std::string& value) {
-			attributes_.push_back(Attribute(key, value));
+			elements.push_back(Attribute(key, value));
 		}
 
 		void remove(const std::string& key) {
-			attributes_.erase(std::remove_if(attributes_.begin(), attributes_.end(),
-				[key](const Attribute& attr) { return attr.key() == key; }), attributes_.end());
+			elements.erase(std::remove_if(elements.begin(), elements.end(),
+				[key](const Attribute& attr) { return attr.key() == key; }), elements.end());
 		}
 
 		bool has(const std::string& key) const {
-			for (const auto& attr : attributes_) {
+			for (const auto& attr : elements) {
 				if (attr.key() == key) {
 					return true;
 				}
@@ -124,17 +246,17 @@ namespace higui
 			std::size_t attr_index = find(key);
 			if (attr_index != npos)
 			{
-				return attributes_[attr_index];
+				return elements[attr_index];
 			}
 			add(key);
-			return attributes_.back();
+			return elements.back();
 		}
 
 		template <class Derived>
 		Derived& value(const std::string& key = "") {
 			std::string effective_key = key;
 			if (effective_key.empty()) {
-				for (const auto& entry : AttributeValueBase::registry()) {
+				for (const auto& entry : internal::AttributeValueBase::registry()) {
 					if (std::dynamic_pointer_cast<Derived>(entry.second())) {
 						effective_key = entry.first;
 						break;
@@ -147,7 +269,7 @@ namespace higui
 
 			std::size_t attr_index = find(effective_key);
 			if (attr_index != npos) {
-				if (std::shared_ptr<Derived> derived_value = std::dynamic_pointer_cast<Derived>(attributes_[attr_index].value_)) {
+				if (std::shared_ptr<Derived> derived_value = std::dynamic_pointer_cast<Derived>(elements[attr_index].value_)) {
 					return *derived_value;
 				}
 				else {
@@ -157,7 +279,7 @@ namespace higui
 			std::shared_ptr<Derived> new_attribute = std::make_shared<Derived>();
 			Attribute attr(effective_key);
 			attr.value_ = new_attribute;
-			attributes_.push_back(attr);
+			elements.push_back(attr);
 			return *new_attribute;
 		}
 
@@ -165,14 +287,14 @@ namespace higui
 			std::size_t attr_index = find(key);
 			if (attr_index != npos)
 			{
-				return attributes_[attr_index];
+				return elements[attr_index];
 			}
 			throw std::runtime_error("Attribute key \"" + key + "\" not found");
 		}
 
 		std::size_t find(const std::string& key) const {
-			for (std::size_t i = 0; i < attributes_.size(); ++i) {
-				if (attributes_[i].key() == key) {
+			for (std::size_t i = 0; i < elements.size(); ++i) {
+				if (elements[i].key() == key) {
 					return i;
 				}
 			}
@@ -221,15 +343,15 @@ namespace higui
 		};
 
 		Iterator begin() const {
-			return Iterator(attributes_.begin());
+			return Iterator(elements.begin());
 		}
 
 		Iterator end() const {
-			return Iterator(attributes_.end());
+			return Iterator(elements.end());
 		}
 
 	private:
-		std::vector<Attribute> attributes_;
+		std::vector<Attribute> elements;
 		static const std::size_t npos = -1;
 	};
 }

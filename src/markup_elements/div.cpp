@@ -35,7 +35,7 @@ namespace higui
 				model = glm::mat4(1.0f);
 			}
 
-			alignment = attribute_container.value<attribute::Alignment>();	// update alignment from container
+			alignment = container.value<attribute::Alignment>();	// update alignment from container
 
 			CalculateDock();												// calculate alignment
 
