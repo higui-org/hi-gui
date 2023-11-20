@@ -4,12 +4,11 @@ namespace higui
 {
 	bool DOM::resizeFlag = false;
 	std::chrono::steady_clock::time_point DOM::lastResizeTime;
-	GUIObjectPtr DOM::obj = nullptr;
 
 	DOM::DOM(GLFWwindow* window, const std::string& markup_file, const std::string& style_file)
 		: markup(markup_file), window(window)
 	{
-		obj = nullptr;
+		focused_obj = nullptr;
 		glfwSetWindowUserPointer(window, this);
 		
 		glfwSetKeyCallback(window, DOM::KeyCallbackWrapper);
@@ -60,12 +59,12 @@ namespace higui
 
 	void DOM::CursorPosCallback(double xpos, double ypos)
 	{
-		GUIObjectPtr temp = markup.central_object->MouseIn({ xpos, ypos }, window);
-		if (obj != temp)
+		ObjPtr temp = markup.central_object->MouseIn({ xpos, ypos }, window);
+		if (focused_obj != temp)
 		{
-			obj = temp;
+			focused_obj = temp;
 			system("cls");
-			std::cout << obj << std::endl;
+			std::cout << focused_obj << std::endl;
 		}
 	}
 
@@ -73,7 +72,7 @@ namespace higui
 	{
 		int x, y;
 		glfwGetFramebufferSize(window, &x, &y);
-		attribute::Alignment& align = obj->attr<attribute::Alignment>();
+		attribute::Alignment& align = focused_obj->attr<attribute::Alignment>();
 		if (yoffset > 0)
 		{
 			align.ratio += 0.03f;
@@ -82,9 +81,9 @@ namespace higui
 		{
 			align.ratio -= 0.03f;
 		}
-		obj->Update();
+		focused_obj->Update();
 		system("cls");
-		std::cout << obj << std::endl;
+		std::cout << focused_obj << std::endl;
 	}
 
 	void DOM::FramebufferSizeCallback(int width, int height)

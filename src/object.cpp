@@ -95,13 +95,13 @@ namespace higui
 
 
 		
-		GUIObjectPtr GUIObjectBase::MouseIn(glm::vec2 point, GLFWwindow* win) {
-			GUIObjectPtr closest_object = nullptr;
-			GUIObjectPtr intersected_object = nullptr;
+		ObjPtr GUIObjectBase::MouseIn(glm::vec2 point, GLFWwindow* win) {
+			ObjPtr closest_object = nullptr;
+			ObjPtr intersected_object = nullptr;
 			float closest_distance = std::numeric_limits<float>::max();
 
-			std::function<void(GUIObjectPtr, const geometry2&)> getObjectWhereMouse = 
-				[&](GUIObjectPtr obj, const geometry2& parent_geometry) 
+			std::function<void(ObjPtr, const geometry2&)> getObjectWhereMouse = 
+				[&](ObjPtr obj, const geometry2& parent_geometry) 
 			{
 				geometry2 obj_geometry = geometry2{ obj->ScreenGeometry(win) };
 
@@ -182,7 +182,7 @@ namespace higui
 			return { ScreenCoords(window), ScreenDimensions(window) };
 		}
 
-		std::ostream& operator<<(std::ostream& os, const GUIObjectPtr& obj)
+		std::ostream& operator<<(std::ostream& os, const ObjPtr& obj)
 		{
 			os << "====================" << std::endl;
 			os << "obj: " << reinterpret_cast<int>(&obj) << std::endl;

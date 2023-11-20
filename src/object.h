@@ -22,7 +22,7 @@ namespace higui
 	namespace internal
 	{ class GUIObjectBase; }
 
-	using GUIObjectPtr = std::shared_ptr<internal::GUIObjectBase>;
+	using ObjPtr = std::shared_ptr<internal::GUIObjectBase>;
 
 	namespace internal
 	{
@@ -34,11 +34,11 @@ namespace higui
 			virtual void Render(unsigned int VAO);
 			virtual void Update();
 
-			template <class AttributeValue>
-			std::enable_if_t<std::is_base_of_v<AttributeValueBase, AttributeValue>, AttributeValue&>
+			template <class V>
+			std::enable_if_t<std::is_base_of_v<AttributeValueBase, V>, V&>
 				attr(const std::string& key = "")
 			{
-				return container.value<AttributeValue>();
+				return container.value<V>();
 			}
 
 			Attribute& attr(const std::string& key) 
@@ -47,8 +47,7 @@ namespace higui
 			}
 
 
-
-			GUIObjectPtr getParent() { return parent; }
+			ObjPtr getParent() { return parent; }
 			glm::mat4 getModel() { return model; }
 			void ResetModel(const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation);
 
@@ -68,18 +67,18 @@ namespace higui
 			virtual bool OnMouseClick(int button, double xpos, double ypos);
 
 			// output
-			friend std::ostream& operator<<(std::ostream& os, const GUIObjectPtr& obj);
+			friend std::ostream& operator<<(std::ostream& os, const ObjPtr& obj);
 
 		protected:
-			void AddChild(GUIObjectPtr obj_ptr) { children.push_back(obj_ptr); }
+			void AddChild(ObjPtr obj_ptr) { children.push_back(obj_ptr); }
 
-			GUIObjectPtr MouseIn(glm::vec2 point, GLFWwindow* win);
+			ObjPtr MouseIn(glm::vec2 point, GLFWwindow* win);
 
 			// attributes
 			AttributeContainer container;
 
-			std::vector<GUIObjectPtr> children{};
-			GUIObjectPtr parent;
+			std::vector<ObjPtr> children;
+			ObjPtr parent;
 			glm::mat4 model;
 
 			// basic rectangle
@@ -90,9 +89,9 @@ namespace higui
 			friend class DOM;
 			friend class Markup;
 
-			static std::unordered_map<std::string, std::function<GUIObjectPtr()>>& registry()
+			static std::unordered_map<std::string, std::function<ObjPtr()>>& registry()
 			{
-				static std::unordered_map<std::string, std::function<GUIObjectPtr()>> registry;
+				static std::unordered_map<std::string, std::function<ObjPtr()>> registry;
 				return registry;
 			}
 		};
@@ -112,7 +111,7 @@ namespace higui
 		}
 
 	private:
-		static void RegisterType(const std::string& type, std::function<GUIObjectPtr()> factory) {
+		static void RegisterType(const std::string& type, std::function<ObjPtr()> factory) {
 			registry()[type] = factory;
 		}
 	};

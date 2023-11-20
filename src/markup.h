@@ -14,7 +14,7 @@ namespace higui
 		Markup(const std::string& markup_file);
 
 		void Init();
-		std::shared_ptr<internal::GUIObjectBase> central_object;
+		ObjPtr central_object;
 
 	private:
 		std::string CookMarkup(const std::string& markup);
@@ -24,12 +24,11 @@ namespace higui
 		std::string ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name);
 		std::vector<Attribute> ExtractAttributes(const std::string& tag_block);
 
-		void ProcessOpeningTag(const std::string& tag_block, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack);
-		void ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<std::shared_ptr<internal::GUIObjectBase>>& object_stack);
+		void ProcessOpeningTag(const std::string& tag_block, std::stack<ObjPtr>& object_stack);
+		void ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<ObjPtr>& object_stack);
 
 		std::string markup_raw;
 		std::string markup_cooked;
-		//std::shared_ptr<internal::GUIObjectBase> central_object;
 
 		friend class DOM;
 	};

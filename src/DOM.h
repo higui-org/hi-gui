@@ -43,7 +43,7 @@ namespace higui
 		static void KeyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 		GLFWwindow* window;
-		static GUIObjectPtr obj;
+		ObjPtr focused_obj;
 	};
 }
 

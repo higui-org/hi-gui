@@ -26,7 +26,7 @@ namespace higui
 			throw std::runtime_error("Invalid markup");
 		}
 
-		std::stack<GUIObjectPtr> object_stack;
+		std::stack<ObjPtr> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
@@ -182,14 +182,14 @@ namespace higui
 	}
 
 
-	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<GUIObjectPtr>& object_stack)
+	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<ObjPtr>& object_stack)
 	{
 		std::string tag_name = ExtractTagName(tag_block);
 
 		auto it = internal::GUIObjectBase::registry().find(tag_name);
 		if (it != internal::GUIObjectBase::registry().end())
 		{
-			GUIObjectPtr obj = static_cast<GUIObjectPtr>(it->second());
+			ObjPtr obj = static_cast<ObjPtr>(it->second());
 			if (obj)
 			{
 				// Extract attributes from tag block and add to the object
@@ -211,7 +211,7 @@ namespace higui
 		}
 	}
 
-	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<GUIObjectPtr>& object_stack)
+	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<ObjPtr>& object_stack)
 	{
 		if (!tag_stack.empty())
 		{
