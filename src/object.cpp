@@ -5,23 +5,19 @@ namespace higui
 	namespace internal
 	{
 
-		void GUIObjectBase::Render(unsigned int VAO)
+		void GUIObject::Render(unsigned int VAO)
 		{
-			for (auto& child : children)
-			{
-				child->Render(VAO);
-			}
+			for (auto& c : components) c.Render();
+			std::for_each(children.begin(), children.end(), [&](hiObject child) {child->Render(VAO); });
 		}
 
-		void GUIObjectBase::Update()
+		void GUIObject::Update()
 		{
-			for (auto& child : children)
-			{
-				child->Update();
-			}
+			std::for_each(component.begin(), component.end(), [&](Component comp) {comp.Update(this); });
+			std::for_each(children.begin(), children.end(), [&](hiObject child) {child->Update(); });
 		}
 
-		void GUIObjectBase::ResetModel(
+		void GUIObject::ResetModel(
 			const glm::vec3& position = glm::vec3(1.0f), 
 			const glm::vec3& scale    = glm::vec3(1.0f),
 			const glm::quat& rotation = glm::vec3(1.0f))
@@ -32,15 +28,20 @@ namespace higui
 			model = glm::scale(model, scale);
 		}
 
+		void GUIObject::AddAttr(Attribute attribute)
+		{
+			
+		}
+
 
 
 		// normalized
-		glm::vec3 GUIObjectBase::Position()
+		glm::vec3 GUIObject::Position()
 		{
 			return glm::vec3(model[3]);
 		}
 		
-		glm::vec3 GUIObjectBase::Scale()
+		glm::vec3 GUIObject::Scale()
 		{
 			glm::vec3 scale;
 			scale.x = glm::length(glm::vec3(model[0]));
@@ -49,7 +50,7 @@ namespace higui
 			return scale;
 		}
 		
-		glm::quat GUIObjectBase::Rotation()
+		glm::quat GUIObject::Rotation()
 		{
 			glm::vec3 scale = Scale();
 			glm::mat3 rotation_mat(
@@ -59,7 +60,7 @@ namespace higui
 			return glm::quat_cast(rotation_mat);
 		}
 
-		geometry3 GUIObjectBase::Geometry()
+		geometry3 GUIObject::Geometry()
 		{
 			return { Position(), Scale() };
 		}
@@ -67,12 +68,12 @@ namespace higui
 
 
 		// events
-		bool GUIObjectBase::OnCursorPos(double xpos, double ypos) 
+		bool GUIObject::OnCursorPos(double xpos, double ypos)
 		{
 			return false;
 		}
 
-		bool GUIObjectBase::OnMouseClick(int button, double xpos, double ypos)
+		bool GUIObject::OnMouseClick(int button, double xpos, double ypos)
 		{
 			return false;
 		}
@@ -80,14 +81,14 @@ namespace higui
 
 
 		// figure
-		float GUIObjectBase::vertices[12] = {
+		float GUIObject::vertices[12] = {
 					-1.0f, 1.0f, 0.0f,  // upper left angle
 					1.0f, 1.0f, 0.0f,   // upper right angle
 					1.0f, -1.0f, 0.0f,  // lower right angle
 					-1.0f, -1.0f, 0.0f  // lower left angle
 		};
 
-		unsigned int GUIObjectBase::indices[6] = {
+		unsigned int GUIObject::indices[6] = {
 					0, 1, 3, // first triangle
 					1, 2, 3  // second triangle
 		};
@@ -95,13 +96,13 @@ namespace higui
 
 
 		
-		ObjPtr GUIObjectBase::MouseIn(glm::vec2 point, GLFWwindow* win) {
-			ObjPtr closest_object = nullptr;
-			ObjPtr intersected_object = nullptr;
+		hiObject GUIObject::MouseIn(glm::vec2 point, GLFWwindow* win) {
+			hiObject closest_object = nullptr;
+			hiObject intersected_object = nullptr;
 			float closest_distance = std::numeric_limits<float>::max();
 
-			std::function<void(ObjPtr, const geometry2&)> getObjectWhereMouse = 
-				[&](ObjPtr obj, const geometry2& parent_geometry) 
+			std::function<void(hiObject, const geometry2&)> getObjectWhereMouse = 
+				[&](hiObject obj, const geometry2& parent_geometry)
 			{
 				geometry2 obj_geometry = geometry2{ obj->ScreenGeometry(win) };
 
@@ -142,7 +143,7 @@ namespace higui
 
 
 		// screen
-		glm::vec3 GUIObjectBase::ScreenCoords(GLFWwindow* window)
+		glm::vec3 GUIObject::ScreenCoords(GLFWwindow* window)
 		{
 			int framebuff_w, framebuff_h;
 			glfwGetFramebufferSize(window, &framebuff_w, &framebuff_h);
@@ -168,7 +169,7 @@ namespace higui
 			return screen_сoords;
 		}
 
-		glm::vec3 GUIObjectBase::ScreenDimensions(GLFWwindow* window)
+		glm::vec3 GUIObject::ScreenDimensions(GLFWwindow* window)
 		{
 			int framebuff_w, framebuff_h;
 			glfwGetFramebufferSize(window, &framebuff_w, &framebuff_h);
@@ -177,12 +178,12 @@ namespace higui
 			return volume * Scale();
 		}
 
-		geometry3 GUIObjectBase::ScreenGeometry(GLFWwindow* window)
+		geometry3 GUIObject::ScreenGeometry(GLFWwindow* window)
 		{
 			return { ScreenCoords(window), ScreenDimensions(window) };
 		}
 
-		std::ostream& operator<<(std::ostream& os, const ObjPtr& obj)
+		std::ostream& operator<<(std::ostream& os, const hiObject& obj)
 		{
 			os << "====================" << std::endl;
 			os << "obj: " << reinterpret_cast<int>(&obj) << std::endl;

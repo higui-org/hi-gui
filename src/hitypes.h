@@ -20,6 +20,12 @@ namespace higui
 	// further defined classes
 	class Attribute;
 	class AttributeContainer;
+	class DOM;
+	class Markup;
+	namespace internal
+	{
+		class GUIObject;
+	}
 
 	// basic higui's align
 	enum class Align {

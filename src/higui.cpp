@@ -10,14 +10,8 @@ namespace higui
 			higui::attribute::String::Register("string");
 			higui::attribute::String::Register("str");
 
-			higui::attribute::Bool::Register("adopted");
-
 			// attribute alignment
 			higui::attribute::Alignment::Register("align");
-
-			// basic tags
-			tag::Object::Register("obj");
-			tag::Div::Register("div");
 		}
 
 		GlobalInitializer global_initializer{};

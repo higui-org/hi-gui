@@ -18,19 +18,14 @@ set(SOURCES
     src/shader.h
     src/markup.cpp
     src/markup.h
-    src/style.cpp
-    src/style.h
     src/object.cpp
     src/object.h
     src/attribute.h
     src/attribute.cpp
     src/DOM.h
-    src/DOM.cpp
-)
-
-set(TAG_CLASSES
-    src/markup_elements/div.cpp
-    src/markup_elements/div.h
+    src/DOM.cpp    
+    src/component.cpp
+    src/component.h
 )
 
 set(THIRD_PARTY

@@ -4,7 +4,6 @@ namespace higui
 {
 	Markup::Markup(const std::string& filename)
 	{	
-		central_object = std::make_shared<tag::Object>();
 		std::ifstream file;
 
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -18,7 +17,7 @@ namespace higui
 		markup_raw = stream.str();
 	}
 
-	void Markup::Init()
+	hiObject Markup::GetCookedStuffInOneObject()
 	{
 		markup_cooked = CookMarkup(markup_raw);
 		if (markup_cooked.empty())
@@ -26,7 +25,7 @@ namespace higui
 			throw std::runtime_error("Invalid markup");
 		}
 
-		std::stack<ObjPtr> object_stack;
+		std::stack<hiObject> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
@@ -52,6 +51,9 @@ namespace higui
 		markup_cooked.clear();
 		markup_cooked.shrink_to_fit();
 	}
+
+
+
 
 	std::string Markup::CookMarkup(const std::string& markup)
 	{
@@ -182,14 +184,14 @@ namespace higui
 	}
 
 
-	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<ObjPtr>& object_stack)
+	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<hiObject>& object_stack)
 	{
 		std::string tag_name = ExtractTagName(tag_block);
 
-		auto it = internal::GUIObjectBase::registry().find(tag_name);
-		if (it != internal::GUIObjectBase::registry().end())
+		auto it = internal::GUIObject::registry().find(tag_name);
+		if (it != internal::GUIObject::registry().end())
 		{
-			ObjPtr obj = static_cast<ObjPtr>(it->second());
+			hiObject obj = static_cast<hiObject>(it->second());
 			if (obj)
 			{
 				// Extract attributes from tag block and add to the object
@@ -203,7 +205,7 @@ namespace higui
 				}
 				else
 				{
-					central_object->AddChild(obj);
+					cooked_stuff->AddChild(obj);
 				}
 				object_stack.push(obj);
 				obj->Update();
@@ -211,7 +213,7 @@ namespace higui
 		}
 	}
 
-	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<ObjPtr>& object_stack)
+	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<hiObject>& object_stack)
 	{
 		if (!tag_stack.empty())
 		{

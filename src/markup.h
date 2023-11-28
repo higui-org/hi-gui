@@ -13,8 +13,7 @@ namespace higui
 	public:
 		Markup(const std::string& markup_file);
 
-		void Init();
-		ObjPtr central_object;
+		hiObject GetCookedStuffInOneObject();
 
 	private:
 		std::string CookMarkup(const std::string& markup);
@@ -24,11 +23,12 @@ namespace higui
 		std::string ExtractAttributeValue(const std::string& tag_block, const std::string& attribute_name);
 		std::vector<Attribute> ExtractAttributes(const std::string& tag_block);
 
-		void ProcessOpeningTag(const std::string& tag_block, std::stack<ObjPtr>& object_stack);
-		void ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<ObjPtr>& object_stack);
+		void ProcessOpeningTag(const std::string& tag_block, std::stack<hiObject>& object_stack);
+		void ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<hiObject>& object_stack);
 
 		std::string markup_raw;
 		std::string markup_cooked;
+		hiObject cooked_stuff;
 
 		friend class DOM;
 	};

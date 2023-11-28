@@ -67,6 +67,7 @@ namespace higui
 			int int_value;
 		};
 
+
 		class Float : public AttributeValue<Float> {
 		public:
 			Float(float value = 0.0f) : float_value(value) {}
@@ -88,6 +89,7 @@ namespace higui
 			float float_value;
 		};
 
+
 		class String : public AttributeValue<String> {
 		public:
 			String(std::string str = "") : str(str) {}
@@ -102,6 +104,7 @@ namespace higui
 			std::string str;
 		};
 
+
 		class Alignment : public AttributeValue<Alignment> {
 		public:
 
@@ -115,6 +118,7 @@ namespace higui
 			float ratio;
 		};
 
+
 		class Bool : public AttributeValue<Bool>
 		{
 		public:
@@ -126,6 +130,10 @@ namespace higui
 			bool value;
 		};
 	}
+
+
+
+
 
 	class Attribute 
 	{
@@ -186,7 +194,7 @@ namespace higui
 		std::string key() const { return key_; }
 
 		template <class ValueClass>
-		ValueClass& value() 
+		ValueClass& operator()()
 		{ 
 			ValueClass* v = dynamic_cast<ValueClass*>(value_.get());
 			return *v; 
