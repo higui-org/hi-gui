@@ -1,6 +1,6 @@
 #include "DOM.h"
 
-namespace higui
+namespace hi
 {
 	DOM::DOM(GLFWwindow* window, const std::string& markup_file, const std::string& style_file)
 		: markup(markup_file), event(window)
@@ -12,10 +12,10 @@ namespace higui
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(internal::GUIObject::vertices), internal::GUIObject::vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(internal::GUIObjectBase::vertices), internal::GUIObjectBase::vertices, GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(internal::GUIObject::indices), internal::GUIObject::indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(internal::GUIObjectBase::indices), internal::GUIObjectBase::indices, GL_STATIC_DRAW);
 
 		// position attribute
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -31,6 +31,9 @@ namespace higui
 	void DOM::Render()
 	{
 		central_object->Render(VAO);
+		Behavior b;
+		b.attr["x"] = 30;
+		
 	}
 
 	void DOM::Delete()

@@ -1,6 +1,6 @@
 #include "shader.h"
 
-namespace higui
+namespace hi
 {
 	Shader::Shader(std::string shader_name) : Shader(
 		(shader_name + ".vert").c_str(),

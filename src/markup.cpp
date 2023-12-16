@@ -1,6 +1,6 @@
 ﻿#include "higui.h"
 
-namespace higui
+namespace hi
 {
 	Markup::Markup(const std::string& filename)
 	{	
@@ -17,7 +17,7 @@ namespace higui
 		markup_raw = stream.str();
 	}
 
-	hiObject Markup::GetCookedStuffInOneObject()
+	Widget Markup::GetCookedStuffInOneObject()
 	{
 		markup_cooked = CookMarkup(markup_raw);
 		if (markup_cooked.empty())
@@ -25,7 +25,7 @@ namespace higui
 			throw std::runtime_error("Invalid markup");
 		}
 
-		std::stack<hiObject> object_stack;
+		std::stack<Widget> object_stack;
 		std::stack<std::string> tag_stack;
 		size_t pos = 0;
 
@@ -57,7 +57,7 @@ namespace higui
 
 	std::string Markup::CookMarkup(const std::string& markup)
 	{
-		std::string cooked{};
+		std::string cooked;
 		bool inside_quotes = false;
 		bool tag_name_found = false;
 		bool add_space = false;
@@ -184,18 +184,18 @@ namespace higui
 	}
 
 
-	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<hiObject>& object_stack)
+	void Markup::ProcessOpeningTag(const std::string& tag_block, std::stack<Widget>& object_stack)
 	{
 		std::string tag_name = ExtractTagName(tag_block);
 
-		auto it = internal::GUIObject::registry().find(tag_name);
-		if (it != internal::GUIObject::registry().end())
+		auto it = internal::GUIObjectBase::registry().find(tag_name);
+		if (it != internal::GUIObjectBase::registry().end())
 		{
-			hiObject obj = static_cast<hiObject>(it->second());
+			Widget obj = static_cast<Widget>(it->second());
 			if (obj)
 			{
 				// Extract attributes from tag block and add to the object
-				obj->container = ExtractAttributes(tag_block);
+				Be = ExtractAttributes(tag_block);
 
 				// Set object as a child of the previous object
 				if (!object_stack.empty() && !obj->container.has("adopted") && obj->attr<attribute::Bool>("adopted").value == false)
@@ -213,7 +213,7 @@ namespace higui
 		}
 	}
 
-	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<hiObject>& object_stack)
+	void Markup::ProcessClosingTag(std::stack<std::string>& tag_stack, std::stack<Widget>& object_stack)
 	{
 		if (!tag_stack.empty())
 		{

@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
-namespace higui
+namespace hi
 {
 	class Shader
 	{

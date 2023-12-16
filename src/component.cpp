@@ -1,116 +1,89 @@
 #include "component.h"
 
-namespace higui
+namespace hi
 {
-	Event::Event(GLFWwindow* win) : window(win) {}
+	namespace internal
 	{
-		glfwSetWindowUserPointer(window, this);
-
-		glfwSetKeyCallback(window, DOM::KeyCallbackWrapper);
-		glfwSetScrollCallback(window, DOM::ScrollCallbackWrapper);
-		glfwSetCursorPosCallback(window, DOM::CursorPosCallbackWrapper);
-		glfwSetMouseButtonCallback(window, DOM::MouseButtonCallbackWrapper);
-		glfwSetFramebufferSizeCallback(window, DOM::FramebufferSizeCallbackWrapper);
-	}
-
-	void Event::MouseButtonCallback(int button, int action, int mods)
-	{
-
-	}
-
-	void Event::CursorPosCallback(double xpos, double ypos)
-	{
-		hiObject temp = central_object->MouseIn({ xpos, ypos }, event.window.window_ptr);
-		if (focused_obj != temp)
-		{
-			focused_obj = temp;
-			system("cls");
-			std::cout << focused_obj << std::endl;
+		inline Behavior::Mod operator|(Behavior::Mod a, Behavior::Mod b) {
+			return static_cast<Behavior::Mod>(static_cast<int>(a) | static_cast<int>(b));
 		}
-	}
 
-	void Event::ScrollCallback(double xoffset, double yoffset)
-	{
-		int x, y;
-		glfwGetFramebufferSize(event.window.window_ptr, &x, &y);
-		Attribute& align = (*focused_obj)("align");
-		if (yoffset > 0)
+		EventHandler::EventHandler(GLFWwindow* window) : win(window)
 		{
-			align.value<attribute::Alignment>().ratio += 0.03f;
+			glfwSetWindowUserPointer(window, this);
+
+			glfwSetKeyCallback(window, EventHandler::KeyCallbackWrapper);
+			glfwSetScrollCallback(window, EventHandler::ScrollCallbackWrapper);
+			glfwSetCursorPosCallback(window, EventHandler::CursorPosCallbackWrapper);
+			glfwSetMouseButtonCallback(window, EventHandler::MouseButtonCallbackWrapper);
+			glfwSetFramebufferSizeCallback(window, EventHandler::FramebufferSizeCallbackWrapper);
 		}
-		else if (yoffset < 0)
+
+		void EventHandler::MouseButtonCallback(int button, int action, int mods)
 		{
-			align.ratio -= 0.03f;
+
 		}
-		focused_obj->Update();
-		system("cls");
-		std::cout << focused_obj << std::endl;
-	}
 
-	void Event::FramebufferSizeCallback(int width, int height)
-	{
-		glViewport(0, 0, width, height);
-
-		central_object->Update();
-
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		Render();
-
-		glfwSwapBuffers(event.window.window_ptr);
-		glfwPollEvents();
-	}
-
-	void Event::KeyCallback(int key, int scancode, int action, int mods)
-	{
-
-	}
-
-
-
-	void Event::MouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods)
-	{
-		DOM* dom = static_cast<DOM*>(glfwGetWindowUserPointer(window));
-		if (dom)
+		void EventHandler::CursorPosCallback(double xpos, double ypos)
 		{
-			dom->MouseButtonCallback(button, action, mods);
+			
 		}
-	}
 
-	void Event::CursorPosCallbackWrapper(GLFWwindow* window, double xpos, double ypos)
-	{
-		DOM* dom = static_cast<DOM*>(glfwGetWindowUserPointer(window));
-		if (dom)
+		void EventHandler::ScrollCallback(double xoffset, double yoffset)
 		{
-			dom->CursorPosCallback(xpos, ypos);
-		}
-	}
 
-	void Event::ScrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset)
-	{
-		DOM* dom = static_cast<DOM*>(glfwGetWindowUserPointer(window));
-		if (dom)
-		{
-			dom->ScrollCallback(xoffset, yoffset);
 		}
-	}
 
-	void Event::FramebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height)
-	{
-		DOM* dom = static_cast<DOM*>(glfwGetWindowUserPointer(window));
-		if (dom)
+		void EventHandler::FramebufferSizeCallback(int width, int height)
 		{
-			dom->FramebufferSizeCallback(width, height);
-		}
-	}
 
-	void Event::KeyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-		DOM* dom = static_cast<DOM*>(glfwGetWindowUserPointer(window));
-		if (dom)
-		{
-			dom->KeyCallback(key, scancode, action, mods);
 		}
+
+		void EventHandler::KeyCallback(int key, int scancode, int action, int mods)
+		{
+
+		}
+
+
+
+		void EventHandler::MouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods)
+		{
+			EventHandler* handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
+			if (handler)
+				handler->MouseButtonCallback(button, action, mods);
+		}
+
+		void EventHandler::CursorPosCallbackWrapper(GLFWwindow* window, double xpos, double ypos)
+		{
+			EventHandler* handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
+			if (handler) 
+				handler->CursorPosCallback(xpos, ypos);
+		}
+
+		void EventHandler::ScrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset)
+		{
+			EventHandler* handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
+			if (handler)
+				handler->ScrollCallback(xoffset, yoffset);
+		}
+
+		void EventHandler::FramebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height)
+		{
+			EventHandler* handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
+			if (handler)
+				handler->FramebufferSizeCallback(width, height);
+		}
+
+		void EventHandler::KeyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
+			EventHandler* handler = static_cast<EventHandler*>(glfwGetWindowUserPointer(window));
+			if (handler)
+				handler->KeyCallback(key, scancode, action, mods);
+		}
+	}; // namespace internal
+
+	void Behavior::HandleEvent(Event* e)
+	{
+		
 	}
 }

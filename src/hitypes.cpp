@@ -1,6 +1,6 @@
 #include "hitypes.h"
 
-namespace higui
+namespace hi
 {
 	namespace internal {
 		RGBA ToRGBA(const std::string& value) {

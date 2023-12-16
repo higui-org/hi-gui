@@ -37,10 +37,12 @@ int main()
 	}
 
 	// higui
-	using namespace higui;
-	Shader::Register("default", "default.vert", "default.frag");
-    DOM dom(window, "test.markup", "test.style");
-    dom.markup.Init();
+	hi::AttributeContainer cont;
+	
+	hi::BoolRoot::capture_glfw_callbacks = false;
+
+
+	cont.attr("cnota");
 	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// main cycle

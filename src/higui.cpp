@@ -1,19 +1,19 @@
 #include "higui.h"
 
-namespace higui
+namespace hi
 {
-	namespace internal {
-		GlobalInitializer::GlobalInitializer() {
-			// basic attributes
-			higui::attribute::Int::Register("int");
-			higui::attribute::Float::Register("float");
-			higui::attribute::String::Register("string");
-			higui::attribute::String::Register("str");
+	BoolRoot::BoolRoot() {
+		// basic attributes
+		attribute::Int::Register("int");
+		attribute::Float::Register("float");
+		attribute::String::Register("string");
+		attribute::String::Register("str");
 
-			// attribute alignment
-			higui::attribute::Alignment::Register("align");
-		}
+		// attribute alignment
+		attribute::Alignment::Register("align");
 
-		GlobalInitializer global_initializer{};
+		capture_glfw_callbacks = true;
 	}
+
+	BoolRoot root;
 }

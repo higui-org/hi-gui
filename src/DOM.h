@@ -5,8 +5,9 @@
 #include <chrono>
 
 #include "markup.h"
+#include "component.h"
 
-namespace higui
+namespace hi
 {
 	class DOM
 	{
@@ -17,8 +18,8 @@ namespace higui
 		void Delete();
 
 		Markup markup;
-		hiObject central_object;
-		Event event;
+		Widget central_object;
+		internal::EventHandler event;
 
 		unsigned int VBO, VAO, EBO;	
 	};

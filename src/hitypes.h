@@ -13,19 +13,21 @@
 #include <list>
 #include <sstream>
 
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-namespace higui
+namespace hi
 {
-	// further defined classes
+	// Assume are already defined and implemented elsewhere.
 	class Attribute;
 	class AttributeContainer;
-	class DOM;
+	class DOM {
+	private:
+		GLFWwindow* window;
+	};
 	class Markup;
-	namespace internal
-	{
-		class GUIObject;
-	}
+	class Behavior;
+
 
 	// basic higui's align
 	enum class Align {
@@ -51,14 +53,9 @@ namespace higui
 		geometry(const glm::vec<Dimensions, T, glm::defaultp>& p, const glm::vec<Dimensions, T, glm::defaultp>& d)
 			: pos(p), dim(d) {}
 
-		geometry(const geometry<T, Dimensions+1>& g)
+		geometry(const geometry<T, Dimensions + 1>& g)
 			: pos(g.pos), dim(g.dim) {}
 	};
-
-	using geometry1 = geometry<float, 1>;
-	using geometry2 = geometry<float, 2>;
-	using geometry3 = geometry<float, 3>;
-	using geometry4 = geometry<float, 4>;
 
 	// std::cout for geometry
 	template <typename T, int D>
@@ -77,7 +74,13 @@ namespace higui
 		return os;
 	}
 
+
+
+
+
+	//
 	// internal
+	//
 	namespace internal {
 
 		// is Point Inside Geometry

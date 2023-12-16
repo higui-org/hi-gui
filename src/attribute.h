@@ -1,9 +1,11 @@
 #ifndef Hi_ATTRIBUTE_H
 #define Hi_ATTRIBUTE_H
 
+#include <optional>
+
 #include "hitypes.h"
 
-namespace higui
+namespace hi
 {
 	// basic attribute values
 	namespace attribute
@@ -133,7 +135,7 @@ namespace higui
 
 
 
-
+	using Attr = Attribute&;
 
 	class Attribute 
 	{
@@ -141,68 +143,60 @@ namespace higui
 		using ValuePtr = std::shared_ptr<internal::AttributeValueBase>;
 	public:
 		Attribute(const std::string& key = "str");
-		Attribute(const std::string& key, const std::string& new_value);
+		Attribute(const std::string& key, const std::string& value);
 
-		// for std::shared_ptr
-		template <class T>
-		std::enable_if_t<std::is_same<T, std::shared_ptr<class std::decay_t<T>::element_type>>::value,
-			Attribute&>
-			operator=(T&& new_value)
-		{
-			value_ = std::forward<T>(new_value);
-			return *this;
-		}
-
-		// T is std::string 
-		Attribute& operator=(const std::string& type_value);
-
-		// for cloning
-		template <class T>
-		std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, Attribute&>
-			operator=(const T& new_value)
-		{
-			value_ = std::make_shared<class std::decay<T>::type>(new_value);
-			return *this;
-		}
-
-		template <class T>
-		std::enable_if_t<
-			std::is_same_v<T, int> ||
-			std::is_same_v<T, float> ||
-			std::is_same_v<T, double>,
-			Attribute&>
-			operator=(T new_value)
-		{
-			if (typeid(T) == typeid(int))
+		// operator "="
+			// for std::shared_ptr<T>
+			template <class T>
+			std::enable_if_t<std::is_same<T, std::shared_ptr<class std::decay_t<T>::element_type>>::value,
+				Attribute&> operator=(T&& new_value)
 			{
-				value_ = std::make_shared<attribute::Int>(static_cast<int>(new_value));
+				value_ = std::forward<T>(new_value);
+				return *this;
 			}
-			else if (typeid(T) == typeid(float) || typeid(T) == typeid(double))
-			{
-				value_ = std::make_shared<attribute::Float>(static_cast<float>(new_value));
-			}
-			else
-			{
-				value_ = std::make_shared<attribute::String>();
-				value_->from_str(std::to_string(new_value));
-			}
-			return *this;
-		}
 
-		//void setKey(const std::string& key);
+			// T is std::string 
+			Attribute& operator=(const std::string& type_value);
 
+			// for cloning
+			template <class T>
+			std::enable_if_t<!std::is_pointer_v<T> && std::is_base_of<internal::AttributeValueBase, std::decay_t<T>>::value, Attribute&>
+				operator=(const T& new_value)
+			{
+				value_ = std::make_shared<class std::decay<T>::type>(new_value);
+				return *this;
+			}
+
+			// shit
+			template <class T>
+			std::enable_if_t<
+				std::is_same_v<T, int> ||
+				std::is_same_v<T, float> ||
+				std::is_same_v<T, double>,
+				Attribute&>
+				operator=(T new_value)
+			{
+				if (typeid(T) == typeid(int))
+				{
+					value_ = std::make_shared<attribute::Int>(static_cast<int>(new_value));
+				}
+				else if (typeid(T) == typeid(float) || typeid(T) == typeid(double))
+				{
+					value_ = std::make_shared<attribute::Float>(static_cast<float>(new_value));
+				}
+				else
+				{
+					value_ = std::make_shared<attribute::String>();
+					value_->from_str(std::to_string(new_value));
+				}
+				return *this;
+			}
+
+		// just a key
 		std::string key() const { return key_; }
 
-		template <class ValueClass>
-		ValueClass& operator()()
-		{ 
-			ValueClass* v = dynamic_cast<ValueClass*>(value_.get());
-			return *v; 
-		}
-
+		// std::cout
 		friend std::ostream& operator<<(std::ostream& os, const Attribute& obj);
-
-		
 
 	private:
 		std::shared_ptr<internal::AttributeValueBase> value_;
@@ -215,139 +209,46 @@ namespace higui
 	public:
 		AttributeContainer(const std::vector<Attribute>& attributes = {}) : elements(attributes) {}
 
-		void add(const std::string& key) {
-			elements.push_back(Attribute(key));
-		}
+		// get Attribute inherited instance from this<inheritedFromAttributeValue>()
+		template <class AttrValue> AttrValue&
+			operator()(const std::string& key = "");
 
-		void add(Attribute attribute) {
-			elements.push_back(attribute);
-		}
+		// has or find
+		bool has(const std::string& key) const;
+		std::size_t find(const std::string& key) const;
+		
+		// 'attr' methods
+
+		std::reference_wrapper<Attribute> 
+			attr(const std::string& key);
+		std::optional<std::reference_wrapper<Attribute>>
+			attr_if(const std::string& key, const std::function<bool(const Attribute& attribute)>& func);
+		
+		std::reference_wrapper<Attribute> 
+			attr_if_exist(const std::string& key);
+
+		// puts attribute to container
+
+		void add(const std::string& key);
+		void add(Attribute attribute);
+		void add(const std::string& key, const std::string& value);
 
 		template <typename T>
-		std::enable_if_t<!std::is_same_v<T, std::string>, 
-		void> add(const std::string& key, const T& value)
-		{
-			Attribute attr{ key };
-			attr = value;
-			elements.push_back(attr);
-		}
+		std::enable_if_t<!(std::is_same_v<T, std::string>), void> 
+			add(const std::string& key, const T& value);
 
-		void add(const std::string& key, const std::string& value) {
-			elements.push_back(Attribute(key, value));
-		}
-
+		// remove Attribute from container
 		void remove(const std::string& key) {
 			elements.erase(std::remove_if(elements.begin(), elements.end(),
 				[key](const Attribute& attr) { return attr.key() == key; }), elements.end());
 		}
 
-		bool has(const std::string& key) const {
-			for (const auto& attr : elements) {
-				if (attr.key() == key) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		Attribute& operator[](const std::string& key) {
-			std::size_t attr_index = find(key);
-			if (attr_index != npos)
-			{
-				return elements[attr_index];
-			}
-			add(key);
-			return elements.back();
-		}
-
-		template <class Derived>
-		Derived& value(const std::string& key = "") {
-			std::string effective_key = key;
-			if (effective_key.empty()) {
-				for (const auto& entry : internal::AttributeValueBase::registry()) {
-					if (std::dynamic_pointer_cast<Derived>(entry.second())) {
-						effective_key = entry.first;
-						break;
-					}
-				}
-				if (effective_key.empty()) {
-					throw std::runtime_error("Could not determine key for the given type in the registry.");
-				}
-			}
-
-			std::size_t attr_index = find(effective_key);
-			if (attr_index != npos) {
-				if (std::shared_ptr<Derived> derived_value = std::dynamic_pointer_cast<Derived>(elements[attr_index].value_)) {
-					return *derived_value;
-				}
-				else {
-					throw std::runtime_error("Attribute value cannot be converted to the specified type.");
-				}
-			}
-			std::shared_ptr<Derived> new_attribute = std::make_shared<Derived>();
-			Attribute attr(effective_key);
-			attr.value_ = new_attribute;
-			elements.push_back(attr);
-			return *new_attribute;
-		}
-
-		Attribute& get(const std::string& key) {
-			std::size_t attr_index = find(key);
-			if (attr_index != npos)
-			{
-				return elements[attr_index];
-			}
-			throw std::runtime_error("Attribute key \"" + key + "\" not found");
-		}
-
-		std::size_t find(const std::string& key) const {
-			for (std::size_t i = 0; i < elements.size(); ++i) {
-				if (elements[i].key() == key) {
-					return i;
-				}
-			}
-			return npos;
-		}
+		// iterator
 
 		class Iterator {
+			std::vector<Attribute>::const_iterator it;
 		public:
-			using iterator_category = std::forward_iterator_tag;
-			using value_type = const Attribute;
-			using reference = const Attribute&;
-			using pointer = const Attribute*;
-			using difference_type = std::ptrdiff_t;
-
-			Iterator(std::vector<Attribute>::const_iterator it) : it_(it) {}
-
-			reference operator*() const {
-				return *it_;
-			}
-
-			pointer operator->() const {
-				return &(*it_);
-			}
-
-			Iterator& operator++() {
-				++it_;
-				return *this;
-			}
-
-			Iterator operator++(int) {
-				Iterator temp = *this;
-				++it_;
-				return temp;
-			}
-
-			bool operator==(const Iterator& other) const {
-				return it_ == other.it_;
-			}
-
-			bool operator!=(const Iterator& other) const {
-				return it_ != other.it_;
-			}
-
-		private:
-			std::vector<Attribute>::const_iterator it_;
+			Iterator(std::vector<Attribute>::const_iterator it_) : it(it_) {}
 		};
 
 		Iterator begin() const {

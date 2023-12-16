@@ -1,106 +1,111 @@
 ﻿#ifndef Hi_GUI_OBJECT_H
 #define Hi_GUI_OBJECT_H
 
+// glm
+#include <glm/gtc/quaternion.hpp>
+
 // higui
 #include "attribute.h"
-#include "shader.h"
 #include "component.h"
+#include "shader.h"
 
-namespace higui
+namespace hi
 {
-	using hiObject = std::shared_ptr<internal::GUIObject>;
+	class GUIObject;
 
+	using Widget = std::shared_ptr<GUIObject>;
+
+	// class Transform
+	class Transform
+	{
+	public:
+		Transform() = default;
+
+		void Translate(const glm::vec3& pos);
+		void Scale(const glm::vec3& scale);
+		void Rotate(const glm::quat& rotation);
+		void Model(const glm::mat4& matrix);
+
+		// normalized
+		glm::vec3 getPos();
+		glm::vec3 getScale();
+		glm::quat getRotation();
+		geometry<float, 3> getGeometry();
+
+		// screen
+		glm::vec3 getScreenPos(GLFWwindow* window);
+		glm::vec3 getScreenScale(GLFWwindow* window); // get screen scale (screen dimensions)
+		geometry<float, 3> getScreenGeometry(GLFWwindow* window);
+
+		glm::mat4 getModel();
+
+	private:
+		glm::mat4 model;
+	};
+
+
+
+
+
+
+
+	//
+	// internal
+	//
 	namespace internal
 	{
-		class GUIObject : public std::enable_shared_from_this<GUIObject>
+		class GUIObjectBase : public std::enable_shared_from_this<GUIObjectBase>
 		{
 		public:
-			GUIObject(GUIObject* parent_ = nullptr) : parent(parent_), model(1.0f) {}
+			GUIObjectBase(Widget parent_) : parent(parent_), transform() {}
 
-			void Render(unsigned int VAO);
-			void Update();
-
-			template <class V>
-			std::enable_if_t<std::is_base_of_v<AttributeValueBase, V>, V&>
-				operator()(const std::string& key = "")
-			{
-				return container.value<V>();
-			}
-
-			Attribute& operator()(const std::string& key) {
-				return container[key];
-			}
-
-			void AddAttr(Attribute attr);
+			virtual void Render(unsigned int VAO) = 0;
+			virtual void Update() = 0;
 
 			void ResetModel(const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation);
 
-			// getters
-				hiObject getParent() { return parent; }
-				glm::mat4 getModel() { return model; }
-			
-				// normalized
-				glm::vec3 Position();
-				glm::vec3 Scale();
-				glm::quat Rotation();
-				geometry3 Geometry();
-
-				// screen
-				glm::vec3 ScreenCoords(GLFWwindow* window);
-				glm::vec3 ScreenDimensions(GLFWwindow* window);
-				geometry3 ScreenGeometry(GLFWwindow* window);
+			Widget getParent() { return parent; }
 
 			// events
 			virtual bool OnCursorPos(double xpos, double ypos);
 			virtual bool OnMouseClick(int button, double xpos, double ypos);
 
-			// output
-			friend std::ostream& operator<<(std::ostream& os, const hiObject& obj);
 
-			template <typename T, typename ... TArgs>
-			T& addComponent(TArgs&&... mArgs)
+			static std::unordered_map<std::string, std::function<Widget()>>& registry()
 			{
-				T* c(new T(std::forward<TArgs>(mArgs)...));
-				c->
-
-			}
-
-			static std::unordered_map<std::string, std::function<hiObject()>>& registry()
-			{
-				static std::unordered_map<std::string, std::function<hiObject()>> registry;
+				static std::unordered_map<std::string, std::function<Widget()>> registry;
 				return registry;
 			}
 
-			template <typename T> bool hasComponent() const
-			{
-				return component_bitset[getComponentID<T>];
-			}
+			Behavior behavior;
+			Transform transform;
+
+			virtual ~GUIObjectBase() = default;
 
 		protected:
-			void AddChild(hiObject obj_ptr) { children.push_back(obj_ptr); }
+			void AddChild(Widget w) { children.push_back(w); }
 
-			hiObject MouseIn(glm::vec2 point, GLFWwindow* win);
+			Widget MouseIn(glm::vec2 point, GLFWwindow* win);
 
-			std::vector<hiObject> children;
-			hiObject parent;
-			glm::mat4 model;
+			std::vector<Widget> children;
+			Widget parent;
 
-			std::vector<std::unique_ptr<Component>> components;
-
+		private:
 			// internal
-				// friends~
-				friend class DOM;
-				friend class Markup;
+			// friends~
+			friend class DOM;
+			friend class Markup;
 
-				// basic rectangle
-				static float vertices[12];
-				static unsigned int indices[6];
-
-				// components
-				ComponentBitSet component_bitset;
-				ComponentArray component_array;
+			// basic rectangle
+			static float vertices[12];
+			static unsigned int indices[6];
 		};
 	} // end of 'internal' namespace
+
+	class GUIObject : public internal::GUIObjectBase
+	{
+
+	};
 }
 
 #endif // Hi_GUI_OBJECT_H

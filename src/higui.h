@@ -3,16 +3,15 @@
 
 #include "DOM.h"
 
-namespace higui
+namespace hi
 {
-	namespace internal {
-		class GlobalInitializer {
-		public:
-			GlobalInitializer();
-		};
-	}
-
 	
+	class BoolRoot {
+	public:
+		BoolRoot();
+
+		static bool capture_glfw_callbacks;
+	};
 }
 
 #endif // Hi_GUI_H
