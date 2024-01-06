@@ -8,6 +8,7 @@
 
 namespace hi
 {
+	// this class a shit, so will be rewritten in the future
 	class Markup
 	{
 	public:

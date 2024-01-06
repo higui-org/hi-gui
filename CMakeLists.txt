@@ -10,28 +10,28 @@ endif()
 
 set(SOURCES
     src/main.cpp
-    src/higui.h
-    src/higui.cpp
-    src/hitypes.h
-    src/hitypes.cpp
-    src/shader.cpp
-    src/shader.h
+    #src/higui.h
+    #src/higui.cpp
+    #src/hitypes.h
+    #src/hitypes.cpp
+    #src/shader.cpp
+    #src/shader.h
     src/markup.cpp
     src/markup.h
-    src/object.cpp
-    src/object.h
-    src/attribute.h
-    src/attribute.cpp
-    src/DOM.h
-    src/DOM.cpp    
-    src/component.cpp
-    src/component.h
+    #src/object.cpp
+    #src/object.h
+    #src/attribute.h
+    #src/attribute.cpp
+    #src/DOM.h
+    #src/DOM.cpp    
+    #src/component.cpp
+    #src/component.h
 )
 
 set(THIRD_PARTY
-    3rd_party/stb/stb.cpp
-    3rd_party/glad/glad.c
-    3rd_party/glad/glad.h
+    #3rd_party/stb/stb.cpp
+    #3rd_party/glad/glad.c
+    #3rd_party/glad/glad.h
 )
 
 source_group("Source Files" FILES ${SOURCES})

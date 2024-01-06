@@ -2,13 +2,14 @@
 #include <GLFW/glfw3.h>
 #include <chrono>
 
-#include "higui.h"
+//#include "higui.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
+	/*
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -35,17 +36,13 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+	*/
 
 	// higui
-	hi::AttributeContainer cont;
-	
-	hi::BoolRoot::capture_glfw_callbacks = false;
 
-
-	cont.attr("cnota");
-	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// main cycle
+	/*
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -61,7 +58,7 @@ int main()
     dom.Delete();
 
     glfwTerminate();
-	
+	*/
 
     return 0;
 }

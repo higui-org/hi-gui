@@ -4,6 +4,10 @@
 #include <iostream>
 #include <chrono>
 
+// glfw
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "markup.h"
 #include "component.h"
 
