@@ -1,62 +1,49 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 
+# higui 24.0
 set(PROJECT_NAME higui)
-project(${PROJECT_NAME} VERSION 1.0.0)
+project(${PROJECT_NAME} VERSION 24.0)
 set(CMAKE_CXX_STANDARD 17)
+set(GLAD_NAME glad_gl_compat_33)
+set(GLAD_GENERATE_PATH ${CMAKE_CURRENT_BINARY_DIR}/gladsources/${GLAD_NAME})
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	set(CMAKE_CXX_COMPILER /usr/bin/g++-8)
+# -----------------------------
+#           BUILDS
+if (CMAKE_BUILD_TYPE MATCHES Debug) # debug
+    add_definitions(-DDEBUG)
+elseif (CMAKE_BUILD_TYPE MATCHES Release) #release
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
+# -----------------------------
 
+# Sources
 set(SOURCES
     src/main.cpp
-    #src/higui.h
-    #src/higui.cpp
-    #src/hitypes.h
-    #src/hitypes.cpp
-    #src/shader.cpp
-    #src/shader.h
-    src/markup.cpp
-    src/markup.h
-    #src/object.cpp
-    #src/object.h
-    #src/attribute.h
-    #src/attribute.cpp
-    #src/DOM.h
-    #src/DOM.cpp    
-    #src/component.cpp
-    #src/component.h
+    ${GLAD_GENERATE_PATH}/src/gl.c
 )
 
-set(THIRD_PARTY
-    #3rd_party/stb/stb.cpp
-    #3rd_party/glad/glad.c
-    #3rd_party/glad/glad.h
-)
+# -----------------------------
+#          INCLUDE
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/glfw/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/glm)
+include_directories(${GLAD_GENERATE_PATH}/include)
 
-source_group("Source Files" FILES ${SOURCES})
-source_group("Elements Source Files" FILES ${TAG_CLASSES})
-source_group("3rd Party" FILES ${THIRD_PARTY})
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/glfw)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/glad/cmake)
+# -----------------------------
 
-add_executable(${PROJECT_NAME} 
-${SOURCES} 
-${TAG_CLASSES} 
-${THIRD_PARTY})
+# GLAD
+glad_add_library(${GLAD_NAME} SHARED API gl:compatibility=3.3)
 
+# Executable
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+# -----------------------------
+#          LINKING
 if(MSVC)
-	if("${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw3Rel64.lib)
-	endif()
-
-	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw3Rel32.lib)
-	endif()
+    target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME})
 else()
-	target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/lib/libglfw3.a)
-	#target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-	set(CMAKE_CXX_FLAGS "-std=c++17 -g")	
-	target_link_libraries(${PROJECT_NAME} dl m GL GLU X11 pthread stdc++fs)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME} dl m GL X11 pthread stdc++fs)
 endif()
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rd_party)
+# -----------------------------
