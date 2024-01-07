@@ -24,6 +24,9 @@ My goal is to blend simplicity with advanced functionality in UI design.
 
 ## Linux
 > curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+
 > python3 get-pip.py
+
 > pip3 install jinja2
+
 > sudo dnf install libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel
