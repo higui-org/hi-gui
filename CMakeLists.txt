@@ -20,6 +20,11 @@ endif()
 set(SOURCES
     src/main.cpp
     ${GLAD_GENERATE_PATH}/src/gl.c
+    
+    #parsers
+    src/parser/parser.cpp
+    src/parser/html.cpp
+    src/parser/sass.cpp
 )
 
 # -----------------------------
