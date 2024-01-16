@@ -18,7 +18,14 @@ public:
     bool read(const std::string& filename) noexcept override;
 
 private:
-    int CountIndentation(const std::string& line, int line_number);
+    void ShowError(
+        const std::string& filename, 
+        int line_number, 
+        int position, 
+        const std::string& message, 
+        const std::string& line) const;
+
+    int CountIndentation(const std::string& line);
 };
 
 } // namespace hi

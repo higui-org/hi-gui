@@ -43,6 +43,8 @@ private:
     WeakPointer parent;
 };
 
+std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag);
+
 class TagManager {
 public:
     inline void setRoot(Tag::Pointer root) noexcept { this->root = root; }

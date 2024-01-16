@@ -3,6 +3,27 @@
 namespace hi
 {
 
+std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag) {
+    os << tag->getName();
+    if (!tag->getId().empty()) {
+        os << ", ID: " << tag->getId();
+    }
+    if (!tag->getClass().empty()) {
+        os << ", Class: " << tag->getClass();
+    }
+
+    const auto& attributes = tag->getAttributes();
+    if (!attributes.empty()) {
+        os << ", Attributes: {";
+        for (const auto& [key, value] : attributes) {
+            os << " " << key << ": " << value << ";";
+        }
+        os << " }";
+    }
+
+    return os;
+}
+
 // TagManager::printTree
 void TagManager::printTree(int depth) const noexcept
 {
@@ -13,7 +34,7 @@ void TagManager::printTree(const Tag::Pointer& tag, int depth) const noexcept
     if (!tag) return;
 
     std::string indent(depth * 2, ' ');
-    std::cout << indent << tag->getName() << std::endl;
+    std::cout << indent << tag << std::endl;
 
     for (const auto& child : tag->getChildren()) {
         printTree(child, depth + 1);
@@ -24,6 +45,7 @@ void TagManager::printTree(const Tag::Pointer& tag, int depth) const noexcept
 
 // Parser methods
 //
+
 bool Parser::write(const Tag::Pointer& where, const Tag& tag) {
     if (!where) return false;
 
