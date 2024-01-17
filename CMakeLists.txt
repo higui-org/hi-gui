@@ -9,11 +9,20 @@ set(GLAD_GENERATE_PATH ${CMAKE_CURRENT_BINARY_DIR}/gladsources/${GLAD_NAME})
 
 # -----------------------------
 #           BUILDS
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE) # Set Debug and Release configurations
+
 if (CMAKE_BUILD_TYPE MATCHES Debug) # debug
     add_definitions(-DDEBUG)
 elseif (CMAKE_BUILD_TYPE MATCHES Release) #release
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
+
+# Set specific flags for MSVC
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+endif()
+
 # -----------------------------
 
 # Sources
@@ -23,8 +32,8 @@ set(SOURCES
     
     #parsers
     src/parser/parser.cpp
-    src/parser/html.cpp
-    src/parser/sass.cpp
+    src/parser/markup.cpp
+    src/parser/style.cpp
 )
 
 # -----------------------------
@@ -44,11 +53,16 @@ glad_add_library(${GLAD_NAME} SHARED API gl:compatibility=3.3)
 # Executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+
 # -----------------------------
 #          LINKING
 if(MSVC)
     target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME})
+elseif(APPLE)
+    # Specific libraries for macOS
+    target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME} "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
 else()
+    # For Linux and other Unix-like systems
     target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME} dl m GL X11 pthread stdc++fs)
 endif()
 # -----------------------------

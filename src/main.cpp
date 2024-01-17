@@ -1,11 +1,11 @@
-﻿#include "parser/html.h"
+﻿#include "higui/parser/markup.h"
 
 #include <iostream>
 
 int main()
 {
     hi::HIML himl;
-    himl.read("html.html");
+    himl.read("markup.himl");
     himl.getTagManager().printTree();
     
     

@@ -1,4 +1,4 @@
-#include "higui.h"
+#include "higui/higui.h"
 
 namespace hi
 {
