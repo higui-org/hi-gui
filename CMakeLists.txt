@@ -29,11 +29,14 @@ endif()
 set(SOURCES
     src/main.cpp
     ${GLAD_GENERATE_PATH}/src/gl.c
-    
-    #parsers
     src/parser/parser.cpp
-    src/parser/markup.cpp
-    src/parser/style.cpp
+
+    #explicit MARKUP parser: HIML
+    src/parser/himl/himl.cpp
+    src/parser/himl/indent.cpp
+
+    #explicit STYLE parser: HIST
+    src/parser/hist/hist.cpp
 )
 
 # -----------------------------
