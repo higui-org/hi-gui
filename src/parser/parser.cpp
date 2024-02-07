@@ -173,8 +173,12 @@ ParsingException::ParsingException(
     line_number(line_number)
 {
     full_message = "ParsingException was thrown ";
-    if (!filename.empty()) full_message += "in file \"" + filename + "\" ";
-    if (line_number >= 0) full_message += "on line " + std::to_string(line_number);
+
+    if (!filename.empty()) 
+        full_message += "in file \"" + filename + "\" ";
+    if (line_number >= 0) 
+        full_message += "on line " + std::to_string(line_number);
+
     full_message += "\nWith message: " + message;
 }
 

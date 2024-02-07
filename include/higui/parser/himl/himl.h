@@ -15,21 +15,24 @@
  * associated methods and members.
  *
  * @author setbe
- * @version 24.1
- * @date 1/28/2024
+ * @version 24.2
+ * @date 2/2/2024
  */
 
 #ifndef HiGUI_PARSER_HIML_HIML_H
 #define HiGUI_PARSER_HIML_HIML_H
 
+// std
+#include <string>
+#include <vector>
 #include <fstream>
 #include <sstream>
-#include <optional>
 #include <set>
-#include <map>
 
-#include "higui/parser/parser.h"
-#include "higui/parser/himl/indent.h"
+// higuid
+#include "higui/parser/parser.h"        // parser.h
+#include "higui/parser/himl/line.h"     // line.h
+#include "higui/parser/himl/section.h"  // section.h
 
 namespace hi::parser::himl
 {
@@ -44,6 +47,11 @@ namespace hi::parser::himl
     class HIML : public Parser
     {
     public:
+        HIML(const std::string& filename)
+            : filename(filename), scope(0)
+        {
+            read(filename);
+        }
         /**
          * @brief Reads and parses a HIML file.
          * @param filename The path of the HIML file to be parsed.
@@ -51,9 +59,22 @@ namespace hi::parser::himl
         void read(const std::string& filename) override;
 
     private:
-        Tag::Pointer root; ///< The root tag of the parsed HIML structure.
-    };
+        std::string filename; ///< The filename of the HIML document.
+        std::vector<Section> sections; ///< Map storing the sections of the HIML file.
+        std::set<std::string> imported_files; ///< Tracks filenames that have been imported to avoid duplication
 
-} // namespace hi::parser::himl
+        Tag::Pointer root; ///< The root tag of the parsed HIML structure.
+        Line scope; ///< Tracks scope based on indentation levels
+
+        // Extracts a section or tag name from a line
+        std::string ExtractName(const Line& line, int line_num = -1);
+
+        // Processes an import directive
+        void ProcessImport(std::ifstream& fstream, const std::string& section_name, int line_num = -1);
+
+        // Processes a section, reading its contents
+        void ProcessSection(std::ifstream& fstream, const std::string& section_name, int line_num = -1);
+    };
+}
 
 #endif // HiGUI_PARSER_HIML_HIML_H

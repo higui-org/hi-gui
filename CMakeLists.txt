@@ -31,11 +31,12 @@ set(SOURCES
     ${GLAD_GENERATE_PATH}/src/gl.c
     src/parser/parser.cpp
 
-    #explicit MARKUP parser: HIML
+    # MARKUP parser: HIML
     src/parser/himl/himl.cpp
-    src/parser/himl/indent.cpp
+    src/parser/himl/line.cpp
+    src/parser/himl/section.cpp
 
-    #explicit STYLE parser: HIST
+    # STYLE parser: HIST
     src/parser/hist/hist.cpp
 )
 
@@ -53,9 +54,9 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/glad/cmake)
 # GLAD
 glad_add_library(${GLAD_NAME} SHARED API gl:compatibility=3.3)
 
+
 # Executable
 add_executable(${PROJECT_NAME} ${SOURCES})
-
 
 # -----------------------------
 #          LINKING

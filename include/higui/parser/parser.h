@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Parser.h
  * @brief Header file defining the base classes for the HiGUI parser module.
  *
@@ -116,6 +116,7 @@ namespace hi::parser
 
         virtual void read(const std::string& filename) = 0;
         bool write(const Tag::Pointer& where, const Tag& tag);
+
         Tag::Pointer find(const std::string& id) const;
         std::list<Tag::Pointer> findAll(const std::string& class_val) const;
 
