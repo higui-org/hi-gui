@@ -5,87 +5,71 @@ namespace hi::parser::himl
     // Reads and parses the HIML file
     void HIML::read(const std::string& filename) {
         std::ifstream file(filename);
-        if (!file.is_open()) {
+        if (!file.is_open())
             throw ParsingException("Couldn't open HIML file.", filename);
-        }
 
-        Line line;
-        while (getline(file, line)) {
+        std::string raw_line;
+
+        while (getline(file, raw_line)) 
+        {
+            this->line_number++;
+            Line line(raw_line, this->scope);
             if (line.StartsWith("["))
             {
-                std::string sec_name = ExtractName(line);
-                ProcessSection(file, sec_name);
+                ProcessSection(file, raw_line);
             }
         }
     }
 
     // Processes an import directive
-    void HIML::ProcessImport(std::ifstream& fstream, const std::string& section_name, int line_num) {
+    void HIML::ProcessImport(std::ifstream& fstream, const std::string& raw_line)
+    {
         // Implementation to handle import, including reading the specified file and section
     }
 
     // Processes a section, reading its contents into the sections map
-    void HIML::ProcessSection(std::ifstream& fstream, const std::string& section_name, int line_num) {
-
-        Line line;
-        std::vector<Line> section_lines;
-
-        sections.push_back(Section(section_name));
+    void HIML::ProcessSection(std::ifstream& fstream, const std::string& section_start_line) 
+    {
+        sections.push_back(Section(section_start_line, filename, line_number));
 
         // The current indentation level for the section is determined by the first line of the section
-        size_t section_indentation_tabs = 0;
         bool is_first_line = true;
+        std::string raw_line;
 
-        while (std::getline(fstream, line)) {
+        while (std::getline(fstream, raw_line)) 
+        {
+            this->line_number++;        // increment line number
+            Line line(raw_line, sections.back().getIndent());   // create new Line object within section indent
+
             // Skip empty lines and detect the first non-empty line to determine indentation            
-            Line processed_line(line);
+            if (line.empty()) continue;
 
-            if (processed_line.empty()) continue;
-
-            if (is_first_line) {
+            if (is_first_line) 
+            {
                 // Adjust the spaces_per_tab based on the first non-empty line after the section name
-                size_t spaces_n = line.CountLeadingSpaces();
+                line.indent.setSpacesPerTab(Line::CountLeadingSpaces(raw_line));    // set line indent
+                sections.back().setIndent(line.indent); // set section's 'spaces per tab'
                 
+                line = Line(raw_line, line.indent);     // determine tabs by creating new object
                 is_first_line = false;
             }
-            else {
+            else 
+            {
                 // Check if the line has less indentation, signaling the end of the section
-                if (processed_line.getTabs() <= section_indentation_tabs) {
+                if (line.indent.getTabs() <= this->scope.getTabs()) 
+                {
                     // Move the file cursor back to allow the next method to read this line
-                    fstream.seekg(-static_cast<int>(line.length()) - 1, std::ios_base::cur);
+                    fstream.seekg(-static_cast<int>(line.length()) - 2, std::ios_base::cur);
+                    this->line_number--;
                     break;
                 }
 
                 // Adjust the line to the current indentation level in the main document
-                processed_line.setTabs(processed_line.getTabs() + scope.getTabs() - section_indentation_tabs);
+                line.indent.setTabs(line.indent.getTabs() + this->scope.getTabs());
             }
 
             // Adding the line to the sections map
-            sections.back().AddLine(processed_line);
+            sections.back().AddLine(line);
         }
-    }
-
-    // Private method for extracting the section name from the line
-    std::string HIML::ExtractName(const Line& line, int line_num)
-    {
-        // Assuming the format is '[name]', extract the name part
-        size_t start_bracket = line.find('[');
-        size_t end_bracket = line.find(']', start_bracket);
-
-        if (start_bracket == std::string::npos || end_bracket == std::string::npos) {
-            throw ParsingException("Syntax for section name is incorrect.", filename);
-        }
-
-        std::string name = line.substr(start_bracket + 1, end_bracket - start_bracket - 1);
-
-        Line temp(name);
-        temp.TrimSpaces();
-        name = temp;
-
-        if (name.empty()) {
-            throw ParsingException("Section name not found.", filename, line_num);
-        }
-
-        return name;
     }
 }

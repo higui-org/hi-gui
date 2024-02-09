@@ -3,166 +3,174 @@
 namespace hi::parser
 {
 /*
-         Tag Manager    :print methods
-
+          class DOM  
               |
               |
              \ /
 */
-void TagManager::printTree(int depth) const noexcept
-{
-    printTree(root, depth);
-}
-
-void TagManager::printTree(const Tag::Pointer& tag, int depth) const noexcept
-{
-    if (!tag) return;
-
-    std::string indent(depth * 2, ' ');
-    std::cout << indent << tag << std::endl;
-
-    for (const auto& child : tag->getChildren()) {
-        printTree(child, depth + 1);
+    void DOM::PrintTree(int depth) const noexcept
+    {
+        PrintTree(root, depth);
     }
-    std::cout << indent << "/" << tag->getName() << std::endl;
-}
+
+    void DOM::PrintTree(const Tag::Pointer& tag, int depth) const noexcept
+    {
+        if (!tag) return;
+
+        std::string indent(depth * 2, ' ');
+        std::cout << indent << tag << std::endl;
+
+        for (const auto& child : tag->getChildren()) {
+            PrintTree(child, depth + 1);
+        }
+        std::cout << indent << "/" << tag->getName() << std::endl;
+    }
 
 
 /*
-            Parser     :various methods (no getters/setters)
-
+            Parser methods
+      (no getters/setters)
               |
               |
              \ /
 */
-bool Parser::write(const Tag::Pointer& where, const Tag& tag) {
-    if (!where) return false;
+    bool Parser::write(const Tag::Pointer& where, const Tag& tag) {
+        if (!where) return false;
 
-    Tag::Pointer newTag = std::make_shared<Tag>(tag);
-    where->addChild(newTag);
+        Tag::Pointer newTag = std::make_shared<Tag>(tag);
+        where->addChild(newTag);
 
-    return true;
-}
-
-Tag::Pointer Parser::find(const std::string& id) const
-{
-    return findRecursive(getTagManager().getRoot(), id);
-}
-
-std::list<Tag::Pointer> Parser::findAll(const std::string& class_val) const
-{
-    std::list<Tag::Pointer> result;
-    findAllRecursive(getTagManager().getRoot(), class_val, result);
-    return result;
-}
-
-Tag::Pointer Parser::findRecursive(Tag::Pointer current, const std::string& id) {
-    if (!current) return nullptr;
-
-    if (current->getId() == id) return current;
-
-    for (const auto& child : current->getChildren())
-    {
-        Tag::Pointer result = findRecursive(child, id);
-        if (result) return result;
-    }
-    return nullptr;
-}
-
-void Parser::findAllRecursive(
-    Tag::Pointer current, 
-    const std::string& class_val, 
-    std::list<Tag::Pointer>& result) {
-    if (!current) return;
-
-    for (std::string& class_ : current->getClasses())
-    {
-        if (class_val == class_)
-            result.push_back(current);
+        return true;
     }
 
-    for (const auto& child : current->getChildren()) 
+    Tag::Pointer Parser::find(const std::string& id) const
     {
-        findAllRecursive(child, class_val, result);
+        return findRecursive(getTagManager().getRoot(), id);
     }
-}
+
+    std::list<Tag::Pointer> Parser::findAll(const std::string& class_val) const
+    {
+        std::list<Tag::Pointer> result;
+        findAllRecursive(getTagManager().getRoot(), class_val, result);
+        return result;
+    }
+
+    Tag::Pointer Parser::findRecursive(Tag::Pointer current, const std::string& id) {
+        if (!current) return nullptr;
+
+        if (current->getId() == id) return current;
+
+        for (const auto& child : current->getChildren())
+        {
+            Tag::Pointer result = findRecursive(child, id);
+            if (result) return result;
+        }
+        return nullptr;
+    }
+
+    void Parser::findAllRecursive(
+        Tag::Pointer current, 
+        const std::string& class_val, 
+        std::list<Tag::Pointer>& result) {
+        if (!current) return;
+
+        for (std::string& class_ : current->getClasses())
+        {
+            if (class_val == class_)
+                result.push_back(current);
+        }
+
+        for (const auto& child : current->getChildren()) 
+        {
+            findAllRecursive(child, class_val, result);
+        }
+    }
 
 
 /*      
-
-      SETTERS   GETTERS   ( various classes )
+          class Tag
+      setters   getters   
               |
               |
              \ /
 
-
-*//*
-
- class: Tag
 */
-void Tag::setName(const std::string& name) noexcept
-{ this->name = name; }
 
-void Tag::setId(const std::string& id) noexcept 
-{ this->id = id; }
+    // setters
+    void Tag::setName(const std::string& name) noexcept
+    { 
+        this->name = name; 
+    }
 
-void Tag::setClass(const std::string& class_val) noexcept 
-{ classes.push_back(class_val); }
+    void Tag::setId(const std::string& id) noexcept 
+    { 
+        this->id = id; 
+    }
 
-void Tag::addChild(Tag::Pointer child) noexcept 
-{ children.push_back(child); }
+    void Tag::setClass(const std::string& class_val) noexcept 
+    { 
+        classes.push_back(class_val); 
+    }
 
-void Tag::setAttribute(const std::string& key, const std::string& value) noexcept 
-{ attributes[key] = value; }
+    void Tag::addChild(Tag::Pointer child) noexcept 
+    { 
+        children.push_back(child); 
+    }
 
-void Tag::setText(const std::string& text) noexcept 
-{ this->text = text;  }
+    void Tag::setAttribute(const std::string& key, const std::string& value) noexcept 
+    { 
+        attributes[key] = value; 
+    }
 
-std::string Tag::getName() const noexcept 
-{ return name; }
+    void Tag::setText(const std::string& text) noexcept 
+    { 
+        this->text = text;  
+    }
 
-std::string Tag::getId() const noexcept 
-{ return id; }
 
-std::vector<std::string> Tag::getClasses() const noexcept 
-{ return classes; }
+    // getters
+    std::string Tag::getName() const noexcept 
+    { 
+        return name; 
+    }
 
-std::map<std::string, std::string> Tag::getAttributes() const noexcept 
-{ return attributes; }
+    std::string Tag::getId() const noexcept 
+    { 
+        return id; 
+    }
 
-std::vector<Tag::Pointer> Tag::getChildren() const noexcept 
-{ return children; }
+    std::vector<std::string> Tag::getClasses() const noexcept 
+    { 
+        return classes; 
+    }
 
-std::string Tag::getText() const noexcept 
-{ return text; }
-/*
- 
- TagManager  
-*/
-TagManager& Parser::getTagManager() const noexcept 
-{ return tag_manager; }
+    std::map<std::string, std::string> Tag::getAttributes() const noexcept 
+    { 
+        return attributes; 
+    }
 
-void TagManager::setRoot(Tag::Pointer root) noexcept
-{
-    this->root = root;
-}
+    std::vector<Tag::Pointer> Tag::getChildren() const noexcept 
+    { 
+        return children; 
+    }
 
-Tag::Pointer TagManager::getRoot() const noexcept
-{
-    return this->root;
-}
-
+    std::string Tag::getText() const noexcept 
+    { 
+        return text; 
+    }
 /*
              / \
               |
               |
-      SETTERS   GETTERS
+      setters   getters
+         class Tag
 */
+
 
 
 /*
 
- class: ParsingException
+   class ParsingException
 */
 ParsingException::ParsingException(
     const std::string& message,
@@ -179,7 +187,7 @@ ParsingException::ParsingException(
     if (line_number >= 0) 
         full_message += "on line " + std::to_string(line_number);
 
-    full_message += "\nWith message: " + message;
+    full_message += ":\n\t" + message;
 }
 
 const char* ParsingException::what() const noexcept

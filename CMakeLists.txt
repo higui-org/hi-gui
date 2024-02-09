@@ -31,6 +31,9 @@ set(SOURCES
     ${GLAD_GENERATE_PATH}/src/gl.c
     src/parser/parser.cpp
 
+    src/obj/transform.cpp
+    src/obj/object.cpp
+
     # MARKUP parser: HIML
     src/parser/himl/himl.cpp
     src/parser/himl/line.cpp

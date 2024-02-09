@@ -44,9 +44,9 @@ namespace hi::parser
          * @brief Construct a new Tag object.
          * @param name The name of the tag.
          */
-        explicit Tag(const std::string& name);
+        explicit Tag(const std::string& name) : name(name) {}
 
-        // Setters
+        // setters
         void setName(const std::string& name) noexcept;
         void setId(const std::string& id) noexcept;
         void setClass(const std::string& class_val) noexcept;
@@ -55,7 +55,7 @@ namespace hi::parser
         void setText(const std::string& text) noexcept;
         // -------
 
-        // Getters
+        // getters
         std::string getName() const noexcept;
         std::string getId() const noexcept;
         std::vector<std::string> getClasses() const noexcept;
@@ -82,21 +82,22 @@ namespace hi::parser
      */
     std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag);
 
+
     /**
-     * @class TagManager
+     * @class DOM
      * @brief Manages a tree of Tag objects.
      *
      * Provides functionality to manipulate and navigate a tree of Tag objects.
      * It includes methods for printing the tree structure and accessing the root tag.
      */
-    class TagManager
+    class DOM
     {
     public:
-        void setRoot(Tag::Pointer root) noexcept;
-        Tag::Pointer getRoot() const noexcept;
+        void setRoot(Tag::Pointer root) noexcept { this->root = root; }
+        Tag::Pointer getRoot() const noexcept { return root; }
 
-        void printTree(const Tag::Pointer& tag, int depth = 0) const noexcept;
-        void printTree(int depth = 0) const noexcept;
+        void PrintTree(const Tag::Pointer& tag, int depth = 0) const noexcept;
+        void PrintTree(int depth = 0) const noexcept;
 
     private:
         mutable Tag::Pointer root;  ///< Root of the tag tree, mutable for const method modifications.
@@ -120,10 +121,10 @@ namespace hi::parser
         Tag::Pointer find(const std::string& id) const;
         std::list<Tag::Pointer> findAll(const std::string& class_val) const;
 
-        TagManager& getTagManager() const noexcept;
+        DOM& getTagManager() const noexcept { return tag_manager; }
 
     private:
-        mutable TagManager tag_manager;  ///< Tag manager for managing parsed tags, mutable for const method modifications.
+        mutable DOM tag_manager;  ///< Tag manager for managing parsed tags, mutable for const method modifications.
 
         static Tag::Pointer findRecursive(Tag::Pointer current, const std::string& id);
         static void findAllRecursive(Tag::Pointer current, const std::string& class_val, std::list<Tag::Pointer>& result);

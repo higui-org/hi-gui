@@ -25,135 +25,86 @@
 #define HiGUI_PARSER_HIML_LINE_H
 
 #include <string>
+#include <algorithm> // for std::count
 
 #include "higui/parser/parser.h" // include for ParsingException only.
 
-/*
-// Example Usage of Line Class
-
-#include "higui/parser/himl/line.h"
-
-#include <iostream>
-
-using namespace hi;
-using namespace parser;
-
-int main() {
-    std::string filename = "example_file.himl";
-    size_t line_number = 5;
-
-    try {
-        // Counting the number of leading spaces in the line, which is assumed to be equivalent to one tab.
-        // In this case, we are assuming 4 spaces equal one tab.
-        size_t tab_line_size = himl::Line::CountLeadingSpaces("    line with one tab", filename, line_number);
-
-        // Creating an Indent object using a string and the previously calculated tab line size.
-        // This example uses a line with 4 leading spaces, which, according to our previous assumption, is considered one tab.
-        std::string custom_line = "    Line with leading spaces";
-
-        Line custom(custom_line, tab_line_size, filename, line_number);
-        // The "custom" object will have 1 tab in total, as tab_line_size declares 4 spaces as 1 tab.
-    }
-    catch (const ParsingException& e) {
-        std::cerr << "Parsing exception: " << e.what() << std::endl;
-    }
-
-    return 0;
-}
-*/
 
 namespace hi::parser::himl
 {
     /**
+     * @class Indent
+     * @brief Manages text indentation.
+     *
+     * The Indent class represents the type of indentation (TAB or 1-4 spaces in place of a tab)
+     * and the number of indentations. It includes `spaces_per_tab`, which indicates
+     * the number of spaces equivalent to one tab.
+     */
+    class Indent {
+    public:
+        /**
+         * @brief Constructor for creating an Indent object.
+         * @param spaces_per_tab Number of spaces representing one complete tab.
+         *                       Defaults to 4.
+         */
+        explicit Indent(size_t spaces_per_tab = 4)
+            : tabs(0), spaces_per_tab(spaces_per_tab)
+        {}
+
+        /**
+         * @brief Counts the number of tabs based on the given string.
+         * @param str String to analyze.
+         * @return The number of full tabs in the string.
+         */
+        void DetermineTabsFrom(const std::string& str) noexcept;
+
+        /**
+         * @brief Sets the number of spaces representing one complete tab.
+         * @param spaces_per_tab The new number of spaces per tab.
+         */
+        void setSpacesPerTab(size_t spaces_per_tab) noexcept { this->spaces_per_tab = spaces_per_tab; }
+
+        /**
+         * @brief Gets the number of spaces representing one complete tab.
+         * @return The number of spaces per tab.
+         */
+        size_t getSpacesPerTab() const noexcept { return spaces_per_tab; }
+
+        void setTabs(size_t tabs_num) noexcept { tabs = tabs_num; }
+
+        size_t getTabs() const noexcept { return tabs; }
+
+    private:
+        size_t spaces_per_tab; ///< Number of spaces equivalent to one tab.
+        size_t tabs;
+    };
+
+    /**
      * @class Line
      * @brief A class for internal development within higui.
      *
-     * The Line class represents the type of indentation used (TAB or 1-4 spaces as tab)
-     * and the count of indentations. It includes "spaces_per_tab" which indicates the
-     * number of spaces equivalent to one tab, assuming Indent::Type is Spaces.
+     * The Line class represents the type of indentation used (TAB or 1-4 spaces as a tab)
+     * and the count of indentations. It includes `spaces_per_tab` to indicate
+     * the number of spaces equivalent to one tab, assuming Indent::Type is Spaces.
      * By default, 1 TAB is considered equal to 4 spaces.
      */
-
-    class Line : public std::string
-    {
+    class Line : public std::string {
     public:
-        /**
-         * @brief Constructor for creating an Line object.
-         * @param spaces_per_tab The number of spaces that represent one complete tab.
-         *                       Defaults to 4.
-         */
-        explicit Line(size_t spaces_per_tab = 4);
+        Indent indent; ///< Object for managing indentation.
 
+        explicit Line() = delete;
 
         /**
-         * @brief Constructor for creating an Line object.
+         * @brief Constructor for creating a Line object.
          * @param line A single line of markup.
          * @param spaces_per_tab Indicates the number of spaces equivalent to a tab character from the given line.
-         * @param filename The name of the file containing the line.
-         * @param line_num The line number in the file.
          */
-        explicit Line(
-            const std::string& line,
-            size_t spaces_per_tab = 4,
-            const std::string& filename = "",
-            int line_num = -1
-        );
-
-
-
-        /**
-         * @brief CountLeadingSpaces counts leading spaces.
-         * @return The number of leading spaces in the line.
-         */
-        size_t CountLeadingSpaces() const noexcept;
-
-        static size_t CountLeadingSpaces(const std::string& str) noexcept;
-
-        /**
-        * @brief Trims leading and trailing spaces in line.
-        */
-        std::string TrimSpaces() noexcept;
-
-        static std::string TrimSpaces(const std::string& str) noexcept;
-
-
+        Line(const std::string& line, Indent indent);
 
         bool StartsWith(const std::string& str) const noexcept;
-
-
-        /**
-         * @brief getTabs gets the count of total full tabs.
-         * @return The total tabs of indentations.
-         */
-        size_t getTabs() const noexcept;
-
-        /**
-         * @brief setTabs sets the number of total full tabs.
-         * @param tabs_n The new number of spaces per tab.
-         */
-        void setTabs(size_t tabs) noexcept;
-
-        /**
-         * @brief getSpacesPerTab gets the number of spaces representing one complete tab.
-         * @return The number of spaces per tab.
-         */
-        size_t getSpacesPerTab() const noexcept;
-
-        /**
-         * @brief getLine gets the line without tabs.
-         * @return The line without tabs.
-         */
-        std::string getLine() const noexcept;
-
-        /**
-         * @brief setSpacesPerTab sets the number of spaces that represent one complete tab.
-         * @param spaces_per_tab The new number of spaces per tab.
-         */
-        void setSpacesPerTab(size_t spaces_per_tab) noexcept;
-
-    private:
-        size_t total_tabs;     ///< The count of indentations.
-        size_t spaces_per_tab; ///< The number of spaces equivalent to one tab.
+        
+        static std::string Trim(const std::string& str) noexcept;
+        static size_t CountLeadingSpaces(const std::string& str) noexcept;
     };
 
 } // namespace hi::parser::himl

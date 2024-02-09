@@ -13,7 +13,7 @@ public:
     Transform() noexcept
         : position(0.0f), rotation(glm::quat()), scale(1.0f) {}
 
-    glm::mat4 GetTransformationMatrix() const noexcept {
+    glm::mat4 GetTransformMatrix() const noexcept {
         glm::mat4 pos_matrix = glm::translate(glm::mat4(1.0f), position);
         glm::mat4 scale_matrix = glm::scale(glm::mat4(1.0f), scale);
         glm::mat4 rot_matrix = glm::toMat4(rotation);
@@ -21,16 +21,17 @@ public:
         return pos_matrix * rot_matrix * scale_matrix;
     }
 
-    // set/get position
-    void setPosition(const glm::vec3& pos) noexcept { position = pos; }
+    // position
+    void Teleport(const glm::vec3& pos) noexcept { position = pos; }
+    void Translate(const glm::vec3& m) noexcept { position += m; }
     const glm::vec3& getPosition() const noexcept { return position; }
 
-    // set/get rotation (using quaternions)
-    void setRotation(const glm::quat& rot) noexcept { rotation = rot; }
+    // rotation (using quaternions)
+    void Rotate(const glm::quat& rot) noexcept { rotation = rot; }
     const glm::quat& getRotation() const noexcept { return rotation; }
 
-    // set/get scale
-    void setScale(const glm::vec3& scl) noexcept { scale = scl; }
+    // scale
+    void Scale(const glm::vec3& scl) noexcept { scale = scl; }
     const glm::vec3& getScale() const noexcept { return scale; }
 
 private:
