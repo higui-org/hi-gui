@@ -3,9 +3,15 @@
 using namespace hi::parser;
 
 int main() {
-    himl::Parser parser("markup.himl");
-    parser.getDOM().PrintTree();
-
+    try
+    {
+        himl::Parser parser("markup.himl");
+        parser.getDOM().PrintTree();
+    }
+    catch (const ParsingException& pe)
+    {
+        std::cerr << pe.what() << std::endl;
+    }
     
 
     return 0;

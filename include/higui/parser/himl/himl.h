@@ -48,7 +48,7 @@ namespace hi::parser::himl
     {
     public:
         Parser(const std::string& filename)
-            : filename(filename), scope(), line_number(0)
+            : filename(filename), scope()
         {
             read(filename);
         }
@@ -60,7 +60,6 @@ namespace hi::parser::himl
 
     private:
         std::string filename; ///< The filename of the HIML document.
-        int line_number;
         std::vector<Section> sections; ///< Vector storing the sections of the HIML file.
         std::set<std::string> imported_files; ///< Tracks filenames that have been imported to avoid duplication
 
@@ -68,10 +67,10 @@ namespace hi::parser::himl
         Indent scope; ///< Tracks scope based on indentation levels
 
         // Processes an import directive
-        void ProcessImport(std::ifstream& fstream, const std::string& raw_line);
+        void ProcessImport(std::ifstream& fstream, const std::string& raw_line, const std::string& filename, int& line_number);
 
         // Processes a section, reading its contents
-        void ProcessSection(std::ifstream& fstream, const std::string& raw_line);
+        void ProcessSection(std::ifstream& fstream, const std::string& raw_line, const std::string& filename, int& line_number);
     };
 }
 

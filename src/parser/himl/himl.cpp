@@ -9,6 +9,7 @@ void Parser::read(const std::string& filename) {
         throw ParsingException("Couldn't open HIML file.", filename);
 
     std::string raw_line;
+    int line_number = 0;
 
     while (getline(file, raw_line)) 
     {
@@ -19,45 +20,52 @@ void Parser::read(const std::string& filename) {
             // remove BOM in raw_line
             raw_line = raw_line.substr(3);
         }
-        this->line_number++;
+        line_number++;
         Line line(raw_line, this->scope);
 
         if (line.StartsWith("import"))
         {
-            ProcessImport(file, raw_line);
+            ProcessImport(file, raw_line, filename, line_number);
         }
         else if (line.StartsWith("["))
         {
-            ProcessSection(file, raw_line);
+            ProcessSection(file, raw_line, filename, line_number);
         }
     }
 }
 
 // Processes an import directive
-void Parser::ProcessImport(std::ifstream& fstream, const std::string& raw_line) {
-    size_t start_pos = raw_line.find("\"") + 1; // begin filename
-    size_t end_pos = raw_line.rfind("\""); // end filename
-    if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
-        throw ParsingException("Invalid import syntax", raw_line);
+void Parser::ProcessImport(std::ifstream& fstream, const std::string& raw_line, const std::string& filename, int& line_number) {
+    size_t start_pos = raw_line.find("import") + 6; // "import" has 6 letters
+    start_pos = raw_line.find_first_not_of(" ", start_pos);
+
+    if (start_pos == std::string::npos) 
+    {
+        throw ParsingException("Invalid import syntax:\n\t\tLine: " + raw_line, filename, line_number);
     }
 
-    std::string import_filename = raw_line.substr(start_pos, end_pos - start_pos);
+    std::string import_path = raw_line.substr(start_pos);
+    std::replace(import_path.begin(), import_path.end(), '.', '/'); // replace with slashes
+    import_path += ".himl"; // add file format
+
+    std::string directory = filename.substr(0, filename.find_last_of("/\\") + 1);
+    std::string full_import_path = directory + import_path;
 
     // Check imported
-    if (imported_files.find(import_filename) != imported_files.end()) {
+    if (imported_files.find(full_import_path) != imported_files.end()) {
         // ignore imported
         return;
     }
 
     // add imported
-    imported_files.insert(import_filename);
+    imported_files.insert(full_import_path);
 
     // recursive read file
-    read(import_filename);
+    read(full_import_path);
 }
 
 // Processes a section, reading its contents into the sections map
-void Parser::ProcessSection(std::ifstream& fstream, const std::string& section_start_line)
+void Parser::ProcessSection(std::ifstream& fstream, const std::string& section_start_line, const std::string& filename, int& line_number)
 {
     sections.push_back(Section(section_start_line, filename, line_number));
 
@@ -67,7 +75,7 @@ void Parser::ProcessSection(std::ifstream& fstream, const std::string& section_s
 
     while (std::getline(fstream, raw_line))
     {
-        this->line_number++;        // increment line number
+        line_number++;        // increment line number
         Line line(raw_line, sections.back().getIndent());   // create new Line object within section indent
 
         // Skip empty lines and detect the first non-empty line to determine indentation            
@@ -89,7 +97,7 @@ void Parser::ProcessSection(std::ifstream& fstream, const std::string& section_s
             {
                 // Move the file cursor back to allow the next method to read this line
                 fstream.seekg(-static_cast<int>(line.length()) - 2, std::ios_base::cur);
-                this->line_number--;
+                line_number--;
                 break;
             }
 
