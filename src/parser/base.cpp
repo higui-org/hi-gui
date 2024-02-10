@@ -3,10 +3,10 @@
 namespace hi::parser
 {
 /*
-          class DOM  
-              |
-              |
-             \ /
+            class DOM
+                |
+                |
+                \ /
 */
 void DOM::PrintTree(int depth) const noexcept
 {
@@ -69,8 +69,8 @@ Tag::Pointer ParserBase::findRecursive(Tag::Pointer current, const std::string& 
 }
 
 void ParserBase::findAllRecursive(
-    Tag::Pointer current, 
-    const std::string& class_val, 
+    Tag::Pointer current,
+    const std::string& class_val,
     std::list<Tag::Pointer>& result) {
     if (!current) return;
 
@@ -80,16 +80,16 @@ void ParserBase::findAllRecursive(
             result.push_back(current);
     }
 
-    for (const auto& child : current->getChildren()) 
+    for (const auto& child : current->getChildren())
     {
         findAllRecursive(child, class_val, result);
     }
 }
 
 
-/*      
+/*
         class Tag
-    setters   getters   
+    setters   getters
             |
             |
             \ /
@@ -98,93 +98,93 @@ void ParserBase::findAllRecursive(
 
 // setters
 void Tag::setName(const std::string& name) noexcept
-{ 
-    this->name = name; 
+{
+    this->name = name;
 }
 
-void Tag::setId(const std::string& id) noexcept 
-{ 
-    this->id = id; 
+void Tag::setId(const std::string& id) noexcept
+{
+    this->id = id;
 }
 
-void Tag::setClass(const std::string& class_val) noexcept 
-{ 
-    classes.push_back(class_val); 
+void Tag::setClass(const std::string& class_val) noexcept
+{
+    classes.push_back(class_val);
 }
 
-void Tag::addChild(Tag::Pointer child) noexcept 
-{ 
-    children.push_back(child); 
+void Tag::addChild(Tag::Pointer child) noexcept
+{
+    children.push_back(child);
 }
 
-void Tag::setAttribute(const std::string& key, const std::string& value) noexcept 
-{ 
-    attributes[key] = value; 
+void Tag::setAttribute(const std::string& key, const std::string& value) noexcept
+{
+    attributes[key] = value;
 }
 
-void Tag::setText(const std::string& text) noexcept 
-{ 
-    this->text = text;  
+void Tag::setText(const std::string& text) noexcept
+{
+    this->text = text;
 }
 
 
 // getters
-std::string Tag::getName() const noexcept 
-{ 
-    return name; 
+std::string Tag::getName() const noexcept
+{
+    return name;
 }
 
-std::string Tag::getId() const noexcept 
-{ 
-    return id; 
+std::string Tag::getId() const noexcept
+{
+    return id;
 }
 
-std::vector<std::string> Tag::getClasses() const noexcept 
-{ 
-    return classes; 
+std::vector<std::string> Tag::getClasses() const noexcept
+{
+    return classes;
 }
 
-std::map<std::string, std::string> Tag::getAttributes() const noexcept 
-{ 
-    return attributes; 
+std::map<std::string, std::string> Tag::getAttributes() const noexcept
+{
+    return attributes;
 }
 
-std::vector<Tag::Pointer> Tag::getChildren() const noexcept 
-{ 
-    return children; 
+std::vector<Tag::Pointer> Tag::getChildren() const noexcept
+{
+    return children;
 }
 
-std::string Tag::getText() const noexcept 
-{ 
-    return text; 
+std::string Tag::getText() const noexcept
+{
+    return text;
 }
 /*
-             / \
-              |
-              |
-      setters   getters
-         class Tag
+                / \
+                |
+                |
+        setters   getters
+            class Tag
 */
 
 
 
 /*
 
-   class ParsingException
+    class ParsingException
 */
 ParsingException::ParsingException(
     const std::string& message,
     const std::string& filename,
     int line_number
-    )
+)
     : filename(filename),
     line_number(line_number)
 {
     full_message = "ParsingException was thrown ";
 
-    if (!filename.empty()) 
+    if (!filename.empty())
         full_message += "in file \"" + filename + "\" ";
-    if (line_number >= 0) 
+    if (line_number >= 0)
         full_message += "on line " + std::to_string(line_number);
 
     full_message += ":\n\t" + message;
@@ -209,10 +209,10 @@ int ParsingException::getLineNumber() const noexcept
 
 
 /*
-  
- reloaded '<<' for Tag output
+
+    reloaded '<<' for Tag output
 */
-std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag) 
+std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag)
 {
     // Check if the tag object exists. If it doesn't, output "Null Tag" and a new line.
     if (!tag) {
@@ -232,7 +232,7 @@ std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag)
     if (!tag->getText().empty()) {
         os << "Text: " << tag->getText() << "\n";
     }
-                    
+
     // Check if the classes of the tag are not empty, and output them.
     // Loop through each class name and output it followed by a space.
     if (!tag->getClasses().empty()) {
