@@ -1,7 +1,5 @@
 ﻿#include "higui/parser/parser.h"
 
-#include <iostream>
-
 using namespace hi::parser;
 
 int main() {

@@ -188,8 +188,8 @@ public:
 
 
 private:
-    Indent indent; ///< Object for managing indentation for all lines.
     std::string name; ///< The name of the section.
+    Indent indent; ///< Object for managing indentation for all lines.
     std::vector<Line> lines; ///< Container holding all lines within the section.
 };
 

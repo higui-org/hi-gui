@@ -6,7 +6,7 @@ namespace hi::parser
             class DOM
                 |
                 |
-                \ /
+               \ /
 */
 void DOM::PrintTree(int depth) const noexcept
 {
@@ -32,7 +32,7 @@ void DOM::PrintTree(const Tag::Pointer& tag, int depth) const noexcept
     (no getters/setters)
             |
             |
-            \ /
+           \ /
 */
 bool ParserBase::write(const Tag::Pointer& where, const Tag& tag) {
     if (!where) return false;
@@ -92,7 +92,7 @@ void ParserBase::findAllRecursive(
     setters   getters
             |
             |
-            \ /
+           \ /
 
 */
 
@@ -159,7 +159,7 @@ std::string Tag::getText() const noexcept
     return text;
 }
 /*
-                / \
+               / \
                 |
                 |
         setters   getters
@@ -246,4 +246,4 @@ std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag)
     return os;
 }
 
-} // namespace 'hi::parse'
+} // namespace 'hi::parser'

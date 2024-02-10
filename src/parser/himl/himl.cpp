@@ -12,9 +12,21 @@ void Parser::read(const std::string& filename) {
 
     while (getline(file, raw_line)) 
     {
+        if (raw_line.size() >= 3 && 
+            (unsigned char)raw_line[0] == 0xEF && 
+            (unsigned char)raw_line[1] == 0xBB && 
+            (unsigned char)raw_line[2] == 0xBF) {
+            // remove BOM in raw_line
+            raw_line = raw_line.substr(3);
+        }
         this->line_number++;
         Line line(raw_line, this->scope);
-        if (line.StartsWith("["))
+
+        if (line.StartsWith("import"))
+        {
+            ProcessImport(file, raw_line);
+        }
+        else if (line.StartsWith("["))
         {
             ProcessSection(file, raw_line);
         }
@@ -22,9 +34,26 @@ void Parser::read(const std::string& filename) {
 }
 
 // Processes an import directive
-void Parser::ProcessImport(std::ifstream& fstream, const std::string& raw_line)
-{
-    // Implementation to handle import, including reading the specified file and section
+void Parser::ProcessImport(std::ifstream& fstream, const std::string& raw_line) {
+    size_t start_pos = raw_line.find("\"") + 1; // begin filename
+    size_t end_pos = raw_line.rfind("\""); // end filename
+    if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
+        throw ParsingException("Invalid import syntax", raw_line);
+    }
+
+    std::string import_filename = raw_line.substr(start_pos, end_pos - start_pos);
+
+    // Check imported
+    if (imported_files.find(import_filename) != imported_files.end()) {
+        // ignore imported
+        return;
+    }
+
+    // add imported
+    imported_files.insert(import_filename);
+
+    // recursive read file
+    read(import_filename);
 }
 
 // Processes a section, reading its contents into the sections map
