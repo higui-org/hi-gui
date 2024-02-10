@@ -263,7 +263,7 @@ namespace hi::parser
          * @param filename (Optional) The name of the file where the error occurred.
          * @param line_number (Optional) The line number in the file where the error was detected.
          */
-        ParsingException(const std::string& message, const std::string& filename = "", int line_number = -1);
+        ParsingException(const std::string& message, const std::string& line = "", const std::string& filename = "", int line_number = -1);
 
         /**
          * @brief Provides the error message including file name and line number if available.
@@ -285,6 +285,7 @@ namespace hi::parser
 
     private:
         std::string filename; ///< The name of the file where the error occurred.
+        std::string line; ///< The markup line.
         int line_number; ///< The line number at which the error was detected.
         std::string full_message; ///< The full error message.
     };

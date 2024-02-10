@@ -27,14 +27,14 @@ std::string Section::ExtractName(const std::string& raw_line, const std::string&
     size_t end_bracket = raw_line.find(']', start_bracket);
 
     if (start_bracket == std::string::npos || end_bracket == std::string::npos)
-        throw ParsingException("Syntax for section name is incorrect: \n\t\tSection line: \"" + raw_line + "\"\n", filename, line_num);
+        throw ParsingException("Syntax for section name is incorrect", raw_line, filename, line_num);
 
     std::string name = raw_line.substr(start_bracket + 1, end_bracket - start_bracket - 1);
 
     name = Line::Trim(name);
 
     if (name.empty())
-        throw ParsingException("Section name not found.", filename, line_num);
+        throw ParsingException("Section name not found", raw_line, filename, line_num);
 
     return name;
 }

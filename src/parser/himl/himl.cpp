@@ -6,20 +6,27 @@ namespace hi::parser::himl
 void Parser::read(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open())
-        throw ParsingException("Couldn't open HIML file.", filename);
+        throw ParsingException("Couldn't open HIML file.", "", filename);
 
     std::string raw_line;
     int line_number = 0;
 
+    getline(file, raw_line);
+    if (raw_line.size() >= 3 &&
+        (unsigned char)raw_line[0] == 0xEF &&
+        (unsigned char)raw_line[1] == 0xBB &&
+        (unsigned char)raw_line[2] == 0xBF) {
+        // remove BOM
+
+        file.seekg(-static_cast<size_t>(raw_line.length()) + 1, std::ios_base::cur);
+    }
+    else 
+    {
+        file.seekg(-static_cast<size_t>(raw_line.length()) - 2, std::ios_base::cur);
+    }
+
     while (getline(file, raw_line)) 
     {
-        if (raw_line.size() >= 3 && 
-            (unsigned char)raw_line[0] == 0xEF && 
-            (unsigned char)raw_line[1] == 0xBB && 
-            (unsigned char)raw_line[2] == 0xBF) {
-            // remove BOM in raw_line
-            raw_line = raw_line.substr(3);
-        }
         line_number++;
         Line line(raw_line, this->scope);
 
@@ -32,6 +39,8 @@ void Parser::read(const std::string& filename) {
             ProcessSection(file, raw_line, filename, line_number);
         }
     }
+
+    file.close();
 }
 
 // Processes an import directive
@@ -41,14 +50,14 @@ void Parser::ProcessImport(std::ifstream& fstream, const std::string& raw_line, 
 
     if (start_pos == std::string::npos) 
     {
-        throw ParsingException("Invalid import syntax:\n\t\tLine: " + raw_line, filename, line_number);
+        throw ParsingException("Invalid import syntax", raw_line, filename, line_number);
     }
 
     std::string import_path = raw_line.substr(start_pos);
     std::replace(import_path.begin(), import_path.end(), '.', '/'); // replace with slashes
     import_path += ".himl"; // add file format
 
-    std::string directory = filename.substr(0, filename.find_last_of("/\\") + 1);
+    std::string directory = this->filename.substr(0, this->filename.find_last_of("/\\") + 1);
     std::string full_import_path = directory + import_path;
 
     // Check imported
@@ -96,7 +105,7 @@ void Parser::ProcessSection(std::ifstream& fstream, const std::string& section_s
             if (line.indent.getTabs() <= this->scope.getTabs())
             {
                 // Move the file cursor back to allow the next method to read this line
-                fstream.seekg(-static_cast<int>(line.length()) - 2, std::ios_base::cur);
+                fstream.seekg(-static_cast<size_t>(line.length()) - 2, std::ios_base::cur);
                 line_number--;
                 break;
             }

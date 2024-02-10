@@ -174,20 +174,24 @@ std::string Tag::getText() const noexcept
 */
 ParsingException::ParsingException(
     const std::string& message,
+    const std::string& line,
     const std::string& filename,
     int line_number
 )
     : filename(filename),
     line_number(line_number)
 {
-    full_message = "ParsingException was thrown ";
+    full_message = "ParsingException was thrown";                   // "ParsingException was thrown"
 
     if (!filename.empty())
-        full_message += "in file \"" + filename + "\" ";
+        full_message += " in file \"" + filename + "\"";            // " in file "<filename>""
     if (line_number >= 0)
-        full_message += "on line " + std::to_string(line_number);
+        full_message += " on line " + std::to_string(line_number);  // " on line <line_number>"
 
-    full_message += ":\n\t" + message;
+    full_message += ":\n\t" + message;      // ":<new line><tab><message>"
+
+    if (!line.empty())
+        full_message += "\n\t\"" + line + "\"";                     // "<new line><tab>"line""
 }
 
 const char* ParsingException::what() const noexcept
