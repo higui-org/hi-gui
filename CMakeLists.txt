@@ -30,6 +30,7 @@ set(SOURCES
     src/main.cpp
     ${GLAD_GENERATE_PATH}/src/gl.c
     src/parser/parser.cpp
+    src/parser/base.cpp
 
     src/obj/transform.cpp
     src/obj/object.cpp

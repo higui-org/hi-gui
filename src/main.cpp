@@ -1,19 +1,14 @@
-﻿#include "higui/parser/himl/himl.h"
+﻿#include "higui/parser/parser.h"
 
 #include <iostream>
 
 using namespace hi::parser;
 
 int main() {
-    try
-    {
-        himl::HIML h("markup.himl");
-        himl::HIML h2("view.himl");
-    }
-    catch (ParsingException pe)
-    {
-        std::cerr << pe.what();
-    }
+    himl::Parser parser("markup.himl");
+    parser.getDOM().PrintTree();
+
+    
 
     return 0;
 }
