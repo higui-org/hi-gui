@@ -2,28 +2,12 @@ cmake_minimum_required(VERSION 3.20)
 
 # higui 24.0
 set(PROJECT_NAME higui)
-project(${PROJECT_NAME} VERSION 24.0)
+project(${PROJECT_NAME} VERSION 24.2)
+
 set(CMAKE_CXX_STANDARD 17)
+
 set(GLAD_NAME glad_gl_compat_33)
 set(GLAD_GENERATE_PATH ${CMAKE_CURRENT_BINARY_DIR}/gladsources/${GLAD_NAME})
-
-# -----------------------------
-#           BUILDS
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE) # Set Debug and Release configurations
-
-if (CMAKE_BUILD_TYPE MATCHES Debug) # debug
-    add_definitions(-DDEBUG)
-elseif (CMAKE_BUILD_TYPE MATCHES Release) #release
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-endif()
-
-# Set specific flags for MSVC
-if(MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-endif()
-
-# -----------------------------
 
 # Sources
 set(SOURCES
@@ -62,9 +46,30 @@ glad_add_library(${GLAD_NAME} SHARED API gl:compatibility=3.3)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # -----------------------------
+#           BUILDS
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /GL")
+else()
+    # GCC, Clang
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+endif()
+
+if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
+    if(MSVC)
+        # Visual Studio
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+    else()
+        # GCC or Clang
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+    endif()
+endif()
+
+# -----------------------------
+
+# -----------------------------
 #          LINKING
 if(MSVC)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME})
+    #target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME})
 elseif(APPLE)
     # Specific libraries for macOS
     target_link_libraries(${PROJECT_NAME} glfw ${GLAD_NAME} "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")

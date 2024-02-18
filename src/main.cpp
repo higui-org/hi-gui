@@ -1,18 +1,12 @@
 ﻿#include "higui/parser/parser.h"
 
-using namespace hi::parser;
-
-int main() {
-    try
-    {
-        himl::Parser parser("markup.himl");
-        parser.getDOM().PrintTree();
-    }
-    catch (const ParsingException& pe)
-    {
-        std::cerr << pe.what() << std::endl;
-    }
+int main(int argc, char* argv[]) 
+{
+    std::string filename = "markup.spag";
     
+    hi::Spaghetti spag(filename);
+      
+    system("pause");
 
     return 0;
 }

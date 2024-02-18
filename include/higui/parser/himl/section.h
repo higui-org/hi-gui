@@ -109,6 +109,10 @@ public:
     static std::string ExtractName(const std::string& raw_line, const std::string& filename = "", int line_num = -1);
 
 
+    void AddInlineSection(const Section& section);
+
+    const std::vector<Section>& getInlineSections() const;
+
     /*
         iterators
     setters   getters
@@ -188,6 +192,8 @@ public:
 
 
 private:
+    std::vector<Section> inline_sections;
+    std::shared_ptr<std::string> filename;
     std::string name; ///< The name of the section.
     Indent indent; ///< Object for managing indentation for all lines.
     std::vector<Line> lines; ///< Container holding all lines within the section.

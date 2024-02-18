@@ -1,5 +1,5 @@
 ﻿/**
- * @file Parser.h
+ * @file base.h
  * @brief Header file defining the base classes for the HiGUI parser module.
  *
  * This file contains the class definitions for the HiGUI project's parser module.
@@ -16,15 +16,13 @@
 #ifndef HiGUI_PARSER_BASE_H
 #define HiGUI_PARSER_BASE_H
 
-#include <iostream>
 #include <memory>
 #include <vector>
 #include <list>
 #include <string>
 #include <stdexcept>
 #include <map>
-#include <algorithm>
-#include <functional>
+ 
 
 namespace hi::parser
 {
@@ -137,24 +135,16 @@ namespace hi::parser
         WeakPointer parent; ///< Parent of the tag.
     };
 
+
     /**
-     * @brief Overload of the << operator for Tag::Pointer to support easy printing.
-     * @param os Output stream to which the tag information will be written.
-     * @param tag Tag to be printed.
-     * @return std::ostream& Reference to the modified output stream.
+     * @class DOM
+     * @brief Manages a tree of Tag objects.
+     *
+     * This class provides functionality to manipulate and navigate a tree of Tag objects,
+     * representing the structured hierarchy of a parsed document. It supports operations
+     * such as setting the root tag, printing the structure of the tag tree, and accessing
+     * the root tag of the document.
      */
-    std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag);
-
-
-    /**
- * @class DOM
- * @brief Manages a tree of Tag objects.
- *
- * This class provides functionality to manipulate and navigate a tree of Tag objects,
- * representing the structured hierarchy of a parsed document. It supports operations
- * such as setting the root tag, printing the structure of the tag tree, and accessing
- * the root tag of the document.
- */
     class DOM
     {
     public:
@@ -170,33 +160,20 @@ namespace hi::parser
          */
         Tag::Pointer getRoot() const noexcept { return root; };
 
-        /**
-         * @brief Prints the hierarchical tree structure of tags starting from a specified tag.
-         * @param tag The starting tag from which the tree will be printed.
-         * @param depth The initial depth for indentation (used for recursive calls).
-         */
-        void PrintTree(const Tag::Pointer& tag, int depth = 0) const noexcept;
-
-        /**
-         * @brief Prints the hierarchical tree structure of the entire document.
-         * @param depth The initial depth for indentation (used for recursive calls).
-         */
-        void PrintTree(int depth = 0) const noexcept;
-
     private:
         mutable Tag::Pointer root; ///< The root of the tag tree, mutable to allow modification in const methods.
     };
 
 
     /**
- * @class ParserBase
- * @brief Abstract base class for parsers in the HiGUI system.
- *
- * This class provides an interface for parsing documents into a structured format
- * and managing the resulting Tag objects within a DOM. It defines the core
- * functionality required for reading documents, writing tags, finding tags, and
- * accessing the DOM. Implementations should provide specific parsing logic.
- */
+     * @class ParserBase
+     * @brief Abstract base class for parsers in the HiGUI system.
+     *
+     * This class provides an interface for parsing documents into a structured format
+     * and managing the resulting Tag objects within a DOM. It defines the core
+     * functionality required for reading documents, writing tags, finding tags, and
+     * accessing the DOM. Implementations should provide specific parsing logic.
+     */
     class ParserBase
     {
     public:

@@ -1,22 +1,22 @@
 /**
- * @file HIML.h
- * @brief Header file for the Parser class used in HiGUI parsing module.
+ * @file himl.h
+ * @brief Header file for the HIML class used in HiGUI parsing module.
  *
- * This file contains the declarations of the Parser class, which is part of the
- * HiGUI project. The Parser class is designed to read and parse .himl files,
+ * This file contains the declarations of the HIML class, which is part of the
+ * HiGUI project. The HIML class is designed to read and parse .himl files,
  * which are specific to the HI Markup Language (HIML). This class is a
- * specialization of the Parser class, designed specifically to handle the
- * nuances of Parser syntax and structure.
+ * specialization of the HIML class, designed specifically to handle the
+ * nuances of HIML syntax and structure.
  *
- * The Parser parser facilitates the interpretation of HIML files, converting
+ * The HIML parser facilitates the interpretation of HIML files, converting
  * them into a structured format that can be utilized by the HiGUI framework.
  * This file includes necessary standard libraries and dependencies, defines
- * the hi::parser::himl namespace, and declares the Parser class with its
+ * the hi::parser::himl namespace, and declares the HIML class with its
  * associated methods and members.
  *
  * @author setbe
  * @version 24.2
- * @date 10/2/2024
+ * @date 12/2/2024
  */
 
 #ifndef HiGUI_PARSER_HIML_HIML_H
@@ -28,26 +28,27 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <optional>
 
-// higuid
-#include "higui/parser/base.h"        // parser.h
-#include "higui/parser/himl/line.h"     // line.h
-#include "higui/parser/himl/section.h"  // section.h
+// higui
+#include "higui/parser/base.h"         // parser.h
+#include "higui/parser/himl/line.h"    // line.h
+#include "higui/parser/himl/section.h" // section.h
 
 namespace hi::parser::himl
 {
     /**
-     * @class Parser
+     * @class HIML (aka Spaghetti)
      * @brief Reads and parses HI Markup Language (HIML) files.
      *
      * This class is responsible for reading and parsing .himl files.
-     * It extends the Parser class and implements its read method to handle HIML files.
+     * It extends the HIML class and implements its read method to handle HIML files.
      * Use the getTagManager() method to access the parsed structure.
      */
-    class Parser : public ParserBase
+    class HIML : public ParserBase
     {
     public:
-        Parser(const std::string& filename)
+        HIML(const std::string& filename)
             : filename(filename), scope()
         {
             read(filename);
@@ -71,6 +72,8 @@ namespace hi::parser::himl
 
         // Processes a section, reading its contents
         void ProcessSection(std::ifstream& fstream, const std::string& raw_line, const std::string& filename, int& line_number);
+
+        std::optional<std::reference_wrapper<const Section>> findSection(const std::string& path) const;
     };
 }
 

@@ -2,33 +2,10 @@
 
 namespace hi::parser
 {
-/*
-            class DOM
-                |
-                |
-               \ /
-*/
-void DOM::PrintTree(int depth) const noexcept
-{
-    PrintTree(root, depth);
-}
-
-void DOM::PrintTree(const Tag::Pointer& tag, int depth) const noexcept
-{
-    if (!tag) return;
-
-    std::string indent(depth * 2, ' ');
-    std::cout << indent << tag << std::endl;
-
-    for (const auto& child : tag->getChildren()) {
-        PrintTree(child, depth + 1);
-    }
-    std::cout << indent << "/" << tag->getName() << std::endl;
-}
 
 
 /*
-        Parser methods
+        HIML methods
     (no getters/setters)
             |
             |
@@ -209,45 +186,5 @@ int ParsingException::getLineNumber() const noexcept
     return line_number;
 }
 
-
-
-
-/*
-
-    reloaded '<<' for Tag output
-*/
-std::ostream& operator<<(std::ostream& os, const Tag::Pointer& tag)
-{
-    // Check if the tag object exists. If it doesn't, output "Null Tag" and a new line.
-    if (!tag) {
-        os << "Null Tag\n";
-        return os;
-    }
-
-    // Output the name of the tag.
-    os << "Tag: " << tag->getName() << "\n";
-
-    // Check if the ID of the tag is not empty, and output it.
-    if (!tag->getId().empty()) {
-        os << "ID: " << tag->getId() << "\n";
-    }
-
-    // Check if the text of the tag is not empty, and output it.
-    if (!tag->getText().empty()) {
-        os << "Text: " << tag->getText() << "\n";
-    }
-
-    // Check if the classes of the tag are not empty, and output them.
-    // Loop through each class name and output it followed by a space.
-    if (!tag->getClasses().empty()) {
-        os << "Classes: ";
-        for (const auto& class_name : tag->getClasses()) {
-            os << class_name << " ";
-        }
-        os << "\n"; // Add a new line at the end
-    }
-
-    return os;
-}
 
 } // namespace 'hi::parser'

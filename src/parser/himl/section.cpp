@@ -19,6 +19,21 @@ void Section::setIndent(Indent ind) noexcept
     }
 }
 
+void Section::Import(std::ifstream& fstream)
+{
+    
+}
+
+void Section::AddInlineSection(const Section& section)
+{
+    inline_sections.push_back(section);
+}
+
+const std::vector<Section>& Section::getInlineSections() const
+{
+    return inline_sections;
+}
+
 // static method for extracting the section name from the line
 std::string Section::ExtractName(const std::string& raw_line, const std::string& filename, int line_num)
 {

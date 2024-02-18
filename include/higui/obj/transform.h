@@ -1,5 +1,7 @@
-#ifndef HiGUI_TRANSFORM_H
+
+/*#ifndef HiGUI_TRANSFORM_H
 #define HiGUI_TRANSFORM_H
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -44,3 +46,4 @@ private:
 } // namespace 'hi'
 
 #endif HiGUI_TRANSFORM_H
+*/
